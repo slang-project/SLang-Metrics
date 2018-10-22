@@ -12,9 +12,9 @@
   </PropertyGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
-    <Lex Include="SLangScaner.lex" />
-    <Compile Include="SLangScaner.cs">
-      <DependentUpon>SLangScaner.lex</DependentUpon>
+    <Lex Include="SLangScanner.lex" />
+    <Compile Include="SLangScanner.cs">
+      <DependentUpon>SLangScanner.lex</DependentUpon>
     </Compile>
     <Yacc Include="SLangParser.y" />
     <Compile Include="SLangParser.cs">
