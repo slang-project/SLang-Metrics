@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build">
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net40</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+  <ItemGroup>
+    <Lex Include="SLangScaner.lex" />
+    <Compile Include="SLangScaner.cs">
+      <DependentUpon>SLangScaner.lex</DependentUpon>
+    </Compile>
+    <Yacc Include="SLangParser.y" />
+    <Compile Include="SLangParser.cs">
+      <DependentUpon>SLangParser.y</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="ShiftReduceParser\ShiftReduceParserCode.cs" />
+  </ItemGroup>
+  <PropertyGroup>
+    <CoreCompileDependsOn>GenerateLexer;$(CoreCompileDependsOn)</CoreCompileDependsOn>
+    <CoreCompileDependsOn>GenerateParser;$(CoreCompileDependsOn)</CoreCompileDependsOn>
+    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
+  </PropertyGroup>
+  <Target Name="GenerateLexer" Inputs="@(Lex)" Outputs="@(Lex->'%(Filename).cs')">
+    <Exec Command="$(SolutionDir)SLangMetrics\tools\gplex.exe /stack /out:@(Lex ->'%(Filename).cs') %(Lex.Identity)" />
+    <CreateItem Include="%(Lex.Filename).cs">
+      <Output TaskParameter="Include" ItemName="FileWrites" />
+    </CreateItem>
+  </Target>
+  <Target Name="GenerateParser" Inputs="@(Yacc)" Outputs="@(Yacc->'%(Filename).cs')">
+    <Exec Command="$(SolutionDir)SLangMetrics\tools\gppg.exe /gplex /verbose %(Yacc.Identity) &gt; @(Yacc ->'%(Filename).cs')" />
+    <CreateItem Include="%(Yacc.Filename).cs">
+      <Output TaskParameter="Include" ItemName="FileWrites" />
+    </CreateItem>
+  </Target>
+</Project>
