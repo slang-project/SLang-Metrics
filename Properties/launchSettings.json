@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "SLang-Metrics": {
+      "commandName": "Project",
+      "commandLineArgs": "in.txt",
+      "workingDirectory": "$(SolutionDir)"
+    }
+  }
+}
