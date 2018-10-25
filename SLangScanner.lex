@@ -5,4 +5,8 @@
 
 %%
 
+a {
+    return (int) Tokens.A;
+}
+
 %%
