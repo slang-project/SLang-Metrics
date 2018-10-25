@@ -13,4 +13,4 @@ module
 
 %%
 
-Parser(Scanner scnr) : base(scnr) { }
+internal Parser(Scanner scnr) : base(scnr) { }
