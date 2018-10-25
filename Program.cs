@@ -1,5 +1,6 @@
 ﻿using SLangParser;
 using SLangScanner;
+using System;
 using System.IO;
 
 namespace SLangMetrics
@@ -8,8 +9,12 @@ namespace SLangMetrics
     {
         static void Main(string[] args)
         {
-            string src = @"in.txt";
-            FileStream file = new FileStream(src, FileMode.Open);
+            if (args.Length < 1)
+            {
+                Console.WriteLine("Usage: <ProgramName> <InputFileName>");
+                return;
+            }
+            FileStream file = new FileStream(args[0], FileMode.Open);
             Scanner scanner = new Scanner(file);
             Parser parser = new Parser(scanner);
         }
