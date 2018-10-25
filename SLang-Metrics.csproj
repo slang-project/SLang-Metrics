@@ -29,13 +29,13 @@
     <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <Target Name="GenerateLexer" Inputs="@(Lex)" Outputs="@(Lex->'%(Filename).cs')">
-    <Exec Command="$(SolutionDir)SLang-Metrics\tools\gplex.exe /stack /out:@(Lex ->'%(Filename).cs') %(Lex.Identity)" />
+    <Exec Command="$(SolutionDir)tools\gplex.exe /stack /out:@(Lex ->'%(Filename).cs') %(Lex.Identity)" />
     <CreateItem Include="%(Lex.Filename).cs">
       <Output TaskParameter="Include" ItemName="FileWrites" />
     </CreateItem>
   </Target>
   <Target Name="GenerateParser" Inputs="@(Yacc)" Outputs="@(Yacc->'%(Filename).cs')">
-    <Exec Command="$(SolutionDir)SLang-Metrics\tools\gppg.exe /gplex /verbose %(Yacc.Identity) &gt; @(Yacc ->'%(Filename).cs')" />
+    <Exec Command="$(SolutionDir)tools\gppg.exe /gplex /verbose %(Yacc.Identity) &gt; @(Yacc ->'%(Filename).cs')" />
     <CreateItem Include="%(Yacc.Filename).cs">
       <Output TaskParameter="Include" ItemName="FileWrites" />
     </CreateItem>
