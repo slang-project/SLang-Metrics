@@ -5,7 +5,8 @@
 
 %%
 
-a {
+a
+{
     return (int) Tokens.A;
 }
 
