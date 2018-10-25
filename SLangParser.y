@@ -1,8 +1,9 @@
+%output=SLangParser.cs
+
 %using SLangScanner
 
 %namespace SLangParser
 %visibility internal
-%output=SLangParser.cs
 
 %start module
 
