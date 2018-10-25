@@ -6,7 +6,7 @@ tools\gplex.exe /stack /out:SLangScanner.cs SLangScanner.lex
 if ERRORLEVEL 1 goto Failed
 
 echo GPPG compilation
-tools\gppg.exe /gplex /verbose SLangParser.y > SLangParser.cs
+tools\gppg.exe /gplex /verbose SLangParser.y
 if ERRORLEVEL 1 goto Failed
 
 echo C# compilation
