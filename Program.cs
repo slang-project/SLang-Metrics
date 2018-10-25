@@ -12,7 +12,7 @@ namespace SLangMetrics
             if (args.Length < 1)
             {
                 Console.WriteLine("Usage: <ProgramName> <InputFileName>");
-                return;
+                Environment.Exit(1);
             }
             FileStream file = new FileStream(args[0], FileMode.Open);
             Scanner scanner = new Scanner(file);
