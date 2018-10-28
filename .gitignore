@@ -328,5 +328,8 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
 /SLangScanner.cs
 /SLangParser.cs
+*.lst
+*.report.html
