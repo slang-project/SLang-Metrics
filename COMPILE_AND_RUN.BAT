@@ -1,4 +1,4 @@
-﻿@echo off
+@echo off
 set EXITCODE=0
 
 echo GPLex compilation
