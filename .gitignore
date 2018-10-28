@@ -332,4 +332,6 @@ ASALocalRun/
 /SLangScanner.cs
 /SLangParser.cs
 *.lst
+*.conflicts
+*.tokens
 *.report.html
