@@ -11,9 +11,7 @@
 
 %start module
 
-%union {
-    public string val;
-}
+%YYSTYPE string
 
 // =============== TOKENS ===============
 
@@ -114,8 +112,8 @@
 
 module
         : /* empty */
-		| module IDENTIFIER  { Console.WriteLine($2.val); }
-		| module LITERAL  { Console.WriteLine($2.val); }
+		| module IDENTIFIER  { Console.WriteLine($2); }
+		| module LITERAL     { Console.WriteLine($2); }
         ;
 
 %%
