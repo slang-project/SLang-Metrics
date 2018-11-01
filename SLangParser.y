@@ -2,7 +2,6 @@
  * Parser spec for SLang
  * Process with > GPPG /gplex gplex.y
  */
-
 %output=SLangParser.cs
 
 %using SLangScanner
@@ -115,6 +114,8 @@
 
 module
         : /* empty */
+		| module IDENTIFIER  { Console.WriteLine($2.val); }
+		| module LITERAL  { Console.WriteLine($2.val); }
         ;
 
 %%

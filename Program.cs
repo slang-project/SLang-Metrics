@@ -18,6 +18,7 @@ namespace SLangMetrics
             Scanner scanner = new Scanner(file);
             Parser parser = new Parser(scanner);
             Console.WriteLine(parser.Parse());
+            Console.Read();
         }
     }
 }
