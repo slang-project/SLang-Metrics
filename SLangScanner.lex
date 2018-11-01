@@ -11,10 +11,24 @@
 
 %visibility internal
 
+%x COMMENT
+
+WS	[\u0020\u0009\u000D\u000A]
+
 %%
 
-a {
-    return (int) Tokens.A;
+{WS}               { /* ignore whitespaces */ }
+
+"//"[^\n]*$        { /* ignore inline comment */ }
+
+"/*"               { yy_push_state(COMMENT); }
+<COMMENT> {
+  "/*"             { yy_push_state(COMMENT); }
+  "*/"             { yy_pop_state(); }
+  (.|\n)           { /* ignore block comment content */ }
 }
+
+<COMMENT><<EOF>>   |
+.                  { return (int) Tokens.error; }
 
 %%

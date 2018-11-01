@@ -12,12 +12,10 @@
 
 %start module
 
-%token A
-
 %%
 
 module
-        : A
+        : /* empty */
         ;
 
 %%

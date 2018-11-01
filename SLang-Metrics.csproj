@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build">
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <PropertyGroup>
@@ -10,22 +10,27 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="ShiftReduceParser\ShiftReduceParserCode.cs" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
     <Lex Include="SLangScanner.lex" />
     <Compile Include="SLangScanner.cs">
       <DependentUpon>SLangScanner.lex</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
     <Yacc Include="SLangParser.y" />
     <Compile Include="SLangParser.cs">
       <DependentUpon>SLangParser.y</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="ShiftReduceParser\ShiftReduceParserCode.cs" />
   </ItemGroup>
   <PropertyGroup>
-    <CoreCompileDependsOn>GenerateLexer;$(CoreCompileDependsOn)</CoreCompileDependsOn>
     <CoreCompileDependsOn>GenerateParser;$(CoreCompileDependsOn)</CoreCompileDependsOn>
+    <CoreCompileDependsOn>GenerateLexer;$(CoreCompileDependsOn)</CoreCompileDependsOn>
     <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
   </PropertyGroup>
   <Target Name="GenerateLexer" Inputs="@(Lex)" Outputs="@(Lex->'%(Filename).cs')">
