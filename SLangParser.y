@@ -96,6 +96,7 @@
 %token UNIT
 %token USE
 %token VAL
+%token WHEN
 %token WHILE
 
 // Value-dependent tokens

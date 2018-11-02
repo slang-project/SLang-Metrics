@@ -127,6 +127,7 @@ STR     \"(\\.|[^\\"])*\"
 "unit"             { return (int) Tokens.UNIT; }
 "use"              { return (int) Tokens.USE; }
 "val"              { return (int) Tokens.VAL; }
+"when"             { return (int) Tokens.WHEN; }
 "while"            { return (int) Tokens.WHILE; }
 
 // ============= IDENTIFIER =============
