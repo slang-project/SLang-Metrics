@@ -113,6 +113,12 @@
 
 %%
 
+// General /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+CompilationUnit
+    : UseDirectiveSeqOpt BlockMemberSeqOpt
+    ;
+
 // Primitives ***
 
 IdentifierSeq
@@ -279,8 +285,20 @@ Expression
 // Statement ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Block
-    : PreconditionOpt DO NONE                ExceptionHandlerSeqOpt PostconditionOpt END
-    | PreconditionOpt DO ProgramEntitySeqOpt ExceptionHandlerSeqOpt PostconditionOpt END
+    : PreconditionOpt DO NONE              ExceptionHandlerSeqOpt PostconditionOpt END
+    | PreconditionOpt DO BlockMemberSeqOpt ExceptionHandlerSeqOpt PostconditionOpt END
+    ;
+
+BlockMemberSeqOpt
+    : /* empty */
+    | BlockMemberSeqOpt BlockMember
+    ;
+
+BlockMember
+    : Statement
+    | UnitDeclaration
+    | RoutineDeclaration
+    | VariableDeclaration
     ;
 
 ExceptionHandlerSeqOpt
@@ -290,6 +308,72 @@ ExceptionHandlerSeqOpt
 
 Statement
     : SEMICOLON  // TODO
+    ;
+
+// Variable ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+VariableDeclaration
+    :                   IdentifierSeq TypeAndInit
+    | VariableSpecifier IdentifierSeq TypeAndInit
+    ;
+
+VariableSpecifier
+    : CONST
+    | CONST DEEP
+    ;
+
+TypeAndInit
+    :                         IS Expression
+    | COLON          Type     IS Expression
+    | COLON QUESTION UnitType IS Expression
+    ;  // TODO review
+
+// Routine /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+RoutineDeclaration
+    :                  RoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    | RoutineSpecifier RoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    ;  // TODO change UseSeq to just Use
+
+RoutineSpecifier
+    : PURE
+    | SAFE
+    | ABSTRACT
+    | OVERRIDE
+    ;  // TODO review
+
+RoutineName
+    : IDENTIFIER
+    | OperatorSign AliasNameOpt
+    | COLON_EQUALS
+    | LPAREN RPAREN
+    ;
+
+OperatorSign
+    : PLUS  // TODO
+    ;
+
+RoutineParameters
+    : LPAREN                RPAREN
+    | LPAREN RoutineFormals RPAREN
+    ;
+
+RoutineFormals
+    :                          VariableDeclaration
+    | RoutineFormals COMMA     VariableDeclaration
+    | RoutineFormals SEMICOLON VariableDeclaration
+    ;
+
+ReturnTypeOpt
+    : /* empty */
+    | COLON Type
+    ;
+
+RoutineBody
+    : Block
+    | DOUBLE_ARROW Statement
+    | IS ABSTRACT
+    | IS FOREIGN
     ;
 
 // Unit ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -372,90 +456,6 @@ ConstObject
 
 InitializerDeclaration
     : GENERATOR  // TODO
-    ;
-
-// Routine /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-RoutineDeclaration
-    :                  RoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
-    | RoutineSpecifier RoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
-    ;  // TODO change UseSeq to just Use
-
-RoutineSpecifier
-    : PURE
-    | SAFE
-    | ABSTRACT
-    | OVERRIDE
-    ;  // TODO review
-
-RoutineName
-    : IDENTIFIER
-    | OperatorSign AliasNameOpt
-    | COLON_EQUALS
-    | LPAREN RPAREN
-    ;
-
-OperatorSign
-    : PLUS  // TODO
-    ;
-
-RoutineParameters
-    : LPAREN                RPAREN
-    | LPAREN RoutineFormals RPAREN
-    ;
-
-RoutineFormals
-    :                          VariableDeclaration
-    | RoutineFormals COMMA     VariableDeclaration
-    | RoutineFormals SEMICOLON VariableDeclaration
-    ;
-
-ReturnTypeOpt
-    : /* empty */
-    | COLON Type
-    ;
-
-RoutineBody
-    : Block
-    | DOUBLE_ARROW Statement
-    | IS ABSTRACT
-    | IS FOREIGN
-    ;
-
-// Variable ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-VariableDeclaration
-    :                   IdentifierSeq TypeAndInit
-    | VariableSpecifier IdentifierSeq TypeAndInit
-    ;
-
-VariableSpecifier
-    : CONST
-    | CONST DEEP
-    ;
-
-TypeAndInit
-    :                         IS Expression
-    | COLON          Type     IS Expression
-    | COLON QUESTION UnitType IS Expression
-    ;  // TODO review
-
-// Externals ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-CompilationUnit
-    : UseDirectiveSeqOpt ProgramEntitySeqOpt
-    ;
-
-ProgramEntitySeqOpt
-    : /* empty */
-    | ProgramEntitySeqOpt ProgramEntity
-    ;
-
-ProgramEntity
-    : Statement
-    | UnitDeclaration
-    | RoutineDeclaration
-    | VariableDeclaration
     ;
 
 %%
