@@ -54,7 +54,8 @@ STR     \"(\\.|[^\\"])*\"
 "["                { return (int) Tokens.LBRACKET; }
 "]"                { return (int) Tokens.RBRACKET; }
 ".."               { return (int) Tokens.GENERATOR; }
-"=>"               { return (int) Tokens.RIGHT_ARROW; }
+"->"               { return (int) Tokens.SINGLE_ARROW; }
+"=>"               { return (int) Tokens.DOUBLE_ARROW; }
 "?"                { return (int) Tokens.QUESTION; }
 
 // ============= OPERATORS ==============
@@ -109,6 +110,7 @@ STR     \"(\\.|[^\\"])*\"
 "is"               { return (int) Tokens.IS; }
 "loop"             { return (int) Tokens.LOOP; }
 "new"              { return (int) Tokens.NEW; }
+"none"             { return (int) Tokens.NONE; }
 "not"              { return (int) Tokens.NOT; }
 "old"              { return (int) Tokens.OLD; }
 "override"         { return (int) Tokens.OVERRIDE; }
