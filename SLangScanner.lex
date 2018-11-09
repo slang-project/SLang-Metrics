@@ -20,7 +20,7 @@ D       [[:IsDigit:]]
 ID      {ND}({ND}|{D}|$)*
 
 DEC     {D}({D}|_)*
-INT     (0[ob])?{DEC}|0h({D}|[A-Fa-f])({D}|[A-Fa-f_])*
+INT     (0[ob])?{DEC}|0x({D}|[A-Fa-f])({D}|[A-Fa-f_])*
 
 EXP     [Ee][+\-]?{DEC}
 REAL    {DEC}({EXP}|\.{DEC}({EXP})?)
