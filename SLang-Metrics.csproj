@@ -40,7 +40,7 @@
     </CreateItem>
   </Target>
   <Target Name="GenerateParser" Inputs="@(Yacc)" Outputs="@(Yacc->'%(Filename).cs')">
-    <Exec Command="$(SolutionDir)tools\gppg.exe /gplex /report %(Yacc.Identity)" />
+    <Exec Command="$(SolutionDir)tools\gppg.exe /gplex %(Yacc.Identity)" />
     <CreateItem Include="%(Yacc.Filename).cs">
       <Output TaskParameter="Include" ItemName="FileWrites" />
     </CreateItem>
