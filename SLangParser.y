@@ -233,9 +233,7 @@ GenericArgumentClause
     ;
 
 GenericArgumentSeq
-    :                          Type
-    |                          Expression
-    | GenericArgumentSeq COMMA Type
+    :                          Expression
     | GenericArgumentSeq COMMA Expression
     ;
 /*
@@ -280,6 +278,7 @@ RoutineType
 
 Expression
     : LITERAL  // TODO
+    | Type
     ;
 
 // Statement ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -303,12 +302,26 @@ BlockMember
 
 ExceptionHandlerSeqOpt
     : /* empty */
-    | WHEN Expression Block
+    | WHEN Expression NestedBlock
     ;  // TODO review
 
+NestedBlock
+    : PreconditionOpt    BlockMemberSeqOpt ExceptionHandlerSeqOpt PostconditionOpt
+    | PreconditionOpt DO BlockMemberSeqOpt ExceptionHandlerSeqOpt PostconditionOpt
+    ;  // TODO shift/reduce with postcondition of usual block
+
 Statement
-    : SEMICOLON  // TODO
-    ;
+    : SEMICOLON/*
+    | Assignment
+    | Expression
+    | If
+    | Loop
+    | Break
+    | ValueLoss
+    | Return
+    | Raise
+    | Block*/
+    ;  // TODO review
 
 // Variable ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -324,6 +337,8 @@ VariableSpecifier
 
 TypeAndInit
     :                         IS Expression
+    | COLON          Type
+    | COLON QUESTION UnitType
     | COLON          Type     IS Expression
     | COLON QUESTION UnitType IS Expression
     ;  // TODO review
