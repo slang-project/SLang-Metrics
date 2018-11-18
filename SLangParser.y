@@ -4,7 +4,7 @@
  */
 %output=SLangParser.cs
 
-%using SLangScanner
+%using SLangLookaheadScanner
 
 %namespace SLangParser
 %visibility internal

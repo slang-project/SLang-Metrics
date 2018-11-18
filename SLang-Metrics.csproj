@@ -13,6 +13,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="ShiftReduceParser\ShiftReduceParserCode.cs" />
+    <Compile Include="SLangLookaheadScanner.cs" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />

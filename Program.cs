@@ -1,5 +1,5 @@
 ﻿using SLangParser;
-using SLangScanner;
+using SLangLookaheadScanner;
 using System;
 using System.IO;
 
