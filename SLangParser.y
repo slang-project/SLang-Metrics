@@ -109,7 +109,12 @@
 
 // ===== ASSOCIATIVITY & PRECEDENCE =====
 
-//%left %right %nonassoc
+// Lower priority
+%nonassoc JUST_EXPRESSION
+%nonassoc COLON_EQUALS
+%left MINUS
+%left ASTERISK
+// Higher priority
 
 %%
 
@@ -197,8 +202,8 @@ InvariantOpt
 PredicateSeq
     :                        Predicate
     | PredicateSeq COMMA     Predicate
-    | PredicateSeq SEMICOLON Predicate
-    ;
+//  | PredicateSeq SEMICOLON Predicate
+    ;  // TODO check, shift/reduce of semicolon
 
 Predicate
     :                  Expression
@@ -234,7 +239,9 @@ GenericArgumentClause
 
 GenericArgumentSeq
     :                          Expression
+//  |                          Type
     | GenericArgumentSeq COMMA Expression
+//  | GenericArgumentSeq COMMA Type
     ;
 /*
 AnchorType
@@ -278,14 +285,21 @@ RoutineType
 
 Expression
     : LITERAL  // TODO
-    | Type
+    | TypeOrIdentifier
+    | Expression MINUS    Expression
+    | Expression ASTERISK Expression
+    ;
+
+TypeOrIdentifier
+    : Type
+//  | IDENTIFIER  // reduce/reduce conflict with `Type: IDENTIFIER;`
     ;
 
 // Statement ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Block
-    : PreconditionOpt DO NONE              ExceptionHandlerSeqOpt PostconditionOpt END
-    | PreconditionOpt DO BlockMemberSeqOpt ExceptionHandlerSeqOpt PostconditionOpt END
+    : PreconditionOpt DO NONE              PostconditionOpt ExceptionHandlerSeqOpt END
+    | PreconditionOpt DO BlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt END
     ;
 
 BlockMemberSeqOpt
@@ -294,10 +308,8 @@ BlockMemberSeqOpt
     ;
 
 BlockMember
-    : Statement
-    | UnitDeclaration
-    | RoutineDeclaration
-    | VariableDeclaration
+    : NestedBlockMember
+    | Block  // Because `Statement: Block;` was removed
     ;
 
 ExceptionHandlerSeqOpt
@@ -306,28 +318,96 @@ ExceptionHandlerSeqOpt
     ;  // TODO review
 
 NestedBlock
-    : PreconditionOpt    BlockMemberSeqOpt ExceptionHandlerSeqOpt PostconditionOpt
-    | PreconditionOpt DO BlockMemberSeqOpt ExceptionHandlerSeqOpt PostconditionOpt
-    ;  // TODO shift/reduce with postcondition of usual block
+    : PreconditionOpt    NestedBlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt
+    | PreconditionOpt DO NestedBlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt
+    ;
+
+NestedBlockMemberSeqOpt
+    : /* empty */
+    | NestedBlockMember BlockMemberSeqOpt
+    ;
+
+NestedBlockMember
+    : Statement
+    | UnitDeclaration
+    | RoutineDeclaration
+    | VariableDeclaration
+    ;
 
 Statement
-    : SEMICOLON/*
+    : SEMICOLON
+//  | Block  // Conflicts when used in NestedBlock
     | Assignment
-    | Expression
-    | If
-    | Loop
-    | Break
-    | ValueLoss
-    | Return
-    | Raise
-    | Block*/
+    | Expression %prec JUST_EXPRESSION
+    | IfStatement
+    | LoopStatement
+    | BreakStatement
+    | ValueLossStatement
+    | ReturnStatement
+    | RaiseStatement
     ;  // TODO review
+
+Assignment
+    : Expression COLON_EQUALS Expression
+    ;
+
+IfStatement
+    : IF Expression            Block ElseIfClauseSeqOpt ElseClauseOpt END
+    | IF Expression THEN NestedBlock ElseIfClauseSeqOpt ElseClauseOpt END
+    ;
+
+ElseIfClauseSeqOpt
+    : /* empty */
+    | ElseIfClauseSeqOpt ElseIfClause
+    ;
+
+ElseIfClause
+    : ELSIF Expression            Block
+    | ELSIF Expression THEN NestedBlock
+    ;
+
+ElseClauseOpt
+    : /* empty */
+    | ELSE NestedBlock
+    ;
+
+LoopStatement
+    :                                   LOOP NestedBlock END
+    |                  WHILE Expression LOOP NestedBlock END
+    |                  WHILE Expression            Block END
+    |                  LOOP NestedBlock WHILE Expression END
+    | IDENTIFIER COLON                  LOOP NestedBlock END
+    | IDENTIFIER COLON WHILE Expression LOOP NestedBlock END
+    | IDENTIFIER COLON WHILE Expression            Block END
+    | IDENTIFIER COLON LOOP NestedBlock WHILE Expression END
+    ;  // FIXME 3 shift/reduce: `LoopStatement: LOOP NestedBlock WHILE ...;`
+
+BreakStatement
+    : BREAK
+    | BREAK IDENTIFIER
+    ;  // TODO shift/reduce
+
+ValueLossStatement
+    : QUESTION IDENTIFIER
+    ;
+
+ReturnStatement
+    : RETURN
+    | RETURN Expression
+    ;  // TODO shift/reduce
+
+RaiseStatement
+    : RAISE
+    | RAISE Expression
+    ;  // TODO shift/reduce
 
 // Variable ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 VariableDeclaration
-    :                   IdentifierSeq TypeAndInit
-    | VariableSpecifier IdentifierSeq TypeAndInit
+    :                   IDENTIFIER                     TypeAndInit
+    | VariableSpecifier IDENTIFIER                     TypeAndInit
+    |                   IDENTIFIER COMMA IdentifierSeq TypeAndInit
+    | VariableSpecifier IDENTIFIER COMMA IdentifierSeq TypeAndInit
     ;
 
 VariableSpecifier
@@ -350,6 +430,11 @@ RoutineDeclaration
     | RoutineSpecifier RoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
     ;  // TODO change UseSeq to just Use
 
+OperatorRoutineDeclaration
+    :                  OperatorRoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    | RoutineSpecifier OperatorRoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    ;  // TODO change UseSeq to just Use; review
+
 RoutineSpecifier
     : PURE
     | SAFE
@@ -359,9 +444,14 @@ RoutineSpecifier
 
 RoutineName
     : IDENTIFIER
-    | OperatorSign AliasNameOpt
-    | COLON_EQUALS
+//  | OperatorSign AliasNameOpt
+//  | COLON_EQUALS
     | LPAREN RPAREN
+    ;
+
+OperatorRoutineName
+    : OperatorSign AliasNameOpt
+    | COLON_EQUALS
     ;
 
 OperatorSign
@@ -444,7 +534,7 @@ UnitMemberSeqOpt
 
 UnitMemberSpecifier
     : HIDDEN
-    | HIDDEN FINAL  // TODO shift/reduce with FINAL of UnitDeclaration
+    | HIDDEN FINAL  // FIXME shift/reduce with FINAL of UnitDeclaration
     ;
 
 UnitMember
@@ -454,7 +544,8 @@ UnitMember
     | VariableDeclaration
     | ConstObjectDeclaration
     | InitializerDeclaration
-    ;
+    | OperatorRoutineDeclaration  // TODO review
+    ;  // TODO shift/reduce of OperatorRoutineDeclaration with Expression
 
 ConstObjectDeclaration
     : CONST IS ConstObjectSeq END
