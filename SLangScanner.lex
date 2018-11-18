@@ -9,7 +9,6 @@
 %using SLangParser;
 
 %namespace SLangScanner
-
 %visibility internal
 
 %x COMMENT
