@@ -103,6 +103,9 @@
 %token IDENTIFIER
 %token LITERAL
 
+// Tokens for lookahead
+%token WHILE_POSTTEST
+
 // ========== TYPE ASSIGNMENTS ==========
 
 //%type
@@ -112,8 +115,17 @@
 // Lower priority
 %nonassoc JUST_EXPRESSION
 %nonassoc COLON_EQUALS
-%left MINUS
-%left ASTERISK
+%left LESS_GREATER
+%left DBL_VERTICAL
+%left DBL_AMPERSAND
+%left VERTICAL
+%left CARET
+%left AMPERSAND
+%left EQUALS SLASH_EQUALS
+%left LESS LESS_EQUALS GREATER GREATER_EQUALS
+%left PLUS MINUS
+%left ASTERISK SLASH
+%left DBL_ASTERISK
 // Higher priority
 
 %%
@@ -284,15 +296,71 @@ RoutineType
 // Expression //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Expression
+    : UnaryExpression
+    | Expression PLUS           Expression
+    | Expression MINUS          Expression
+    | Expression ASTERISK       Expression
+    | Expression SLASH          Expression
+    | Expression DBL_ASTERISK   Expression
+    | Expression VERTICAL       Expression
+    | Expression DBL_VERTICAL   Expression
+    | Expression AMPERSAND      Expression
+    | Expression DBL_AMPERSAND  Expression
+    | Expression CARET          Expression
+    | Expression LESS           Expression
+    | Expression LESS_EQUALS    Expression
+    | Expression GREATER        Expression
+    | Expression GREATER_EQUALS Expression
+    | Expression EQUALS         Expression
+    | Expression SLASH_EQUALS   Expression
+    | Expression LESS_GREATER   Expression
+    ;  // TODO probably shift operations
+
+UnaryExpression
+    : SecondaryExpression
+    | TILDE UnaryExpression
+    | PLUS  UnaryExpression
+    | MINUS UnaryExpression
+    ;
+
+SecondaryExpression
+    : PrimaryExpression
+//  | SecondaryExpression LPAREN ExpressionSeq RPAREN  // TODO consider later
+    | SecondaryExpression DOT PrimaryExpression
+    ;
+
+PrimaryExpression
     : LITERAL  // TODO
     | TypeOrIdentifier
-    | Expression MINUS    Expression
-    | Expression ASTERISK Expression
+//  | OperatorSign  // TODO consider later
+    | THIS
+    | SUPER
+    | SUPER UnitTypeName
+//  | RETURN  // TODO review
+    | OLD
+//  | OLD Expression  // TODO review
+    | Tuple
+//  | LPAREN Expression RPAREN  // reduce/reduce with Tuple
     ;
 
 TypeOrIdentifier
     : Type
 //  | IDENTIFIER  // reduce/reduce conflict with `Type: IDENTIFIER;`
+    ;
+
+Tuple
+    : LPAREN TupleElementSeq RPAREN
+    ;
+
+TupleElementSeq
+    :                           TupleElement
+    | TupleElementSeq COMMA     TupleElement
+    | TupleElementSeq SEMICOLON TupleElement
+    ;
+
+TupleElement
+    : Expression
+    | VariableDeclaration  // TODO consider later
     ;
 
 // Statement ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -375,17 +443,17 @@ LoopStatement
     :                                   LOOP NestedBlock END
     |                  WHILE Expression LOOP NestedBlock END
     |                  WHILE Expression            Block END
-    |                  LOOP NestedBlock WHILE Expression END
-    | IDENTIFIER COLON                  LOOP NestedBlock END
-    | IDENTIFIER COLON WHILE Expression LOOP NestedBlock END
-    | IDENTIFIER COLON WHILE Expression            Block END
-    | IDENTIFIER COLON LOOP NestedBlock WHILE Expression END
+    |                  LOOP NestedBlock WHILE_POSTTEST Expression END
+//  | IDENTIFIER COLON                  LOOP NestedBlock END
+//  | IDENTIFIER COLON WHILE Expression LOOP NestedBlock END
+//  | IDENTIFIER COLON WHILE Expression            Block END
+//  | IDENTIFIER COLON LOOP NestedBlock WHILE_POSTTEST Expression END
     ;  // FIXME 3 shift/reduce: `LoopStatement: LOOP NestedBlock WHILE ...;`
 
 BreakStatement
     : BREAK
-    | BREAK IDENTIFIER
-    ;  // TODO shift/reduce
+//  | BREAK IDENTIFIER  // FIXME shift/reduce
+    ;
 
 ValueLossStatement
     : QUESTION IDENTIFIER
@@ -393,21 +461,20 @@ ValueLossStatement
 
 ReturnStatement
     : RETURN
-    | RETURN Expression
-    ;  // TODO shift/reduce
+//  | RETURN Expression  // FIXME shift/reduce
+    ;
 
 RaiseStatement
     : RAISE
-    | RAISE Expression
-    ;  // TODO shift/reduce
+//  | RAISE Expression  // FIXME shift/reduce
+    ;
 
 // Variable ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 VariableDeclaration
     :                   IDENTIFIER                     TypeAndInit
-    | VariableSpecifier IDENTIFIER                     TypeAndInit
     |                   IDENTIFIER COMMA IdentifierSeq TypeAndInit
-    | VariableSpecifier IDENTIFIER COMMA IdentifierSeq TypeAndInit
+    | VariableSpecifier                  IdentifierSeq TypeAndInit
     ;
 
 VariableSpecifier

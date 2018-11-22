@@ -7,18 +7,20 @@ namespace SLangLookaheadScanner
     internal sealed partial class Scanner : ScanBase
     {
         SLangScanner.Scanner origScanner;
-        Stack<int> stack;
+        Queue<int> queue;
+
         internal Scanner(Stream file)
         {
             origScanner = new SLangScanner.Scanner(file);
-            stack = new Stack<int>();
+            queue = new Queue<int>();
         }
+
         public override int yylex()
         {
-            int curToken;
-            if (stack.Count > 0)
+            int curToken, looked;
+            if (queue.Count > 0)
             {
-                curToken = stack.Pop();
+                curToken = queue.Dequeue();
             }
             else
             {
@@ -26,11 +28,46 @@ namespace SLangLookaheadScanner
             }
             switch (curToken)
             {
+                case (int)Tokens.WHILE:
+                    looked = origScanner.yylex();
+                    while (!IsAfterWhileExpression(looked))
+                    {
+                        queue.Enqueue(looked);  // FIXME do not enqueue if already stored this token
+                        looked = origScanner.yylex();
+                    }
+                    return (int)(looked == (int)Tokens.END ? Tokens.WHILE_POSTTEST : Tokens.WHILE);
+
                 case (int)Tokens.IDENTIFIER:
-                    return curToken;  // TODO lookahead after IDENTIFIER
+                    looked = origScanner.yylex();
+                    if (looked == (int)Tokens.RBRACKET)
+                    {
+                        CollectBracketContents();
+                        looked = origScanner.yylex();
+                    }
+                    if (looked == (int)Tokens.LPAREN)
+                    {
+                        CollectParenthesesContent();
+                        looked = origScanner.yylex();
+                    }
+                    else
+                    {
+                        return curToken;
+                    }
+                    while ()
+                    {
+                        queue.Enqueue(looked);
+                        looked = origScanner.yylex();
+                    }
+                    return (int)(looked == (int)Tokens.END ? Tokens.WHILE_POSTTEST : Tokens.WHILE);
+
                 default:
                     return curToken;
             }
+        }
+
+        private bool IsAfterWhileExpression(int token)
+        {
+            return token == (int)Tokens.DO || token == (int)Tokens.LOOP || token == (int)Tokens.END;
         }
     }
 }
