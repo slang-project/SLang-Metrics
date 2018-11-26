@@ -105,6 +105,7 @@
 
 // Tokens for lookahead
 %token WHILE_POSTTEST
+%token FUNCTION_ID
 
 // ========== TYPE ASSIGNMENTS ==========
 
@@ -335,7 +336,7 @@ PrimaryExpression
 //  | OperatorSign  // TODO consider later
     | THIS
     | SUPER
-    | SUPER UnitTypeName
+//  | SUPER UnitTypeName  // TODO
 //  | RETURN  // TODO review
     | OLD
 //  | OLD Expression  // TODO review
@@ -510,7 +511,7 @@ RoutineSpecifier
     ;  // TODO review
 
 RoutineName
-    : IDENTIFIER
+    : FUNCTION_ID
 //  | OperatorSign AliasNameOpt
 //  | COLON_EQUALS
     | LPAREN RPAREN

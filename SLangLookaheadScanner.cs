@@ -15,59 +15,92 @@ namespace SLangLookaheadScanner
             queue = new Queue<int>();
         }
 
+        // TODO: think about need of lookahead inside the buffer
         public override int yylex()
         {
-            int curToken, looked;
             if (queue.Count > 0)
             {
-                curToken = queue.Dequeue();
+                return queue.Dequeue();
             }
-            else
-            {
-                curToken = origScanner.yylex();
-            }
+
+            int curToken = origScanner.yylex();
+            int looked;
+
             switch (curToken)
             {
                 case (int)Tokens.WHILE:
-                    looked = origScanner.yylex();
-                    while (!IsAfterWhileExpression(looked))
+                    do
                     {
-                        queue.Enqueue(looked);  // FIXME do not enqueue if already stored this token
                         looked = origScanner.yylex();
-                    }
-                    return (int)(looked == (int)Tokens.END ? Tokens.WHILE_POSTTEST : Tokens.WHILE);
+                        queue.Enqueue(looked);
+                    } while (!IsEOF(looked) || !IsAfterWhileExpression(looked));
+                    return looked == (int)Tokens.END ? (int)Tokens.WHILE_POSTTEST : curToken;
 
                 case (int)Tokens.IDENTIFIER:
                     looked = origScanner.yylex();
+                    queue.Enqueue(looked);
                     if (looked == (int)Tokens.RBRACKET)
                     {
-                        CollectBracketContents();
+                        CollectBracketsContent();
                         looked = origScanner.yylex();
+                        queue.Enqueue(looked);
                     }
                     if (looked == (int)Tokens.LPAREN)
                     {
                         CollectParenthesesContent();
                         looked = origScanner.yylex();
+                        queue.Enqueue(looked);
                     }
                     else
                     {
                         return curToken;
                     }
-                    while ()
-                    {
-                        queue.Enqueue(looked);
-                        looked = origScanner.yylex();
-                    }
-                    return (int)(looked == (int)Tokens.END ? Tokens.WHILE_POSTTEST : Tokens.WHILE);
+                    return IsFunctionBodyBeginning(looked) ? (int)Tokens.FUNCTION_ID : curToken;
 
                 default:
                     return curToken;
             }
         }
 
+        private bool IsEOF(int token)
+        {
+            return token == (int)Tokens.EOF;
+        }
+
         private bool IsAfterWhileExpression(int token)
         {
             return token == (int)Tokens.DO || token == (int)Tokens.LOOP || token == (int)Tokens.END;
+        }
+
+        private void CollectBracketsContent()
+        {
+            int t;
+            do
+            {
+                t = origScanner.yylex();
+                queue.Enqueue(t);
+            } while (t != (int)Tokens.RBRACKET);
+        }
+
+        private void CollectParenthesesContent()
+        {
+            int t;
+            do
+            {
+                t = origScanner.yylex();
+                queue.Enqueue(t);
+            } while (t != (int)Tokens.RPAREN);
+        }
+
+        private bool IsFunctionBodyBeginning(int token)
+        {
+            if (token == (int)Tokens.IS)
+            {
+                int next = origScanner.yylex();
+                queue.Enqueue(next);
+                return next == (int)Tokens.ABSTRACT || next == (int)Tokens.FOREIGN;
+            }
+            return token == (int)Tokens.DO || token == (int)Tokens.COLON || token == (int)Tokens.DOUBLE_ARROW;
         }
     }
 }
