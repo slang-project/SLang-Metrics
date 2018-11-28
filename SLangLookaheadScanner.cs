@@ -39,6 +39,16 @@ namespace SLangLookaheadScanner
                 case (int)Tokens.IDENTIFIER:
                     looked = origScanner.yylex();
                     queue.Enqueue(looked);
+                    if (looked == (int)Tokens.COLON)
+                    {
+                        looked = origScanner.yylex();
+                        queue.Enqueue(looked);
+                        if (looked == (int)Tokens.WHILE || looked == (int)Tokens.LOOP)
+                        {
+                            return (int)Tokens.LOOP_ID;
+                        }
+                        return curToken;
+                    }
                     if (looked == (int)Tokens.LBRACKET)
                     {
                         int bracket_counter = 1;

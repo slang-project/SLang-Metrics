@@ -106,6 +106,7 @@
 // Tokens for lookahead
 %token WHILE_POSTTEST
 %token FUNCTION_ID
+%token LOOP_ID
 
 // ========== TYPE ASSIGNMENTS ==========
 
@@ -441,14 +442,14 @@ ElseClauseOpt
     ;
 
 LoopStatement
-    :                                   LOOP NestedBlock END
-    |                  WHILE Expression LOOP NestedBlock END
-    |                  WHILE Expression            Block END
-    |                  LOOP NestedBlock WHILE_POSTTEST Expression END
-//  | IDENTIFIER COLON                  LOOP NestedBlock END
-//  | IDENTIFIER COLON WHILE Expression LOOP NestedBlock END
-//  | IDENTIFIER COLON WHILE Expression            Block END
-//  | IDENTIFIER COLON LOOP NestedBlock WHILE_POSTTEST Expression END
+    :                                LOOP NestedBlock END
+    |               WHILE Expression LOOP NestedBlock END
+    |               WHILE Expression            Block END
+    |               LOOP NestedBlock WHILE_POSTTEST Expression END
+    | LOOP_ID COLON                  LOOP NestedBlock END
+    | LOOP_ID COLON WHILE Expression LOOP NestedBlock END
+    | LOOP_ID COLON WHILE Expression            Block END
+    | LOOP_ID COLON LOOP NestedBlock WHILE_POSTTEST Expression END
     ;  // FIXME 3 shift/reduce: `LoopStatement: LOOP NestedBlock WHILE ...;`
 
 BreakStatement
