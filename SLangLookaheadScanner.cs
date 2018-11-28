@@ -20,6 +20,7 @@ namespace SLangLookaheadScanner
         {
             if (queue.Count > 0)
             {
+                // TODO skip newlines (if they will be considered)
                 return queue.Dequeue();
             }
 
@@ -43,11 +44,9 @@ namespace SLangLookaheadScanner
                     {
                         looked = origScanner.yylex();
                         queue.Enqueue(looked);
-                        if (looked == (int)Tokens.WHILE || looked == (int)Tokens.LOOP)
-                        {
-                            return (int)Tokens.LOOP_ID;
-                        }
-                        return curToken;
+                        // TODO skip newlines (if they will be considered)
+                        return looked == (int)Tokens.WHILE || looked == (int)Tokens.LOOP
+                                ? (int)Tokens.LOOP_ID : curToken;
                     }
                     if (looked == (int)Tokens.LBRACKET)
                     {

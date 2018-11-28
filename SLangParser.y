@@ -336,7 +336,7 @@ SecondaryExpression
     | SecondaryExpression LPAREN RPAREN
     | SecondaryExpression Tuple
     | SecondaryExpression DOT PrimaryExpression
-    ;
+    ;  // TODO remove shift/reduce (shift is correct)
 
 PrimaryExpression
     : LITERAL  // TODO
@@ -370,7 +370,7 @@ TupleElementSeq
 TupleElement
     : Expression
     | Expression TypeAndInit  // TODO remove this Ad-Hoc
-//  | VariableDeclaration %prec VAR_DECL_IN_TUPLE  // TODO consider later
+//  | VariableDeclaration  // TODO consider later
     ;
 
 // Statement ///////////////////////////////////////////////////////////////////////////////////////////////////////////
