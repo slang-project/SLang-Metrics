@@ -333,7 +333,8 @@ UnaryExpression
 
 SecondaryExpression
     : PrimaryExpression
-    | SecondaryExpression Tuple  // TODO consider later
+    | SecondaryExpression LPAREN RPAREN
+    | SecondaryExpression Tuple
     | SecondaryExpression DOT PrimaryExpression
     ;
 
