@@ -115,8 +115,13 @@
 // ===== ASSOCIATIVITY & PRECEDENCE =====
 
 // Lower priority
+
+%nonassoc JUST_HIDDEN
+%nonassoc FINAL
+
 %nonassoc JUST_EXPRESSION
 %nonassoc COLON_EQUALS
+
 %left LESS_GREATER
 %left DBL_VERTICAL
 %left DBL_AMPERSAND
@@ -128,6 +133,7 @@
 %left PLUS MINUS
 %left ASTERISK SLASH
 %left DBL_ASTERISK
+
 // Higher priority
 
 %%
@@ -327,7 +333,7 @@ UnaryExpression
 
 SecondaryExpression
     : PrimaryExpression
-//  | SecondaryExpression LPAREN ExpressionSeq RPAREN  // TODO consider later
+    | SecondaryExpression Tuple  // TODO consider later
     | SecondaryExpression DOT PrimaryExpression
     ;
 
@@ -362,7 +368,8 @@ TupleElementSeq
 
 TupleElement
     : Expression
-    | VariableDeclaration  // TODO consider later
+    | Expression TypeAndInit  // TODO remove this Ad-Hoc
+//  | VariableDeclaration %prec VAR_DECL_IN_TUPLE  // TODO consider later
     ;
 
 // Statement ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -450,7 +457,7 @@ LoopStatement
     | LOOP_ID COLON WHILE Expression LOOP NestedBlock END
     | LOOP_ID COLON WHILE Expression            Block END
     | LOOP_ID COLON LOOP NestedBlock WHILE_POSTTEST Expression END
-    ;  // FIXME 3 shift/reduce: `LoopStatement: LOOP NestedBlock WHILE ...;`
+    ;
 
 BreakStatement
     : BREAK
@@ -474,9 +481,8 @@ RaiseStatement
 // Variable ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 VariableDeclaration
-    :                   IDENTIFIER                     TypeAndInit
-    |                   IDENTIFIER COMMA IdentifierSeq TypeAndInit
-    | VariableSpecifier                  IdentifierSeq TypeAndInit
+    :                   IdentifierSeq TypeAndInit
+    | VariableSpecifier IdentifierSeq TypeAndInit
     ;
 
 VariableSpecifier
@@ -602,8 +608,8 @@ UnitMemberSeqOpt
     ;
 
 UnitMemberSpecifier
-    : HIDDEN
-    | HIDDEN FINAL  // FIXME shift/reduce with FINAL of UnitDeclaration
+    : HIDDEN %prec JUST_HIDDEN
+    | HIDDEN FINAL
     ;
 
 UnitMember
