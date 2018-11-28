@@ -33,21 +33,55 @@ namespace SLangLookaheadScanner
                     {
                         looked = origScanner.yylex();
                         queue.Enqueue(looked);
-                    } while (!IsEOF(looked) || !IsAfterWhileExpression(looked));
+                    } while (!IsEOF(looked) && !IsAfterWhileExpression(looked));
                     return looked == (int)Tokens.END ? (int)Tokens.WHILE_POSTTEST : curToken;
 
                 case (int)Tokens.IDENTIFIER:
                     looked = origScanner.yylex();
                     queue.Enqueue(looked);
-                    if (looked == (int)Tokens.RBRACKET)
+                    if (looked == (int)Tokens.LBRACKET)
                     {
-                        CollectBracketsContent();
+                        int bracket_counter = 1;
+                        do
+                        {
+                            looked = origScanner.yylex();
+                            queue.Enqueue(looked);
+                            if (false)  // TODO functional object declaration
+                            {
+                                return curToken;
+                            }
+                            else if (looked == (int)Tokens.LBRACKET)
+                            {
+                                ++bracket_counter;
+                            }
+                            else if (looked == (int)Tokens.RBRACKET)
+                            {
+                                --bracket_counter;
+                            }
+                        } while (!IsEOF(looked) && bracket_counter != 0);
                         looked = origScanner.yylex();
                         queue.Enqueue(looked);
                     }
                     if (looked == (int)Tokens.LPAREN)
                     {
-                        CollectParenthesesContent();
+                        int parentheses_counter = 1;
+                        do
+                        {
+                            looked = origScanner.yylex();
+                            queue.Enqueue(looked);
+                            if (false)  // TODO functional object declaration
+                            {
+                                return curToken;
+                            }
+                            else if (looked == (int)Tokens.LPAREN)
+                            {
+                                ++parentheses_counter;
+                            }
+                            else if (looked == (int)Tokens.RPAREN)
+                            {
+                                --parentheses_counter;
+                            }
+                        } while (!IsEOF(looked) && parentheses_counter != 0);
                         looked = origScanner.yylex();
                         queue.Enqueue(looked);
                     }
@@ -70,26 +104,6 @@ namespace SLangLookaheadScanner
         private bool IsAfterWhileExpression(int token)
         {
             return token == (int)Tokens.DO || token == (int)Tokens.LOOP || token == (int)Tokens.END;
-        }
-
-        private void CollectBracketsContent()
-        {
-            int t;
-            do
-            {
-                t = origScanner.yylex();
-                queue.Enqueue(t);
-            } while (t != (int)Tokens.RBRACKET);
-        }
-
-        private void CollectParenthesesContent()
-        {
-            int t;
-            do
-            {
-                t = origScanner.yylex();
-                queue.Enqueue(t);
-            } while (t != (int)Tokens.RPAREN);
         }
 
         private bool IsFunctionBodyBeginning(int token)
