@@ -15,7 +15,7 @@ namespace SLangMetrics
         {
             if (args.Length < 1)
             {
-                Console.WriteLine("Usage: <ProgramName> <InputFileName> OR <ProgramName> /testing");
+                Console.WriteLine("Usage: <ProgramName> <InputFileName> OR <ProgramName> /test");
                 Environment.Exit(1);
             }
             if (Testing.isTestingMode || Array.Exists<String>(args, s => s.ToLower().Contains("/test")))
