@@ -5,7 +5,7 @@
 %output=src\SLangParser.cs
 
 %using SLangLookaheadScanner
-%using System.Collections.Generic //TODO: is this correct import?
+%using System.Collections.Generic // TODO: is this correct import?
 %using SLangUnits
 
 %namespace SLangParser
@@ -13,7 +13,13 @@
 
 %start CompilationUnit
 
-%YYSTYPE string
+%union {
+    public string s;
+    public Block bl;
+    public LinkedList<BlockMember> ll;
+    public BlockMember bm;
+    public Statement st;
+}
 
 // =============== TOKENS ===============
 
@@ -112,7 +118,17 @@
 
 // ========== TYPE ASSIGNMENTS ==========
 
-//%type
+%type <bl> Block
+%type <ll> BlockMemberSeqOpt
+%type <bm> BlockMember
+%type <bl> NestedBlock
+%type <ll> NestedBlockMemberSeqOpt
+%type <bm> NestedBlockMember
+%type <st> Statement
+%type <bm> UnitDeclaration
+%type <bm> RoutineDeclaration
+%type <bm> OperatorRoutineDeclaration
+%type <bm> VariableDeclaration
 
 // ===== ASSOCIATIVITY & PRECEDENCE =====
 
@@ -146,7 +162,7 @@ CompilationUnit
     : UseDirectiveSeqOpt BlockMemberSeqOpt
     {
         // UseDirectiveSeqOpt is not used for now
-        $$ = new CompilationUnit($2);
+        new CompilationUnit($2);
     }
     ;
 
@@ -384,7 +400,7 @@ TupleElement
 Block
     : PreconditionOpt DO BlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt END
     {
-        $$ = $3;
+        $$ = new Block($3);
     }
     ;
 
@@ -395,7 +411,7 @@ BlockMemberSeqOpt
     }
     | BlockMemberSeqOpt BlockMember
     {
-        $1.Add($2);
+        $1.AddLast($2);
         $$ = $1;
     }
     ;
@@ -419,11 +435,11 @@ ExceptionHandlerSeqOpt
 NestedBlock
     : PreconditionOpt    NestedBlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt
     {
-        $$ = $2;
+        $$ = new Block($2);
     }
     | PreconditionOpt DO NestedBlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt
     {
-        $$ = $3;
+        $$ = new Block($3);
     }
     ;
 
@@ -440,24 +456,10 @@ NestedBlockMemberSeqOpt
     ;
 
 NestedBlockMember
-    : Statement
-    {
-        // Due to we handle not all Statement cases!
-        //if ($1 != null)
-            $$ = $1;
-    }
-    | UnitDeclaration
-    {
-        $$ = new UnitDeclaration();
-    }
-    | RoutineDeclaration
-    {
-        $$ = new RoutineDeclaration();
-    }
-    | VariableDeclaration
-    {
-        $$ = new VariableDeclaration();
-    }
+    : Statement  { $$ = $1; }
+    | UnitDeclaration  { $$ = $1; }
+    | RoutineDeclaration  { $$ = $1; }
+    | VariableDeclaration  { $$ = $1; }
     ;
 
 Statement
@@ -539,7 +541,13 @@ RaiseStatement
 
 VariableDeclaration
     :                   IdentifierSeq TypeAndInit
+    {
+        $$ = new VariableDeclaration();
+    }
     | VariableSpecifier IdentifierSeq TypeAndInit
+    {
+        $$ = new VariableDeclaration();
+    }
     ;
 
 VariableSpecifier
@@ -559,12 +567,24 @@ TypeAndInit
 
 RoutineDeclaration
     :                  RoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    {
+        $$ = new RoutineDeclaration();
+    }
     | RoutineSpecifier RoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    {
+        $$ = new RoutineDeclaration();
+    }
     ;  // TODO change UseSeq to just Use
 
 OperatorRoutineDeclaration
     :                  OperatorRoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    {
+        $$ = new RoutineDeclaration();
+    }
     | RoutineSpecifier OperatorRoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    {
+        $$ = new RoutineDeclaration();
+    }
     ;  // TODO change UseSeq to just Use; review
 
 RoutineSpecifier
@@ -617,7 +637,13 @@ RoutineBody
 
 UnitDeclaration
     : UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions    UnitMemberSeqOpt InvariantOpt END
+    {
+        $$ = new UnitDeclaration(/*$5*/);
+    }
     | UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions IS UnitMemberSeqOpt InvariantOpt END
+    {
+        $$ = new UnitDeclaration(/*$6*/);
+    }
     ;
 
 UnitSpecifiersOpt

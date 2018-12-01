@@ -10,6 +10,7 @@ namespace SLangMetrics
     {
 
         public static CompilationUnit parsedProgram;
+
         static void Main(string[] args)
         {
             if (args.Length < 1)

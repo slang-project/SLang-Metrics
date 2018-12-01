@@ -133,7 +133,7 @@ STR     \"(\\.|[^\\"])*\"
 // ============= IDENTIFIER =============
 
 {ID}               {
-    yylval = yytext;
+    yylval.s = yytext;
     return (int)Tokens.IDENTIFIER;
 }
 
@@ -143,7 +143,7 @@ STR     \"(\\.|[^\\"])*\"
 {REAL}             |
 {CHAR}             |
 {STR}              {
-    yylval = yytext;
+    yylval.s = yytext;
     return (int)Tokens.LITERAL;
 }
 
