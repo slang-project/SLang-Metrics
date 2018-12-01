@@ -6,7 +6,6 @@
 
 %using LanguageElements
 %using SLangLookaheadScanner
-%using System.Collections.Generic
 
 %namespace SLangParser
 %visibility internal
