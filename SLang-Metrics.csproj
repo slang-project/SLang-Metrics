@@ -12,6 +12,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
+    <Compile Include="Testing.cs" />
     <Compile Include="ShiftReduceParser\ShiftReduceParserCode.cs" />
     <Compile Include="SLangLookaheadScanner.cs" />
     <Reference Include="Microsoft.CSharp" />
