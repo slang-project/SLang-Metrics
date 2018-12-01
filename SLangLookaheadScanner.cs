@@ -18,13 +18,13 @@ namespace SLangLookaheadScanner
         // TODO: think about need of lookahead inside the buffer
         public override int yylex()
         {
-            if (queue.Count > 0)
+            if (queue.Count > 1)
             {
                 // TODO skip newlines (if they will be considered)
                 return queue.Dequeue();
             }
 
-            int curToken = origScanner.yylex();
+            int curToken = queue.Count > 0 ? queue.Dequeue() : origScanner.yylex();
             int looked;
 
             switch (curToken)

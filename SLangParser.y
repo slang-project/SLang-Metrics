@@ -233,8 +233,8 @@ Predicate
 // Type ***
 
 Type
-    : UnitType/*
-    | AnchorType
+    : UnitType
+    | AnchorType/*
     | MultiType
     | TupleType
     | RangeType
@@ -263,13 +263,13 @@ GenericArgumentSeq
     | GenericArgumentSeq COMMA Expression
 //  | GenericArgumentSeq COMMA Type
     ;
-/*
+
 AnchorType
     : AS THIS
     | AS IDENTIFIER
-    | AS IDENTIFIER RoutineParameters
+//  | AS IDENTIFIER RoutineParameters  // TODO review
     ;
-
+/*
 MultiType
     :                    UnitType
     | MultiType VERTICAL UnitType
@@ -353,7 +353,7 @@ PrimaryExpression
     ;
 
 TypeOrIdentifier
-    : Type
+    : UnitTypeName  // TODO review, probably just Type
 //  | IDENTIFIER  // reduce/reduce conflict with `Type: IDENTIFIER;`
     ;
 
@@ -376,8 +376,7 @@ TupleElement
 // Statement ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Block
-    : PreconditionOpt DO NONE              PostconditionOpt ExceptionHandlerSeqOpt END
-    | PreconditionOpt DO BlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt END
+    : PreconditionOpt DO BlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt END
     ;
 
 BlockMemberSeqOpt
@@ -414,6 +413,7 @@ NestedBlockMember
 
 Statement
     : SEMICOLON
+    | NONE  // TODO review
 //  | Block  // Conflicts when used in NestedBlock
     | Assignment
     | Expression %prec JUST_EXPRESSION
