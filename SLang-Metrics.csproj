@@ -22,13 +22,13 @@
   <ItemGroup>
     <Lex Include="src\SLangScanner.lex" />
     <Compile Include="src\SLangScanner.cs">
-      <DependentUpon>SLangScanner.lex</DependentUpon>
+      <DependentUpon>src\SLangScanner.lex</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Yacc Include="src\SLangParser.y" />
     <Compile Include="src\SLangParser.cs">
-      <DependentUpon>SLangParser.y</DependentUpon>
+      <DependentUpon>src\SLangParser.y</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>
