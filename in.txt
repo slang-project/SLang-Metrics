@@ -44,9 +44,9 @@ val unit Bit
 
     +(other: as this): as this do
         /// Definition of addition
-        if this = 0b0 do
+        if this = 0b0 then
             return other
-        elsif other = 0b1 do
+        elsif other = 0b1 then
             raise "Bit overflow"
         else
             return 0b1
@@ -55,9 +55,9 @@ val unit Bit
 
     -(other: as this): as this do
         /// Definition of subtraction
-        if this = other do
+        if this = other then
             return 0b0
-        elsif this = 0b1 do
+        elsif this = 0b1 then
             return 0b1
         else
             raise "Bit underflow"
