@@ -5,7 +5,8 @@
     "tasks": [
         {
             "label": "make_gplex",
-            "command": "tools\\gplex.exe SLangScanner.lex",
+            "command": "tools\\gplex.exe",
+            "args": ["src\\SLangScanner.lex"],
             "type": "shell",
             "group": "build",
             "presentation": {
@@ -15,7 +16,8 @@
         {
             "label": "make_gppg",
             "dependsOn": "make_gplex",
-            "command": "tools\\gppg.exe /gplex /conflicts SLangParser.y",
+            "command": "tools\\gppg.exe",
+            "args": ["/gplex", "/conflicts", "src\\SLangParser.y"],
             "type": "shell",
             "group": "build",
             "presentation": {
@@ -23,8 +25,15 @@
             }
         },
         {
-            "label": "make_parser",
-            "dependsOn": "make_gppg"
+            "label": "build",
+            "dependsOn": "make_gppg",
+            "command": "dotnet",
+            "args": ["build", "SLang-Metrics.sln"],
+            "type": "shell",
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            }
         }
     ]
 }

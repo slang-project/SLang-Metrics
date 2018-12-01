@@ -7,7 +7,7 @@
         {
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
-            "preLaunchTask": "make_parser",
+            "preLaunchTask": "build",
             "request": "launch",
             "program": "${workspaceFolder}/bin/Debug/net40/SLang-Metrics.exe",
             "args": ["in.txt"],

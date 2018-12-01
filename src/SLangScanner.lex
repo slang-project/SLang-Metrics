@@ -1,10 +1,10 @@
 /**
  * SLangScanner.lex file, Version 0.1.0
  *
- * Expected file format is Unicode. In the event that no 
+ * Expected file format is Unicode. In the event that no
  * byte order mark prefix is found, revert to raw bytes.
  */
-%option classes, codepage:raw, stack, unicode, out:SLangScanner.cs
+%option classes, codepage:raw, stack, unicode, out:src\SLangScanner.cs
 
 %using SLangParser;
 

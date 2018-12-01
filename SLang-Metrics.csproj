@@ -11,40 +11,23 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
-    <Compile Include="Testing.cs" />
-    <Compile Include="ShiftReduceParser\ShiftReduceParserCode.cs" />
-    <Compile Include="SLangLookaheadScanner.cs" />
+    <Compile Include="src\Program.cs" />
+    <Compile Include="src\Testing.cs" />
+    <Compile Include="src\ShiftReduceParser\ShiftReduceParserCode.cs" />
+    <Compile Include="src\SLangLookaheadScanner.cs" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
-    <Lex Include="SLangScanner.lex" />
-    <Compile Include="SLangScanner.cs">
+    <Lex Include="src\SLangScanner.lex" />
+    <Compile Include="src\SLangScanner.cs">
       <DependentUpon>SLangScanner.lex</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Yacc Include="SLangParser.y" />
-    <Compile Include="SLangParser.cs">
+    <Yacc Include="src\SLangParser.y" />
+    <Compile Include="src\SLangParser.cs">
       <DependentUpon>SLangParser.y</DependentUpon>
     </Compile>
   </ItemGroup>
-  <PropertyGroup>
-    <CoreCompileDependsOn>GenerateParser;$(CoreCompileDependsOn)</CoreCompileDependsOn>
-    <CoreCompileDependsOn>GenerateLexer;$(CoreCompileDependsOn)</CoreCompileDependsOn>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
-  </PropertyGroup>
-  <Target Name="GenerateLexer" Inputs="@(Lex)" Outputs="@(Lex->'%(Filename).cs')">
-    <Exec Command="$(SolutionDir)tools\gplex.exe %(Lex.Identity)" />
-    <CreateItem Include="%(Lex.Filename).cs">
-      <Output TaskParameter="Include" ItemName="FileWrites" />
-    </CreateItem>
-  </Target>
-  <Target Name="GenerateParser" Inputs="@(Yacc)" Outputs="@(Yacc->'%(Filename).cs')">
-    <Exec Command="$(SolutionDir)tools\gppg.exe /gplex /conflicts %(Yacc.Identity)" />
-    <CreateItem Include="%(Yacc.Filename).cs">
-      <Output TaskParameter="Include" ItemName="FileWrites" />
-    </CreateItem>
-  </Target>
 </Project>

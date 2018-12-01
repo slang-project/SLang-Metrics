@@ -7,6 +7,18 @@ namespace SLangMetrics
 {
     internal class Testing
     {
+        /*
+         * Use argument /tests in console command.
+         *
+         * Тестом является сабдиректория в директории tests\ корня проекта. в сабдириктории должны содержаться файлы расширений .res и .test
+         * .res - результат парсинга кода в .test файле. Результат может быть true или false.
+         * .test - входные данные для parser. Может быть как положительным, так и отрицательным тестом.
+         *
+         * Все входные тесты (написанные корректно) должны содержать SUCCED в выходной строке, иначе содержат FAILED.
+         * Название файлов, сабдиректорий может быть произвольным
+         */
+        public static bool isTestingMode = false;  // TODO make false while release!
+
         private static bool checkTestDir(DirectoryInfo dir, String pattern)
         {
             FileInfo[] files = dir.GetFiles(pattern);
