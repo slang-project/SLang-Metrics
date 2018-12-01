@@ -5,6 +5,8 @@
 %output=src\SLangParser.cs
 
 %using SLangLookaheadScanner
+%using System.Collections.Generic //TODO: is this correct import?
+%using SLangUnits
 
 %namespace SLangParser
 %visibility internal
@@ -142,6 +144,10 @@
 
 CompilationUnit
     : UseDirectiveSeqOpt BlockMemberSeqOpt
+    {
+        // UseDirectiveSeqOpt is not used for now
+        $$ = new CompilationUnit($2);
+    }
     ;
 
 // Primitives ***
@@ -377,16 +383,32 @@ TupleElement
 
 Block
     : PreconditionOpt DO BlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt END
+    {
+        $$ = $3;
+    }
     ;
 
 BlockMemberSeqOpt
     : /* empty */
+    {
+        $$ = new LinkedList<BlockMember>();
+    }
     | BlockMemberSeqOpt BlockMember
+    {
+        $1.Add($2);
+        $$ = $1;
+    }
     ;
 
 BlockMember
     : NestedBlockMember
+    {
+        $$ = $1;
+    }
     | Block  // Because `Statement: Block;` was removed
+    {
+        $$ = $1;
+    }
     ;
 
 ExceptionHandlerSeqOpt
@@ -396,19 +418,46 @@ ExceptionHandlerSeqOpt
 
 NestedBlock
     : PreconditionOpt    NestedBlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt
+    {
+        $$ = $2;
+    }
     | PreconditionOpt DO NestedBlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt
+    {
+        $$ = $3;
+    }
     ;
 
 NestedBlockMemberSeqOpt
     : /* empty */
+    {
+        $$ = new LinkedList<BlockMember>();
+    }
     | NestedBlockMember BlockMemberSeqOpt
+    {
+        $2.AddFirst($1);
+        $$ = $2;
+    }
     ;
 
 NestedBlockMember
     : Statement
+    {
+        // Due to we handle not all Statement cases!
+        //if ($1 != null)
+            $$ = $1;
+    }
     | UnitDeclaration
+    {
+        $$ = new UnitDeclaration();
+    }
     | RoutineDeclaration
+    {
+        $$ = new RoutineDeclaration();
+    }
     | VariableDeclaration
+    {
+        $$ = new VariableDeclaration();
+    }
     ;
 
 Statement
@@ -418,7 +467,14 @@ Statement
     | Assignment
     | Expression %prec JUST_EXPRESSION
     | IfStatement
+    {
+        $$ = new IfStatement();
+    }
     | LoopStatement
+    {
+        // Do not ask me why WhileStatement is loop statement.
+        $$ = new WhileStatement();
+    }
     | BreakStatement
     | ValueLossStatement
     | ReturnStatement

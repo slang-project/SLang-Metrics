@@ -2,11 +2,14 @@
 using SLangParser;
 using System;
 using System.IO;
+using SLangUnits;
 
 namespace SLangMetrics
 {
     class Program
     {
+
+        public static CompilationUnit parsedProgram;
         static void Main(string[] args)
         {
             if (args.Length < 1)
