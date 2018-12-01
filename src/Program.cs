@@ -2,7 +2,7 @@
 using SLangParser;
 using System;
 using System.IO;
-using SLangUnits;
+using LanguageElements;
 
 namespace SLangMetrics
 {
@@ -15,7 +15,7 @@ namespace SLangMetrics
         {
             if (args.Length < 1)
             {
-                Console.WriteLine("Usage: <ProgramName> <InputFileName>");
+                Console.WriteLine("Usage: <ProgramName> <InputFileName> OR <ProgramName> /testing");
                 Environment.Exit(1);
             }
             if (Testing.isTestingMode || Array.Exists<String>(args, s => s.ToLower().Contains("/test")))

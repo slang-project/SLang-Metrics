@@ -15,7 +15,7 @@
     <Compile Include="src\Testing.cs" />
     <Compile Include="src\ShiftReduceParser\ShiftReduceParserCode.cs" />
     <Compile Include="src\SLangLookaheadScanner.cs" />
-    <Compile Include="src\CompilationUnit.cs" />
+    <Compile Include="src\LanguageElements.cs" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />

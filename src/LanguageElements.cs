@@ -1,16 +1,21 @@
 using System.Collections.Generic;
 using SLangMetrics;
 
-namespace SLangUnits
+namespace LanguageElements
 {
     internal class CompilationUnit
     {
         LinkedList<BlockMember> members;
 
-        internal CompilationUnit(LinkedList<BlockMember> members) {
+        internal CompilationUnit(LinkedList<BlockMember> members)
+        {
             this.members = members;
             SLangMetrics.Program.parsedProgram = this;
         }
+    }
+
+    internal abstract class BlockMember
+    {
     }
 
     internal class Block : BlockMember
@@ -23,8 +28,32 @@ namespace SLangUnits
         }
     }
 
-    internal abstract class BlockMember
+    internal abstract class Declaration : BlockMember
     {
+    }
+
+    internal class UnitDeclaration : Declaration
+    {
+        public UnitDeclaration()
+        {
+            System.Console.WriteLine(this.GetType().Name);
+        }
+    }
+
+    internal class RoutineDeclaration : Declaration
+    {
+        public RoutineDeclaration()
+        {
+            System.Console.WriteLine(this.GetType().Name);
+        }
+    }
+
+    internal class VariableDeclaration : Declaration
+    {
+        public VariableDeclaration()
+        {
+            System.Console.WriteLine(this.GetType().Name);
+        }
     }
 
     internal abstract class Statement : BlockMember
@@ -39,37 +68,9 @@ namespace SLangUnits
         }
     }
 
-    internal class WhileStatement : Statement
+    internal class LoopStatement : Statement
     {
-        public WhileStatement()
-        {
-            System.Console.WriteLine(this.GetType().Name);
-        }
-    }
-
-    internal abstract class Declaration : BlockMember
-    {
-    }
-
-    internal class RoutineDeclaration : Declaration
-    {
-        public RoutineDeclaration()
-        {
-            System.Console.WriteLine(this.GetType().Name);
-        }
-    }
-
-    internal class UnitDeclaration : Declaration
-    {
-        public UnitDeclaration()
-        {
-            System.Console.WriteLine(this.GetType().Name);
-        }
-    }
-
-    internal class VariableDeclaration : Declaration
-    {
-        public VariableDeclaration()
+        public LoopStatement()
         {
             System.Console.WriteLine(this.GetType().Name);
         }

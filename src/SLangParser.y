@@ -4,16 +4,17 @@
  */
 %output=src\SLangParser.cs
 
+%using LanguageElements
 %using SLangLookaheadScanner
-%using System.Collections.Generic // TODO: is this correct import?
-%using SLangUnits
+%using System.Collections.Generic
 
 %namespace SLangParser
 %visibility internal
 
 %start CompilationUnit
 
-%union {
+%union
+{
     public string s;
     public Block bl;
     public LinkedList<BlockMember> ll;
@@ -129,6 +130,8 @@
 %type <ll> NestedBlockMemberSeqOpt
 %type <bm> NestedBlockMember
 %type <st> Statement
+%type <st> IfStatement
+%type <st> LoopStatement
 %type <bm> UnitDeclaration
 %type <bm> RoutineDeclaration
 %type <bm> OperatorRoutineDeclaration
@@ -421,14 +424,8 @@ BlockMemberSeqOpt
     ;
 
 BlockMember
-    : NestedBlockMember
-    {
-        $$ = $1;
-    }
-    | Block  // Because `Statement: Block;` was removed
-    {
-        $$ = $1;
-    }
+    : NestedBlockMember  { $$ = $1; }
+    | Block  { $$ = $1; }  // Because `Statement: Block;` was removed
     ;
 
 ExceptionHandlerSeqOpt
@@ -472,15 +469,8 @@ Statement
 //  | Block  // Conflicts when used in NestedBlock
     | Assignment
     | Expression %prec JUST_EXPRESSION
-    | IfStatement
-    {
-        $$ = new IfStatement();
-    }
-    | LoopStatement
-    {
-        // Do not ask me why WhileStatement is loop statement.
-        $$ = new WhileStatement();
-    }
+    | IfStatement  { $$ = $1; }
+    | LoopStatement  { $$ = $1; }
     | BreakStatement
     | ValueLossStatement
     | ReturnStatement
@@ -493,7 +483,13 @@ Assignment
 
 IfStatement
     : IF Expression            Block ElseIfClauseSeqOpt ElseClauseOpt END
+    {
+        $$ = new IfStatement();
+    }
     | IF Expression THEN NestedBlock ElseIfClauseSeqOpt ElseClauseOpt END
+    {
+        $$ = new IfStatement();
+    }
     ;
 
 ElseIfClauseSeqOpt
@@ -512,14 +508,27 @@ ElseClauseOpt
     ;
 
 LoopStatement
-    :                                LOOP NestedBlock END
-    |               WHILE Expression LOOP NestedBlock END
-    |               WHILE Expression            Block END
-    |               LOOP NestedBlock WHILE_POSTTEST Expression END
-    | LOOP_ID COLON                  LOOP NestedBlock END
-    | LOOP_ID COLON WHILE Expression LOOP NestedBlock END
-    | LOOP_ID COLON WHILE Expression            Block END
-    | LOOP_ID COLON LOOP NestedBlock WHILE_POSTTEST Expression END
+    : LoopIdOpt                  LOOP NestedBlock END
+    {
+        $$ = new LoopStatement();
+    }
+    | LoopIdOpt WHILE Expression LOOP NestedBlock END
+    {
+        $$ = new LoopStatement();
+    }
+    | LoopIdOpt WHILE Expression            Block END
+    {
+        $$ = new LoopStatement();
+    }
+    | LoopIdOpt LOOP NestedBlock WHILE_POSTTEST Expression END
+    {
+        $$ = new LoopStatement();
+    }
+    ;
+
+LoopIdOpt
+    : /* empty */
+    | LOOP_ID COLON
     ;
 
 BreakStatement
