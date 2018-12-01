@@ -5,10 +5,11 @@ a[a: Integer]() do end
 a[1]()
 b is 5 + 3
 
-unit C is
+unit C
     d is 5 + 4
+    e: as d is a[3]()
 
-    +() do
+    foo() do
         none
     end
 end
