@@ -2,7 +2,7 @@
   "profiles": {
     "SLang-Metrics": {
       "commandName": "Project",
-      "commandLineArgs": "in.txt /testing",
+      "commandLineArgs": "in.txt",
       "workingDirectory": "$(SolutionDir)"
     }
   }

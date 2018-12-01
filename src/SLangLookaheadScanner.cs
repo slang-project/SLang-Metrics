@@ -15,13 +15,32 @@ namespace SLangLookaheadScanner
             queue = new Queue<int>();
         }
 
+        private int LookNext()
+        {
+            int looked = origScanner.yylex();
+            queue.Enqueue(looked);
+            return looked;
+        }
+
+        private int LookNextNonNewLine()
+        {
+            int looked = LookNext();
+            return looked == (int)Tokens.NEW_LINE ? LookNext() : looked;
+        }
+
         // TODO: think about need of lookahead inside the buffer
         public override int yylex()
         {
             if (queue.Count > 1)
             {
-                // TODO skip newlines (if they will be considered)
-                return queue.Dequeue();
+                while (queue.Count > 0 && queue.Peek() == (int)Tokens.NEW_LINE)
+                {
+                    queue.Dequeue();
+                }
+                if (queue.Count > 1)
+                {
+                    return queue.Dequeue();
+                }
             }
 
             int curToken = queue.Count > 0 ? queue.Dequeue() : origScanner.yylex();
@@ -32,18 +51,15 @@ namespace SLangLookaheadScanner
                 case (int)Tokens.WHILE:
                     do
                     {
-                        looked = origScanner.yylex();
-                        queue.Enqueue(looked);
+                        looked = LookNext();
                     } while (!IsEOF(looked) && !IsAfterWhileExpression(looked));
                     return looked == (int)Tokens.END ? (int)Tokens.WHILE_POSTTEST : curToken;
 
                 case (int)Tokens.IDENTIFIER:
-                    looked = origScanner.yylex();
-                    queue.Enqueue(looked);
+                    looked = LookNextNonNewLine();
                     if (looked == (int)Tokens.COLON)
                     {
-                        looked = origScanner.yylex();
-                        queue.Enqueue(looked);
+                        looked = LookNextNonNewLine();
                         // TODO skip newlines (if they will be considered)
                         return looked == (int)Tokens.WHILE || looked == (int)Tokens.LOOP
                                 ? (int)Tokens.LOOP_ID : curToken;
@@ -53,8 +69,7 @@ namespace SLangLookaheadScanner
                         int bracket_counter = 1;
                         do
                         {
-                            looked = origScanner.yylex();
-                            queue.Enqueue(looked);
+                            looked = LookNext();
                             if (false)  // TODO functional object declaration
                             {
                                 return curToken;
@@ -68,16 +83,14 @@ namespace SLangLookaheadScanner
                                 --bracket_counter;
                             }
                         } while (!IsEOF(looked) && bracket_counter != 0);
-                        looked = origScanner.yylex();
-                        queue.Enqueue(looked);
+                        looked = LookNextNonNewLine();
                     }
                     if (looked == (int)Tokens.LPAREN)
                     {
                         int parentheses_counter = 1;
                         do
                         {
-                            looked = origScanner.yylex();
-                            queue.Enqueue(looked);
+                            looked = LookNext();
                             if (false)  // TODO functional object declaration
                             {
                                 return curToken;
@@ -91,14 +104,39 @@ namespace SLangLookaheadScanner
                                 --parentheses_counter;
                             }
                         } while (!IsEOF(looked) && parentheses_counter != 0);
-                        looked = origScanner.yylex();
-                        queue.Enqueue(looked);
+                        looked = LookNextNonNewLine();
                     }
                     else
                     {
                         return curToken;
                     }
                     return IsFunctionBodyBeginning(looked) ? (int)Tokens.FUNCTION_ID : curToken;
+
+                case (int)Tokens.BREAK:
+                    if (LookNext() != (int)Tokens.IDENTIFIER)
+                    {
+                        return (int)Tokens.JUST_BREAK;
+                    }
+                    return curToken;
+
+                case (int)Tokens.RETURN:
+                    looked = LookNext();
+                    if (looked == (int)Tokens.NEW_LINE || looked == (int)Tokens.SEMICOLON)
+                    {
+                        return (int)Tokens.JUST_RETURN;
+                    }
+                    return curToken;
+
+                case (int)Tokens.RAISE:
+                    looked = LookNext();
+                    if (looked == (int)Tokens.NEW_LINE || looked == (int)Tokens.SEMICOLON)
+                    {
+                        return (int)Tokens.JUST_RAISE;
+                    }
+                    return curToken;
+
+                case (int)Tokens.NEW_LINE:
+                    return yylex();
 
                 default:
                     return curToken;

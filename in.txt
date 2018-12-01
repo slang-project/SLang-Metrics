@@ -1,15 +1,66 @@
-﻿unit A is end
+﻿// Core units to represent basic SLang types  (WIP - not all features are fully implemented!!! )
+// Version 0.75 June 22nd 2018
 
-a[a: Integer]() do end
-
-a[1]()
-b is 5 + 3
-
-unit C
-    d is 5 + 4
-    e: as d is a[3]()
-
-    foo() do
-        none
+val unit Bit
+    const is
+         0b0, 0b1
     end
+
+    & alias and(other: as this): as this do
+        if this = 0b0 then
+            return 0b0
+        elsif other = 0b0 then
+            return 0b0
+        else
+            return 0b1
+        end
+    end
+
+    | alias or(other: as this): as this do
+        if this = 0b1 then
+            return 0b1
+        elsif other = 0b1 then
+            return 0b1
+        else
+            return 0b0
+        end
+    end
+
+    ^ alias xor(other: as this): as this do
+        if this = other then
+            return 0b0
+        else
+            return 0b1
+        end
+    end
+
+    ~ alias not(): as this do
+        if this = 0b0 then
+            return 0b1
+        else
+            return 0b0
+        end
+    end
+
+    +(other: as this): as this do
+        /// Definition of addition
+        if this = 0b0 then
+            return other
+        elsif other = 0b1 then
+            raise "Bit overflow"
+        else
+            return 0b1
+        end
+    end // +
+
+    -(other: as this): as this do
+        /// Definition of subtraction
+        if this = other then
+            return 0b0
+        elsif this = 0b1 then
+            return 0b1
+        else
+            raise "Bit underflow"
+        end
+    end // -
 end

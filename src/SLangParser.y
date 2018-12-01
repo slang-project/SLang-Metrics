@@ -88,7 +88,7 @@
 %token LOOP
 %token NEW
 %token NONE  // TODO add to specification
-%token NOT
+//%token NOT  // TODO remove
 %token OLD
 %token OVERRIDE
 %token PURE
@@ -112,9 +112,13 @@
 %token LITERAL
 
 // Tokens for lookahead
+%token NEW_LINE
 %token WHILE_POSTTEST
 %token FUNCTION_ID
 %token LOOP_ID
+%token JUST_BREAK
+%token JUST_RETURN
+%token JUST_RAISE
 
 // ========== TYPE ASSIGNMENTS ==========
 
@@ -519,8 +523,8 @@ LoopStatement
     ;
 
 BreakStatement
-    : BREAK
-//  | BREAK IDENTIFIER  // FIXME shift/reduce
+    : JUST_BREAK
+    | BREAK IDENTIFIER
     ;
 
 ValueLossStatement
@@ -528,13 +532,13 @@ ValueLossStatement
     ;
 
 ReturnStatement
-    : RETURN
-//  | RETURN Expression  // FIXME shift/reduce
+    : JUST_RETURN
+    | RETURN Expression
     ;
 
 RaiseStatement
-    : RAISE
-//  | RAISE Expression  // FIXME shift/reduce
+    : JUST_RAISE
+    | RAISE Expression
     ;
 
 // Variable ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -607,8 +611,13 @@ OperatorRoutineName
     ;
 
 OperatorSign
-    : PLUS  // TODO
-    ;
+    : PLUS
+    | MINUS
+    | AMPERSAND
+    | VERTICAL
+    | CARET
+    | TILDE
+    ;  // TODO
 
 RoutineParameters
     : LPAREN                RPAREN
@@ -666,7 +675,7 @@ UnitDeclarationAdditions
 
 AliasNameOpt
     : /* empty */
-    | ALIAS IDENTIFIER
+    | ALIAS FUNCTION_ID
     ;
 
 InheritClauseOpt

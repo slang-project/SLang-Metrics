@@ -26,7 +26,6 @@ namespace SLangMetrics
             {
                 Console.WriteLine(parseProgram(args[0]));
             }
-            Console.Read();  // TODO remove in production
         }
 
         public static bool parseProgram(String filePath)
@@ -34,7 +33,9 @@ namespace SLangMetrics
             FileStream file = new FileStream(filePath, FileMode.Open);
             Scanner scanner = new Scanner(file);
             Parser parser = new Parser(scanner);
-            return parser.Parse();
+            bool res = parser.Parse();
+            file.Close();
+            return res;
         }
     }
 }

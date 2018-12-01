@@ -30,7 +30,13 @@ STR     \"(\\.|[^\\"])*\"
 
 %%
 
-{WS}               { /* ignore whitespaces */ }
+{WS}+ {
+    if (yytext.Contains("\u000D") || yytext.Contains("\u000A"))
+    {
+        return (int)Tokens.NEW_LINE;
+    }
+    /* else ignore whitespaces */
+}
 
 // ============== COMMENTS ==============
 
@@ -111,7 +117,6 @@ STR     \"(\\.|[^\\"])*\"
 "loop"             { return (int)Tokens.LOOP; }
 "new"              { return (int)Tokens.NEW; }
 "none"             { return (int)Tokens.NONE; }
-"not"              { return (int)Tokens.NOT; }
 "old"              { return (int)Tokens.OLD; }
 "override"         { return (int)Tokens.OVERRIDE; }
 "pure"             { return (int)Tokens.PURE; }
