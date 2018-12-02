@@ -744,9 +744,9 @@ InitializerDeclaration
 
 private Parser(Scanner scnr) : base(scnr) { parsedProgram = null; }
 
-private CompilationUnit parsedProgram;
+private Module parsedProgram;
 
-internal static CompilationUnit parseProgram(String filePath)
+internal static Module parseProgram(String filePath)
 {
     FileStream file = new FileStream(filePath, FileMode.Open);
     Scanner scanner = new Scanner(file);
