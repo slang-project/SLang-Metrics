@@ -9,7 +9,7 @@
             "type": "coreclr",
             "preLaunchTask": "build",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/Debug/net40/SLang-Metrics.exe",
+            "program": "${workspaceFolder}/bin/Debug/net40/SLang-Metrics-vs-code.exe",
             "args": ["in.txt"],
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
