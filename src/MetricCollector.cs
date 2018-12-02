@@ -4,7 +4,7 @@ namespace Metrics
 {
     class MetricCollector
     {
-        Module parsedModule;
+        private Module parsedModule;
 
         internal MetricCollector(string fileName)
         {
