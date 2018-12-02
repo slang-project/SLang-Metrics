@@ -73,11 +73,12 @@ namespace LanguageElements
     {
     }
 
-    internal class UnitDeclaration : Declaration
+    internal class UnitDeclaration : Declaration, ICCMesurable
     {
         internal CompoundName name { get; }
         internal LinkedList<UnitName> parents { get; }
         internal LinkedList<Declaration> members { get; }
+        private int? WMC = null;
 
         public UnitDeclaration(CompoundName name, LinkedList<UnitName> parents, LinkedList<Declaration> members)
         {
@@ -86,9 +87,27 @@ namespace LanguageElements
             this.members = members;
             System.Console.WriteLine(this.GetType().Name); // TODO remove
         }
+
+        // TODO: In pseudocode it 
+        public int getCC()
+        {
+            if (WMC == null)
+            {
+                WMC = 0;
+                foreach (var m in members)
+                {
+                    if (m is RoutineDeclaration routine)
+                    {
+                        WMC += routine.routineBlock.getCC();
+                    }
+                }
+            }
+
+            return WMC.Value;
+        }
     }
 
-    internal class RoutineDeclaration : Declaration
+    internal class RoutineDeclaration : Declaration, ICCMesurable
     {
         internal string name { get; }
         internal string aliasName { get; }
@@ -100,6 +119,14 @@ namespace LanguageElements
             this.aliasName = aliasName;
             this.routineBlock = routineBlock;
             System.Console.WriteLine(this.GetType().Name); // TODO remove
+        }
+
+        public int getCC()
+        {
+            if (routineBlock != null)
+                return routineBlock.getCC();
+            else
+                return 0; //TODO: check
         }
     }
 
