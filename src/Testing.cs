@@ -51,8 +51,10 @@ namespace SLangMetrics
                         // Expected result
                         String res = File.ReadAllText(d.GetFiles(resExt)[0].FullName).Trim();
                         // Parsing
-                        bool ret = Parser.parseProgram(d.GetFiles(testExt)[0].FullName.Trim()) == null;
-                        if (res.ToLower().Equals(ret.ToString().ToLower()))
+                        bool ret = Parser.parseProgram(d.GetFiles(testExt)[0].FullName.Trim()) != null;
+                        string result = ret.ToString().ToLower();
+                        Console.WriteLine("Returned: " + result);
+                        if (res.ToLower().Equals(result))
                         {
                             Console.WriteLine("SUCCED");
                         }
