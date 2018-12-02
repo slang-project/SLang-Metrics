@@ -10,7 +10,7 @@ namespace LanguageElements
 
     internal class Module
     {
-        private LinkedList<BlockMember> members { get; }
+        internal LinkedList<BlockMember> members { get; }
 
         internal Module(LinkedList<BlockMember> members)
         {
@@ -24,7 +24,7 @@ namespace LanguageElements
 
     internal class Block : BlockMember
     {
-        private LinkedList<BlockMember> members { get; }
+        internal LinkedList<BlockMember> members { get; }
 
         internal Block(LinkedList<BlockMember> members)
         {
@@ -38,9 +38,9 @@ namespace LanguageElements
 
     internal class UnitDeclaration : Declaration
     {
-        private CompoundName name { get; }
-        private LinkedList<UnitName> parents { get; }
-        private LinkedList<Declaration> members { get; }
+        internal CompoundName name { get; }
+        internal LinkedList<UnitName> parents { get; }
+        internal LinkedList<Declaration> members { get; }
 
         public UnitDeclaration(CompoundName name, LinkedList<UnitName> parents, LinkedList<Declaration> members)
         {
@@ -53,9 +53,9 @@ namespace LanguageElements
 
     internal class RoutineDeclaration : Declaration
     {
-        private string name { get; }
-        private string aliasName { get; }
-        private Block routineBlock { get; }
+        internal string name { get; }
+        internal string aliasName { get; }
+        internal Block routineBlock { get; }
 
         public RoutineDeclaration(string name, string aliasName, Block routineBlock)
         {
@@ -80,9 +80,9 @@ namespace LanguageElements
 
     internal class IfStatement : Statement
     {
-        private Block mainBlock { get; }
-        private Block elseBlock { get; }
-        private LinkedList<Block> elsifBlockList { get; }
+        internal Block mainBlock { get; }
+        internal Block elseBlock { get; }
+        internal LinkedList<Block> elsifBlockList { get; }
 
         public IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
         {
@@ -95,7 +95,7 @@ namespace LanguageElements
 
     internal class LoopStatement : Statement
     {
-        private Block loopBlock { get; }
+        internal Block loopBlock { get; }
 
         public LoopStatement(Block loopBlock)
         {
@@ -110,8 +110,8 @@ namespace LanguageElements
 
     internal class UnitTypeName : Type
     {
-        private string name { get; }
-        private object generics;  // TODO generics
+        internal string name { get; }
+        internal object generics;  // TODO generics
 
         public UnitTypeName(string name, object generics)
         {
@@ -122,17 +122,33 @@ namespace LanguageElements
 
     internal class UnitName
     {
-        private bool hasTilde { get; }
+        internal string name { get; }
+        internal bool hasTilde { get; }
 
         public UnitName(Type type, bool hasTilde)
         {
             this.hasTilde = hasTilde;
+            if (type is UnitTypeName)
+            {
+                this.name = ((UnitTypeName)type).name;
+            }
+            else
+            {
+                throw new WrongParentUnitNameException();  // TODO review
+            }
+        }
+
+        private class WrongParentUnitNameException : System.Exception
+        {
+            public WrongParentUnitNameException() : base()
+            {
+            }
         }
     }
 
     internal class CompoundName
     {
-        private LinkedList<string> names;
+        internal LinkedList<string> names;
 
         public CompoundName(string name)
         {
