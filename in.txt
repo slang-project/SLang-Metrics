@@ -64,3 +64,21 @@ val unit Bit
         end
     end // -
 end
+
+if true then 
+    if false then
+        a is 10
+    else
+        b is 12
+    end
+elsif a > b then
+    none
+elsif a < b then
+    if true then
+        none
+    else 
+        none
+    end
+else
+    b is 15
+end

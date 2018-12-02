@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using SLangMetrics;
 
 namespace LanguageElements
@@ -8,13 +9,31 @@ namespace LanguageElements
         int getCC();
     }
 
-    internal class Module
+    internal class Module : ICCMesurable
     {
         internal LinkedList<BlockMember> members { get; }
+        private int? CC = null;
 
         internal Module(LinkedList<BlockMember> members)
         {
             this.members = members;
+        }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = 1;
+                foreach (var m in members)
+                {
+                    if (m is ICCMesurable statement)
+                    {
+                        CC *= statement.getCC();
+                    }
+                }
+            }
+
+            return CC.Value;
         }
     }
 
@@ -22,13 +41,31 @@ namespace LanguageElements
     {
     }
 
-    internal class Block : BlockMember
+    internal class Block : BlockMember, ICCMesurable
     {
         internal LinkedList<BlockMember> members { get; }
+        private int? CC = null;
 
         internal Block(LinkedList<BlockMember> members)
         {
             this.members = members;
+        }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = 1;
+                foreach (var m in members)
+                {
+                    if (m is ICCMesurable statement)
+                    {
+                        CC *= statement.getCC();
+                    }
+                }
+            }
+
+            return CC.Value;
         }
     }
 
@@ -47,7 +84,7 @@ namespace LanguageElements
             this.name = name;
             this.parents = parents;
             this.members = members;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name); // TODO remove
         }
     }
 
@@ -62,7 +99,7 @@ namespace LanguageElements
             this.name = name;
             this.aliasName = aliasName;
             this.routineBlock = routineBlock;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name); // TODO remove
         }
     }
 
@@ -70,7 +107,7 @@ namespace LanguageElements
     {
         public VariableDeclaration()
         {
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name); // TODO remove
         }
     }
 
@@ -78,29 +115,57 @@ namespace LanguageElements
     {
     }
 
-    internal class IfStatement : Statement
+    internal class IfStatement : Statement, ICCMesurable
     {
         internal Block mainBlock { get; }
         internal Block elseBlock { get; }
         internal LinkedList<Block> elsifBlockList { get; }
+        private int? CC = null;
 
         public IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
         {
             this.mainBlock = mainBlock;
             this.elseBlock = elseBlock;
             this.elsifBlockList = elsifBlockList;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name); // TODO remove
+        }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = mainBlock.getCC();
+                if (elseBlock != null)
+                    CC += elseBlock.getCC();
+                foreach (Block block in elsifBlockList ?? Enumerable.Empty<Block>())
+                {
+                    CC += block.getCC();
+                }
+            }
+
+            return CC.Value;
         }
     }
 
-    internal class LoopStatement : Statement
+    internal class LoopStatement : Statement, ICCMesurable
     {
         internal Block loopBlock { get; }
+        private int? CC = null;
 
         public LoopStatement(Block loopBlock)
         {
             this.loopBlock = loopBlock;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name); // TODO remove
+        }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = 1 + loopBlock.getCC();
+            }
+
+            return CC.Value;
         }
     }
 
@@ -111,7 +176,7 @@ namespace LanguageElements
     internal class UnitTypeName : Type
     {
         internal string name { get; }
-        internal object generics;  // TODO generics
+        internal object generics; // TODO generics
 
         public UnitTypeName(string name, object generics)
         {
@@ -130,11 +195,11 @@ namespace LanguageElements
             this.hasTilde = hasTilde;
             if (type is UnitTypeName)
             {
-                this.name = ((UnitTypeName)type).name;
+                this.name = ((UnitTypeName) type).name;
             }
             else
             {
-                throw new WrongParentUnitNameException();  // TODO review
+                throw new WrongParentUnitNameException(); // TODO review
             }
         }
 
