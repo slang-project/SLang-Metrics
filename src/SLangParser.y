@@ -1,6 +1,6 @@
 /**
  * Parser spec for SLang
- * Process with > GPPG /gplex gplex.y
+ * Process with > GPPG /gplex SLangParser.y
  */
 %output=src\SLangParser.cs
 

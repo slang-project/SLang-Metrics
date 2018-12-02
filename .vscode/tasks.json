@@ -28,7 +28,7 @@
             "label": "build",
             "dependsOn": "make_gppg",
             "command": "dotnet",
-            "args": ["build", "SLang-Metrics.sln"],
+            "args": ["build", "SLang-Metrics-vs-code.csproj"],
             "type": "shell",
             "group": "build",
             "presentation": {

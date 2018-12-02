@@ -6,6 +6,7 @@
     <TargetFramework>net40</TargetFramework>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
+
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
@@ -30,21 +31,4 @@
       <DependentUpon>src\SLangParser.y</DependentUpon>
     </Compile>
   </ItemGroup>
-  <PropertyGroup>
-    <CoreCompileDependsOn>GenerateParser;$(CoreCompileDependsOn)</CoreCompileDependsOn>
-    <CoreCompileDependsOn>GenerateLexer;$(CoreCompileDependsOn)</CoreCompileDependsOn>
-    <UseHostCompilerIfAvailable>false</UseHostCompilerIfAvailable>
-  </PropertyGroup>
-  <Target Name="GenerateLexer" Inputs="@(Lex)" Outputs="@(Lex->'%(Filename).cs')">
-    <Exec Command="$(SolutionDir)tools\gplex.exe %(Lex.Identity)" />
-    <CreateItem Include="%(Lex.Filename).cs">
-      <Output TaskParameter="Include" ItemName="FileWrites" />
-    </CreateItem>
-  </Target>
-  <Target Name="GenerateParser" Inputs="@(Yacc)" Outputs="@(Yacc->'%(Filename).cs')">
-    <Exec Command="$(SolutionDir)tools\gppg.exe /gplex /conflicts %(Yacc.Identity)" />
-    <CreateItem Include="%(Yacc.Filename).cs">
-      <Output TaskParameter="Include" ItemName="FileWrites" />
-    </CreateItem>
-  </Target>
 </Project>
