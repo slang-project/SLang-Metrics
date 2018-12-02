@@ -6,7 +6,6 @@
     <TargetFramework>net40</TargetFramework>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
-
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>

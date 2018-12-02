@@ -45,6 +45,7 @@ namespace SLangMetrics
             {
                 foreach (DirectoryInfo d in dir.GetDirectories())
                 {
+                    Console.WriteLine("\nTest: {0}", d.Name);
                     if (checkTestDir(d, resExt) && checkTestDir(d, testExt))
                     {
                         // Expected result
@@ -53,11 +54,11 @@ namespace SLangMetrics
                         bool ret = Program.parseProgram(d.GetFiles(testExt)[0].FullName.Trim());
                         if (res.ToLower().Equals(ret.ToString().ToLower()))
                         {
-                            Console.WriteLine("Test {0} SUCCED!", d.Name);
+                            Console.WriteLine("SUCCED");
                         }
                         else
                         {
-                            Console.WriteLine("Test {0} FAILED!", d.Name);
+                            Console.WriteLine("FAILED");
                         }
                     }
                 }
