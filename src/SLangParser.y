@@ -11,7 +11,7 @@
 %namespace SLangParser
 %visibility internal
 
-%start CompilationUnit
+%start Module
 
 %union
 {
@@ -165,11 +165,11 @@
 
 // General /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CompilationUnit
+Module
     : UseDirectiveSeqOpt BlockMemberSeqOpt
     {
         // UseDirectiveSeqOpt is not used for now
-        this.parsedProgram = new CompilationUnit($2);
+        this.parsedProgram = new Module($2);
     }
     ;
 

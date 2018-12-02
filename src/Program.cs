@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Metrics;
+using System;
 
 namespace SLangMetrics
 {
@@ -18,7 +19,8 @@ namespace SLangMetrics
             }
             else
             {
-                Console.WriteLine(SLangParser.Parser.parseProgram(args[0]) == null);
+                MetricCollector coll = new MetricCollector(args[0]);
+                // TODO call representation of metrics (toHTML or CliInterface)
             }
         }
     }

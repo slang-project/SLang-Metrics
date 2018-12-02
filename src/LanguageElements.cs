@@ -3,11 +3,11 @@ using SLangMetrics;
 
 namespace LanguageElements
 {
-    internal class CompilationUnit
+    internal class Module
     {
         LinkedList<BlockMember> members;
 
-        internal CompilationUnit(LinkedList<BlockMember> members)
+        internal Module(LinkedList<BlockMember> members)
         {
             this.members = members;
         }
