@@ -510,19 +510,19 @@ ElseClauseOpt
 LoopStatement
     : LoopIdOpt                  LOOP NestedBlock END
     {
-        $$ = new LoopStatement();
+        $$ = new LoopStatement($3);
     }
     | LoopIdOpt WHILE Expression LOOP NestedBlock END
     {
-        $$ = new LoopStatement();
+        $$ = new LoopStatement($5);
     }
     | LoopIdOpt WHILE Expression            Block END
     {
-        $$ = new LoopStatement();
+        $$ = new LoopStatement($4);
     }
     | LoopIdOpt LOOP NestedBlock WHILE_POSTTEST Expression END
     {
-        $$ = new LoopStatement();
+        $$ = new LoopStatement($3);
     }
     ;
 
@@ -619,6 +619,11 @@ OperatorRoutineName
     | COLON_EQUALS
     ;
 
+AliasNameOpt
+    : /* empty */
+    | ALIAS FUNCTION_ID
+    ;
+
 OperatorSign
     : PLUS
     | MINUS
@@ -679,12 +684,12 @@ UnitSpecifier
     ;
 
 UnitDeclarationAdditions
-    : AliasNameOpt GenericFormalsOpt InheritClauseOpt UseClauseOpt
+    : UnitAliasNameOpt GenericFormalsOpt InheritClauseOpt UseClauseOpt
     ;
 
-AliasNameOpt
+UnitAliasNameOpt
     : /* empty */
-    | ALIAS FUNCTION_ID
+    | ALIAS IDENTIFIER
     ;
 
 InheritClauseOpt
