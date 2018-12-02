@@ -1,15 +1,9 @@
-﻿using SLangLookaheadScanner;
-using SLangParser;
-using System;
-using System.IO;
-using LanguageElements;
+﻿using System;
 
 namespace SLangMetrics
 {
     class Program
     {
-
-        public static CompilationUnit parsedProgram;
 
         static void Main(string[] args)
         {
@@ -24,18 +18,8 @@ namespace SLangMetrics
             }
             else
             {
-                Console.WriteLine(parseProgram(args[0]));
+                Console.WriteLine(SLangParser.Parser.parseProgram(args[0]) == null);
             }
-        }
-
-        public static bool parseProgram(String filePath)
-        {
-            FileStream file = new FileStream(filePath, FileMode.Open);
-            Scanner scanner = new Scanner(file);
-            Parser parser = new Parser(scanner);
-            bool res = parser.Parse();
-            file.Close();
-            return res;
         }
     }
 }

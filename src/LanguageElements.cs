@@ -10,7 +10,6 @@ namespace LanguageElements
         internal CompilationUnit(LinkedList<BlockMember> members)
         {
             this.members = members;
-            SLangMetrics.Program.parsedProgram = this;
         }
     }
 

@@ -6,6 +6,7 @@
 
 %using LanguageElements
 %using SLangLookaheadScanner
+%using System.IO;
 
 %namespace SLangParser
 %visibility internal
@@ -168,7 +169,7 @@ CompilationUnit
     : UseDirectiveSeqOpt BlockMemberSeqOpt
     {
         // UseDirectiveSeqOpt is not used for now
-        new CompilationUnit($2);
+        this.parsedProgram = new CompilationUnit($2);
     }
     ;
 
@@ -741,4 +742,16 @@ InitializerDeclaration
 
 %%
 
-internal Parser(Scanner scnr) : base(scnr) { }
+private Parser(Scanner scnr) : base(scnr) { parsedProgram = null; }
+
+private CompilationUnit parsedProgram;
+
+internal static CompilationUnit parseProgram(String filePath)
+{
+    FileStream file = new FileStream(filePath, FileMode.Open);
+    Scanner scanner = new Scanner(file);
+    Parser parser = new Parser(scanner);
+    bool res = parser.Parse();
+    file.Close();
+    return res ? parser.parsedProgram : null;
+}
