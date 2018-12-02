@@ -128,9 +128,9 @@ namespace LanguageElements
         public UnitName(Type type, bool hasTilde)
         {
             this.hasTilde = hasTilde;
-            if (type is UnitTypeName)
+            if (type is UnitTypeName t)
             {
-                this.name = ((UnitTypeName)type).name;
+                this.name = t.name;
             }
             else
             {
