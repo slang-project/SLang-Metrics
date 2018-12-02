@@ -16,11 +16,58 @@
 %union
 {
     public string s;
+    public string[] sa;
+    public CompoundName cn;
+    public LanguageElements.Type t;
+    public UnitTypeName utn;
     public Block bl;
-    public LinkedList<BlockMember> ll;
     public BlockMember bm;
     public Statement st;
+    public LinkedList<BlockMember> llbm;
+    public LinkedList<Block> llb;
+    public VariableDeclaration vd;
+    public RoutineDeclaration rd;
+    public UnitDeclaration ud;
+    public LinkedList<UnitName> llun;
+    public UnitName un;
+    public LinkedList<Declaration> lld;
+    public Declaration dc;
 }
+
+// ========== TYPE ASSIGNMENTS ==========
+
+%type <cn> CompoundName
+%type <t> Type
+%type <t> UnitType
+%type <utn> UnitTypeName
+%type <t> AnchorType
+%type <bl> Block
+%type <llbm> BlockMemberSeqOpt
+%type <bm> BlockMember
+%type <bl> NestedBlock
+%type <llbm> NestedBlockMemberSeqOpt
+%type <bm> NestedBlockMember
+%type <st> Statement
+%type <st> IfStatement
+%type <llb> ElseIfClauseSeqOpt
+%type <bl> ElseIfClause
+%type <bl> ElseClauseOpt
+%type <st> LoopStatement
+%type <rd> RoutineDeclaration
+%type <rd> OperatorRoutineDeclaration
+%type <s> RoutineName
+%type <sa> OperatorRoutineName
+%type <s> AliasNameOpt
+%type <s> OperatorSign
+%type <bl> RoutineBody
+%type <ud> UnitDeclaration
+%type <llun> UnitDeclarationAdditions  // TODO change actual type
+%type <llun> InheritClauseOpt
+%type <llun> BaseUnitSeq
+%type <un> BaseUnitName
+%type <lld> UnitMemberSeqOpt
+%type <dc> UnitMember
+%type <vd> VariableDeclaration
 
 // =============== TOKENS ===============
 
@@ -109,33 +156,17 @@
 %token WHILE
 
 // Value-dependent tokens
-%token IDENTIFIER
-%token LITERAL
+%token <s> IDENTIFIER
+%token <s> LITERAL
 
 // Tokens for lookahead
 %token NEW_LINE
 %token WHILE_POSTTEST
-%token FUNCTION_ID
+%token <s> FUNCTION_ID
 %token LOOP_ID
 %token JUST_BREAK
 %token JUST_RETURN
 %token JUST_RAISE
-
-// ========== TYPE ASSIGNMENTS ==========
-
-%type <bl> Block
-%type <ll> BlockMemberSeqOpt
-%type <bm> BlockMember
-%type <bl> NestedBlock
-%type <ll> NestedBlockMemberSeqOpt
-%type <bm> NestedBlockMember
-%type <st> Statement
-%type <st> IfStatement
-%type <st> LoopStatement
-%type <bm> UnitDeclaration
-%type <bm> RoutineDeclaration
-%type <bm> OperatorRoutineDeclaration
-%type <bm> VariableDeclaration
 
 // ===== ASSOCIATIVITY & PRECEDENCE =====
 
@@ -182,7 +213,14 @@ IdentifierSeq
 
 CompoundName
     :                  IDENTIFIER
+    {
+        $$ = new CompoundName($1);
+    }
     | CompoundName DOT IDENTIFIER
+    {
+        $1.AddLast($3);
+        $$ = $1;
+    }
     ;
 
 // Use directive ***
@@ -262,24 +300,30 @@ Predicate
 // Type ***
 
 Type
-    : UnitType
-    | AnchorType/*
+    : UnitType  { $$ = $1; }
+    | AnchorType  { $$ = $1; }/*
     | MultiType
     | TupleType
     | RangeType
     | RoutineType*/
-    ;  // TODO a lot of conflicts!
+    ;  // FIXME a lot of conflicts!
 
 UnitType
-    :            UnitTypeName
-    | REF        UnitTypeName
-    | VAL        UnitTypeName
-    | CONCURRENT UnitTypeName
-    ;
+    :            UnitTypeName  { $$ = $1; }
+    | REF        UnitTypeName  { $$ = $2; }
+    | VAL        UnitTypeName  { $$ = $2; }
+    | CONCURRENT UnitTypeName  { $$ = $2; }
+    ;  // TODO specifiers
 
 UnitTypeName
     : IDENTIFIER
+    {
+        $$ = new UnitTypeName($1, null);
+    }
     | IDENTIFIER GenericArgumentClause
+    {
+        $$ = new UnitTypeName($1, null);  // TODO generics
+    }
     ;
 
 GenericArgumentClause
@@ -295,7 +339,13 @@ GenericArgumentSeq
 
 AnchorType
     : AS THIS
+    {
+        $$ = null;  // TODO
+    }
     | AS IDENTIFIER
+    {
+        $$ = null;  // TODO
+    }
 //  | AS IDENTIFIER RoutineParameters  // TODO review
     ;
 /*
@@ -464,17 +514,17 @@ NestedBlockMember
     ;
 
 Statement
-    : SEMICOLON
-    | NONE  // TODO review
+    : SEMICOLON  { $$ = null; }
+    | NONE  { $$ = null; }
 //  | Block  // Conflicts when used in NestedBlock
-    | Assignment
+    | Assignment  { $$ = null; }  // TODO
     | Expression %prec JUST_EXPRESSION
     | IfStatement  { $$ = $1; }
     | LoopStatement  { $$ = $1; }
-    | BreakStatement
-    | ValueLossStatement
-    | ReturnStatement
-    | RaiseStatement
+    | BreakStatement  { $$ = null; }  // TODO
+    | ValueLossStatement  { $$ = null; }  // TODO
+    | ReturnStatement  { $$ = null; }  // TODO
+    | RaiseStatement  { $$ = null; }  // TODO
     ;  // TODO review
 
 Assignment
@@ -484,27 +534,34 @@ Assignment
 IfStatement
     : IF Expression            Block ElseIfClauseSeqOpt ElseClauseOpt END
     {
-        $$ = new IfStatement();
+        $$ = new IfStatement($3, $4, $5);
     }
     | IF Expression THEN NestedBlock ElseIfClauseSeqOpt ElseClauseOpt END
     {
-        $$ = new IfStatement();
+        $$ = new IfStatement($4, $5, $6);
     }
     ;
 
 ElseIfClauseSeqOpt
     : /* empty */
+    {
+        $$ = new LinkedList<Block>();
+    }
     | ElseIfClauseSeqOpt ElseIfClause
+    {
+        $1.AddLast($2);
+        $$ = $1;
+    }
     ;
 
 ElseIfClause
-    : ELSIF Expression            Block
-    | ELSIF Expression THEN NestedBlock
+    : ELSIF Expression            Block  { $$ = $3; }
+    | ELSIF Expression THEN NestedBlock  { $$ = $4; }
     ;
 
 ElseClauseOpt
-    : /* empty */
-    | ELSE NestedBlock
+    : /* empty */  { $$ = null; }
+    | ELSE NestedBlock  { $$ = $2; }
     ;
 
 LoopStatement
@@ -561,7 +618,7 @@ VariableDeclaration
     {
         $$ = new VariableDeclaration();
     }
-    ;
+    ;  // TODO content consideration
 
 VariableSpecifier
     : CONST
@@ -581,22 +638,22 @@ TypeAndInit
 RoutineDeclaration
     :                  RoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
     {
-        $$ = new RoutineDeclaration();
+        $$ = new RoutineDeclaration($1, null, $6);
     }
     | RoutineSpecifier RoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
     {
-        $$ = new RoutineDeclaration();
+        $$ = new RoutineDeclaration($2, null, $7);
     }
     ;  // TODO change UseSeq to just Use
 
 OperatorRoutineDeclaration
     :                  OperatorRoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
     {
-        $$ = new RoutineDeclaration();
+        $$ = new RoutineDeclaration($1[0], $1[1], $6);
     }
     | RoutineSpecifier OperatorRoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
     {
-        $$ = new RoutineDeclaration();
+        $$ = new RoutineDeclaration($2[0], $2[1], $7);
     }
     ;  // TODO change UseSeq to just Use; review
 
@@ -608,29 +665,29 @@ RoutineSpecifier
     ;  // TODO review
 
 RoutineName
-    : FUNCTION_ID
+    : FUNCTION_ID  { $$ = $1; }
 //  | OperatorSign AliasNameOpt
 //  | COLON_EQUALS
-    | LPAREN RPAREN
+    | LPAREN RPAREN  { $$ = "()"; }  // TODO review
     ;
 
 OperatorRoutineName
-    : OperatorSign AliasNameOpt
-    | COLON_EQUALS
+    : OperatorSign AliasNameOpt  { $$ = new string[] {$1, $2}; }
+    | COLON_EQUALS  { $$ = new string[] {":=", null}; }
     ;
 
 AliasNameOpt
-    : /* empty */
-    | ALIAS FUNCTION_ID
+    : /* empty */  { $$ = null; }
+    | ALIAS FUNCTION_ID  { $$ = $2; }
     ;
 
 OperatorSign
-    : PLUS
-    | MINUS
-    | AMPERSAND
-    | VERTICAL
-    | CARET
-    | TILDE
+    : PLUS  { $$ = "+"; }
+    | MINUS  { $$ = "-"; }
+    | AMPERSAND  { $$ = "&"; }
+    | VERTICAL  { $$ = "|"; }
+    | CARET  { $$ = "^"; }
+    | TILDE  { $$ = "~"; }
     ;  // TODO
 
 RoutineParameters
@@ -651,9 +708,23 @@ ReturnTypeOpt
 
 RoutineBody
     : Block
-    | DOUBLE_ARROW Statement
+    {
+        $$ = $1;
+    }
+    | DOUBLE_ARROW Statement  // TODO review
+    {
+        LinkedList<BlockMember> list = new LinkedList<BlockMember>();
+        list.AddFirst($2);
+        $$ = new Block(list);
+    }
     | IS ABSTRACT
+    {
+        $$ = null;
+    }
     | IS FOREIGN
+    {
+        $$ = null;
+    }
     ;
 
 // Unit ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -661,13 +732,13 @@ RoutineBody
 UnitDeclaration
     : UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions    UnitMemberSeqOpt InvariantOpt END
     {
-        $$ = new UnitDeclaration(/*$5*/);
+        $$ = new UnitDeclaration($3, $4, $5);
     }
     | UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions IS UnitMemberSeqOpt InvariantOpt END
     {
-        $$ = new UnitDeclaration(/*$6*/);
+        $$ = new UnitDeclaration($3, $4, $6);
     }
-    ;
+    ;  // TODO specifiers and invariant consideration
 
 UnitSpecifiersOpt
     : /* empty */
@@ -685,6 +756,9 @@ UnitSpecifier
 
 UnitDeclarationAdditions
     : UnitAliasNameOpt GenericFormalsOpt InheritClauseOpt UseClauseOpt
+    {
+        $$ = $3;  // TODO other declaration additions
+    }
     ;
 
 UnitAliasNameOpt
@@ -693,24 +767,64 @@ UnitAliasNameOpt
     ;
 
 InheritClauseOpt
-    : /* empty */
-    | EXTEND BaseUnitSeq
+    : /* empty */  { $$ = null; }
+    | EXTEND BaseUnitSeq  { $$ = $2; }
     ;
 
 BaseUnitSeq
     :                   BaseUnitName
+    {
+        LinkedList<UnitName> list = new LinkedList<UnitName>();
+        list.AddFirst($1);
+        $$ = list;
+    }
     | BaseUnitSeq COMMA BaseUnitName
+    {
+        $1.AddLast($3);
+        $$ = $1;
+    }
     ;
 
 BaseUnitName
     :       Type
+    {
+        if ($1 == null)  // TODO remove nulls
+        {
+            $$ = null;
+        }
+        else
+        {
+            $$ = new UnitName($1, true);
+        }
+    }
     | TILDE Type
+    {
+        if ($2 == null)  // TODO remove nulls
+        {
+            $$ = null;
+        }
+        else
+        {
+            $$ = new UnitName($2, true);
+        }
+    }
     ;
 
 UnitMemberSeqOpt
     : /* empty */
+    {
+        $$ = new LinkedList<Declaration>();
+    }
     | UnitMemberSeqOpt                     UnitMember
+    {
+        $1.AddLast($2);
+        $$ = $1;
+    }
     | UnitMemberSeqOpt UnitMemberSpecifier UnitMember
+    {
+        $1.AddLast($3);  // TODO specifiers
+        $$ = $1;
+    }
     ;
 
 UnitMemberSpecifier
@@ -719,13 +833,13 @@ UnitMemberSpecifier
     ;
 
 UnitMember
-    : SEMICOLON  // All other statements are restricted
-    | UnitDeclaration
-    | RoutineDeclaration
-    | VariableDeclaration
-    | ConstObjectDeclaration
-    | InitializerDeclaration
-    | OperatorRoutineDeclaration  // TODO review
+    : SEMICOLON  { $$ = null; }  // All other statements are restricted
+    | UnitDeclaration  { $$ = $1; }
+    | RoutineDeclaration  { $$ = $1; }
+    | VariableDeclaration  { $$ = $1; }
+    | ConstObjectDeclaration  { $$ = null; }  // TODO constant objects
+    | InitializerDeclaration  { $$ = null; }  // TODO
+    | OperatorRoutineDeclaration  { $$ = $1; }
     ;  // TODO shift/reduce of OperatorRoutineDeclaration with Expression
 
 ConstObjectDeclaration
