@@ -5,8 +5,8 @@
     "tasks": [
         {
             "label": "make_gplex",
-            "command": "tools\\gplex.exe",
-            "args": ["src\\SLangScanner.lex"],
+            "command": "${cwd}\\tools\\gplex.exe",
+            "args": ["grammars\\SLangScanner.lex"],
             "type": "shell",
             "group": "build",
             "presentation": {
@@ -16,8 +16,8 @@
         {
             "label": "make_gppg",
             "dependsOn": "make_gplex",
-            "command": "tools\\gppg.exe",
-            "args": ["/gplex", "/conflicts", "src\\SLangParser.y"],
+            "command": "${cwd}\\tools\\gppg.exe",
+            "args": ["/gplex", "/conflicts", "grammars\\SLangParser.y"],
             "type": "shell",
             "group": "build",
             "presentation": {

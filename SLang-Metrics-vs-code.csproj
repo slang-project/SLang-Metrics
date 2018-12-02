@@ -16,17 +16,18 @@
     <Compile Include="src\ShiftReduceParser\ShiftReduceParserCode.cs" />
     <Compile Include="src\SLangLookaheadScanner.cs" />
     <Compile Include="src\LanguageElements.cs" />
+    <Compile Include="src\MetricCollector.cs" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
-    <Lex Include="src\SLangScanner.lex" />
+    <Lex Include="grammars\SLangScanner.lex" />
     <Compile Include="src\SLangScanner.cs">
       <DependentUpon>src\SLangScanner.lex</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Yacc Include="src\SLangParser.y" />
+    <Yacc Include="grammars\SLangParser.y" />
     <Compile Include="src\SLangParser.cs">
       <DependentUpon>src\SLangParser.y</DependentUpon>
     </Compile>
