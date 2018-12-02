@@ -1,4 +1,4 @@
-﻿// Core units to represent basic SLang types  (WIP - not all features are fully implemented!!! )
+// Core units to represent basic SLang types  (WIP - not all features are fully implemented!!! )
 // Version 0.75 June 22nd 2018
 
 val unit Bit
