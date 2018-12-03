@@ -9,6 +9,10 @@ namespace LanguageElements
         int getCC();
     }
 
+    interface IWMCMesurable
+    {
+        int getWMC();
+    }
 
     class Module
     {
@@ -75,7 +79,7 @@ namespace LanguageElements
     {
     }
 
-    class UnitDeclaration : Declaration, ICCMesurable
+    class UnitDeclaration : Declaration, IWMCMesurable
     {
         public CompoundName name { get; }
         public LinkedList<UnitName> parents { get; }
@@ -91,7 +95,7 @@ namespace LanguageElements
         }
 
         // TODO: In pseudocode it 
-        public int getCC()
+        public int getWMC()
         {
             if (WMC == null)
             {
@@ -109,7 +113,7 @@ namespace LanguageElements
         }
     }
 
-    class RoutineDeclaration : Declaration, ICCMesurable
+    class RoutineDeclaration : Declaration, IWMCMesurable
     {
         public string name { get; }
         public string aliasName { get; }
@@ -123,7 +127,7 @@ namespace LanguageElements
             System.Console.WriteLine(this.GetType().Name); // TODO remove
         }
 
-        public int getCC()
+        public int getWMC()
         {
             if (routineBlock != null)
                 return routineBlock.getCC();
@@ -206,7 +210,7 @@ namespace LanguageElements
     class UnitTypeName : Type
     {
         public string name { get; }
-        public object generics;  // TODO generics
+        public object generics; // TODO generics
 
         internal UnitTypeName(string name, object generics)
         {
