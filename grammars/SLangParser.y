@@ -316,11 +316,11 @@ UnitType
     ;  // TODO: specifiers
 
 UnitTypeName
-    : IDENTIFIER
+    : CompoundName
     {
         $$ = new UnitTypeName($1, null);
     }
-    | IDENTIFIER GenericArgumentClause
+    | CompoundName GenericArgumentClause
     {
         $$ = new UnitTypeName($1, null);  // TODO: generics
     }
