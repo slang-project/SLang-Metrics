@@ -10,5 +10,10 @@ namespace Metrics
         {
             this.parsedModule = SLangParser.Parser.parseProgram(fileName);
         }
+
+        internal bool IsParsingSuccessful()
+        {
+            return this.parsedModule != null;
+        }
     }
 }

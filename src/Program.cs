@@ -20,7 +20,8 @@ namespace SLangMetrics
             }
 
             MetricCollector coll = new MetricCollector(args[0]);
-            // TODO call representation of metrics (toHTML or CliInterface)
+            Console.Write("Is parsing successful: ");
+            Console.WriteLine(coll.IsParsingSuccessful() ? "yes" : "no");
         }
     }
 }
