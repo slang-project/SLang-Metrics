@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using SLangMetrics;
 
 namespace LanguageElements
@@ -16,19 +18,95 @@ namespace LanguageElements
         {
             this.members = members;
         }
+
+        public LinkedList<BlockMember> getMembers()
+        {
+            return members;
+        }
+
+        public string getName()
+        {
+            return "module";
+        }
+
+        public void PrintPretty(string indent, bool last)
+        {
+            Console.Write(indent);
+            if (last)
+            {
+                Console.Write("\\-");
+                indent += "  ";
+            }
+            else
+            {
+                Console.Write("|-");
+                indent += "| ";
+            }
+            Console.WriteLine(getName());
+
+            List<BlockMember> members = getMembers().ToList();
+            for (int i = 0; i < members.Count; i++)
+            {
+                if(members[i] != null) 
+                {
+                    members[i].PrintPretty(indent, i == members.Count - 1);
+                }
+            }
+        }
+
+
     }
 
     internal abstract class BlockMember
     {
+        public abstract LinkedList<BlockMember> getMembers();
+        public abstract string getName();
+
+        public void PrintPretty(string indent, bool last)
+        {
+            Console.Write(indent);
+            if (last)
+            {
+                Console.Write("\\-");
+                indent += "  ";
+            }
+            else
+            {
+                Console.Write("|-");
+                indent += "| ";
+            }
+            Console.WriteLine(getName());
+
+            List<BlockMember> members = getMembers().ToList();
+
+            for (int i = 0; i < members.Count; i++)
+            {
+                if(members[i] != null) 
+                {
+                    members[i].PrintPretty(indent, i == members.Count - 1);
+                }
+            }
+        }
     }
 
     internal class Block : BlockMember
     {
+        
         internal LinkedList<BlockMember> members { get; }
 
         internal Block(LinkedList<BlockMember> members)
         {
             this.members = members;
+        }
+
+        public override LinkedList<BlockMember> getMembers()
+        {
+            return members;
+        }
+
+        public override string getName()
+        {
+            return "block";
         }
     }
 
@@ -49,6 +127,18 @@ namespace LanguageElements
             this.members = members;
             System.Console.WriteLine(this.GetType().Name);  // TODO remove
         }
+
+        public override LinkedList<BlockMember> getMembers()
+        {
+            IEnumerable<BlockMember> decls = members.Select(str => (BlockMember) str);
+            LinkedList<BlockMember> blockMembers = new LinkedList<BlockMember>(decls);
+            return blockMembers;
+        }
+
+        public override string getName()
+        {
+            return name.ToString();
+        }
     }
 
     internal class RoutineDeclaration : Declaration
@@ -64,6 +154,16 @@ namespace LanguageElements
             this.routineBlock = routineBlock;
             System.Console.WriteLine(this.GetType().Name);  // TODO remove
         }
+
+        public override LinkedList<BlockMember> getMembers()
+        {
+            return routineBlock.getMembers();
+        }
+
+        public override string getName()
+        {
+            return this.name;
+        }
     }
 
     internal class VariableDeclaration : Declaration
@@ -71,6 +171,16 @@ namespace LanguageElements
         public VariableDeclaration()
         {
             System.Console.WriteLine(this.GetType().Name);  // TODO remove
+        }
+
+        public override LinkedList<BlockMember> getMembers()
+        {
+            return new LinkedList<BlockMember>();
+        }
+
+        public override string getName()
+        {
+            return "variableDeclaration";  // TODO: delete
         }
     }
 
@@ -81,15 +191,36 @@ namespace LanguageElements
     internal class IfStatement : Statement
     {
         internal Block mainBlock { get; }
-        internal Block elseBlock { get; }
         internal LinkedList<Block> elsifBlockList { get; }
+        internal Block elseBlock { get; }
 
         public IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
         {
             this.mainBlock = mainBlock;
-            this.elseBlock = elseBlock;
             this.elsifBlockList = elsifBlockList;
+            this.elseBlock = elseBlock;
             System.Console.WriteLine(this.GetType().Name);  // TODO remove
+        }
+
+        public override LinkedList<BlockMember> getMembers()
+        {
+            LinkedList<BlockMember> branchedMembers = new LinkedList<BlockMember>();
+            
+            branchedMembers.AddLast(new NamedMember("if_true", mainBlock.getMembers()));
+            
+            foreach(Block block in this.elsifBlockList ?? Enumerable.Empty<Block>())
+            {
+                branchedMembers.AddLast(new NamedMember("if_elsif", block.getMembers()));
+            }
+
+            branchedMembers.AddLast(new NamedMember("if_else", elseBlock.getMembers()));
+
+            return branchedMembers;
+        }
+
+        public override string getName()
+        {
+            return "branch";
         }
     }
 
@@ -102,10 +233,21 @@ namespace LanguageElements
             this.loopBlock = loopBlock;
             System.Console.WriteLine(this.GetType().Name);  // TODO remove
         }
+
+        public override LinkedList<BlockMember> getMembers()
+        {
+            return loopBlock.getMembers();
+        }
+
+        public override string getName()
+        {
+            return "loobBlock";
+        }
     }
 
     internal abstract class Type
     {
+
     }
 
     internal class UnitTypeName : Type
@@ -164,6 +306,41 @@ namespace LanguageElements
         internal void AddLast(string name)
         {
             names.AddLast(name);
+        }
+
+        public override string ToString()
+        {
+            string result = "";
+            foreach (string name in names ?? Enumerable.Empty<string>())
+            {
+                result += name;
+            }
+            if (result.Equals("")){
+                return "emptyUnitName";
+            }
+            return result;
+        }
+    }
+
+    internal class NamedMember : BlockMember  // TODO: review how  
+    {
+        string name;
+        LinkedList<BlockMember> members;
+
+        internal NamedMember(string name, LinkedList<BlockMember> members)
+        {
+            this.name = name;
+            this.members = members;
+        }
+
+        public override LinkedList<BlockMember> getMembers()
+        {
+            return members;
+        }
+
+        public override string getName()
+        {
+            return name;
         }
     }
 }

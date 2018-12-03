@@ -1,7 +1,7 @@
 ﻿// Core units to represent basic SLang types  (WIP - not all features are fully implemented!!! )
 // Version 0.75 June 22nd 2018
 
-val unit Bit
+val unit Bit extend A
     const is
          0b0, 0b1
     end
@@ -63,4 +63,20 @@ val unit Bit
             raise "Bit underflow"
         end
     end // -
+end
+
+val unit A extend B
+    a is 6
+end
+
+val unit B extend C
+    a is 6
+end
+
+do
+
+unit C extend D
+    
+end
+
 end
