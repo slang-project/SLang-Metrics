@@ -64,7 +64,7 @@ namespace LanguageElements
                 CC = 1;
                 foreach (var m in members)
                 {
-                    if (m is ICCMesurable statement)
+                    if (!(m is RoutineDeclaration) && m is ICCMesurable statement)
                     {
                         CC *= statement.getCC();
                     }
@@ -91,10 +91,9 @@ namespace LanguageElements
             this.name = name;
             this.parents = parents;
             this.members = members;
-            System.Console.WriteLine(this.GetType().Name); // TODO remove
+            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
 
-        // TODO: In pseudocode it 
         public int getWMC()
         {
             if (WMC == null)
@@ -104,7 +103,7 @@ namespace LanguageElements
                 {
                     if (m is RoutineDeclaration routine)
                     {
-                        WMC += routine.routineBlock.getCC();
+                        WMC += routine.getCC();
                     }
                 }
             }
@@ -113,7 +112,7 @@ namespace LanguageElements
         }
     }
 
-    class RoutineDeclaration : Declaration, IWMCMesurable
+    class RoutineDeclaration : Declaration, ICCMesurable
     {
         public string name { get; }
         public string aliasName { get; }
@@ -124,15 +123,15 @@ namespace LanguageElements
             this.name = name;
             this.aliasName = aliasName;
             this.routineBlock = routineBlock;
-            System.Console.WriteLine(this.GetType().Name); // TODO remove
+            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
 
-        public int getWMC()
+        public int getCC()
         {
             if (routineBlock != null)
                 return routineBlock.getCC();
             else
-                return 0; //TODO: check
+                return 0;
         }
     }
 
@@ -140,7 +139,7 @@ namespace LanguageElements
     {
         internal VariableDeclaration()
         {
-            System.Console.WriteLine(this.GetType().Name); // TODO remove
+            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
     }
 
@@ -161,7 +160,7 @@ namespace LanguageElements
             this.mainBlock = mainBlock;
             this.elseBlock = elseBlock;
             this.elsifBlockList = elsifBlockList;
-            System.Console.WriteLine(this.GetType().Name); // TODO remove
+            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
 
         public int getCC()
@@ -189,7 +188,7 @@ namespace LanguageElements
         internal LoopStatement(Block loopBlock)
         {
             this.loopBlock = loopBlock;
-            System.Console.WriteLine(this.GetType().Name); // TODO remove
+            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
 
         public int getCC()
@@ -210,7 +209,7 @@ namespace LanguageElements
     class UnitTypeName : Type
     {
         public string name { get; }
-        public object generics; // TODO generics
+        public object generics;  // TODO: generics
 
         internal UnitTypeName(string name, object generics)
         {
@@ -233,7 +232,7 @@ namespace LanguageElements
             }
             else
             {
-                throw new WrongParentUnitNameException(); // TODO review
+                throw new WrongParentUnitNameException();  // TODO: review
             }
         }
 
