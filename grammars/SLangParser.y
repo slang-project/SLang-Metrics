@@ -9,6 +9,7 @@
 %using System.IO;
 
 %namespace SLangParser
+%visibility internal
 
 %start Module
 
