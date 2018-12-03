@@ -572,7 +572,7 @@ LoopStatement
     {
         $$ = new LoopStatement($5);
     }
-    | LoopIdOpt WHILE Expression            Block
+    | LoopIdOpt WHILE Expression      Block
     {
         $$ = new LoopStatement($4);
     }
