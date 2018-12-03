@@ -4,6 +4,13 @@ using LanguageElements;
 
 namespace Metrics
 {
+    public class ParsingFailedException : Exception
+    {
+        public ParsingFailedException() : base()
+        {
+        }
+    }
+
     class MetricCollector
     {
         private Module parsedModule;
@@ -11,14 +18,13 @@ namespace Metrics
         public MetricCollector(string fileName)
         {
             this.parsedModule = SLangParser.Parser.parseProgram(fileName);
+            if (parsedModule == null)
+            {
+                throw new ParsingFailedException();
+            }
         }
 
-        public bool IsParsingSuccessful()
-        {
-            return this.parsedModule != null;
-        }
-
-        public void debug()
+        public void Debug()
         {
             Console.WriteLine(parsedModule.getCC());
         }

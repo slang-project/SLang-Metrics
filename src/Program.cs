@@ -18,18 +18,19 @@ namespace SLangMetrics
                 Environment.Exit(Testing.runTests() ? 0 : 1);
             }
 
-            MetricCollector coll = new MetricCollector(args[0]);
-            Console.Write("Is parsing successful: ");
-            Console.WriteLine(coll.IsParsingSuccessful() ? "yes" : "no");
-
-            if (!coll.IsParsingSuccessful())
+            MetricCollector collector;
+            try
             {
+                collector = new MetricCollector(args[0]);
+                collector.Debug();  // TODO: change metric revealence interface
+            }
+            catch (ParsingFailedException)
+            {
+                Console.WriteLine("Parsing failed!");
                 Console.WriteLine("No metrics will be provided");
                 Console.WriteLine("Terminating process...");
                 Environment.Exit(1);
             }
-
-            coll.debug();  // TODO: change metric revealence interface
         }
     }
 }
