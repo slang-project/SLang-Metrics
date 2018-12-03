@@ -1,5 +1,6 @@
 ﻿using Metrics;
 using System;
+using SLangTests;
 
 namespace SLangMetrics
 {
@@ -15,7 +16,8 @@ namespace SLangMetrics
 
             if (Testing.isTestingMode || Array.Exists<String>(args, s => s.ToLower().Contains("/test")))
             {
-                Environment.Exit(Testing.runTests() ? 0 : 1);
+                Testing testing = new Testing();
+                Environment.Exit(testing.runTests() ? 0 : 1);
             }
 
             MetricCollector coll = new MetricCollector(args[0]);

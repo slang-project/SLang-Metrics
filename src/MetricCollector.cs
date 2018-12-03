@@ -6,7 +6,7 @@ namespace Metrics
 {
     class MetricCollector
     {
-        private Module parsedModule;
+        internal Module parsedModule { get; }
 
         public MetricCollector(string fileName)
         {
