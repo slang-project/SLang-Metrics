@@ -59,7 +59,7 @@
 %type <s> AliasNameOpt
 %type <bl> RoutineBody
 %type <ud> UnitDeclaration
-%type <llun> UnitDeclarationAdditions  // TODO change actual type
+%type <llun> UnitDeclarationAdditions  // TODO: change actual type
 %type <llun> InheritClauseOpt
 %type <llun> BaseUnitSeq
 %type <un> BaseUnitName
@@ -80,7 +80,7 @@
 %token RBRACKET
 //%token ASSIGNMENT
 %token GENERATOR
-%token SINGLE_ARROW  // TODO add to specification
+%token SINGLE_ARROW  // TODO: add to specification
 %token DOUBLE_ARROW
 %token QUESTION
 
@@ -133,8 +133,8 @@
 %token IS
 %token LOOP
 %token NEW
-%token NONE  // TODO add to specification
-//%token NOT  // TODO remove
+%token NONE  // TODO: add to specification
+//%token NOT  // TODO: remove
 %token OLD
 %token OVERRIDE
 %token PURE
@@ -289,7 +289,7 @@ PredicateSeq
     :                        Predicate
     | PredicateSeq COMMA     Predicate
 //  | PredicateSeq SEMICOLON Predicate
-    ;  // TODO check, shift/reduce of semicolon
+    ;  // TODO: check, shift/reduce of semicolon
 
 Predicate
     :                  Expression
@@ -300,9 +300,9 @@ Predicate
 
 Type
     : UnitType  { $$ = $1; }
-    | AnchorType  { $$ = $1; }/*
+    | AnchorType  { $$ = $1; }
     | MultiType
-    | TupleType
+    | TupleType/*
     | RangeType
     | RoutineType*/
     ;  // FIXME a lot of conflicts!
@@ -312,7 +312,7 @@ UnitType
     | REF        UnitTypeName  { $$ = $2; }
     | VAL        UnitTypeName  { $$ = $2; }
     | CONCURRENT UnitTypeName  { $$ = $2; }
-    ;  // TODO specifiers
+    ;  // TODO: specifiers
 
 UnitTypeName
     : IDENTIFIER
@@ -321,7 +321,7 @@ UnitTypeName
     }
     | IDENTIFIER GenericArgumentClause
     {
-        $$ = new UnitTypeName($1, null);  // TODO generics
+        $$ = new UnitTypeName($1, null);  // TODO: generics
     }
     ;
 
@@ -345,39 +345,38 @@ AnchorType
     {
         $$ = null;  // TODO
     }
-//  | AS IDENTIFIER RoutineParameters  // TODO review
+//  | AS IDENTIFIER RoutineParameters  // TODO: review
     ;
-/*
+
 MultiType
-    :                    UnitType
+    :  UnitType VERTICAL UnitType
     | MultiType VERTICAL UnitType
     ;
 
 TupleType
-    : LPAREN               RPAREN
-    | LPAREN TupleFieldSeq RPAREN
+    : LPAREN TupleElementSeq RPAREN
     ;
 
-TupleFieldSeq
-    :                         TypeField
-    | TupleFieldSeq COMMA     TypeField
-    | TupleFieldSeq SEMICOLON TypeField
+TupleElementSeq
+    :                           TupleElement
+    | TupleElementSeq COMMA     TupleElement
+    | TupleElementSeq SEMICOLON TupleElement
     ;
 
-TypeField
-    : IdentifierSeq                IS Expression
-    | IdentifierSeq COLON UnitType
-    | IdentifierSeq COLON UnitType IS Expression
+TupleElement
+    : Expression
+    | Expression TypeAndInit
+//  | VariableDeclaration  // shift/reduce (cannot decide what to do with IdentifierSeq)
     ;
-
+/*
 RangeType
     : Expression GENERATOR Expression
-    ;
+    ;  // TODO: review
 
 RoutineType
     : LPAREN                RPAREN Block
     | LPAREN RoutineFormals RPAREN Block
-    ;  // TODO return type
+    ;  // TODO: return type
 */
 // Expression //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -400,7 +399,7 @@ Expression
     | Expression EQUALS         Expression
     | Expression SLASH_EQUALS   Expression
     | Expression LESS_GREATER   Expression
-    ;  // TODO probably shift operations
+    ;  // TODO: probably shift operations
 
 UnaryExpression
     : SecondaryExpression
@@ -414,41 +413,30 @@ SecondaryExpression
     | SecondaryExpression LPAREN RPAREN
     | SecondaryExpression Tuple
     | SecondaryExpression DOT PrimaryExpression
-    ;  // TODO remove shift/reduce (shift is correct)
+    ;  // TODO: remove shift/reduce (shift is correct)
 
 PrimaryExpression
     : LITERAL  // TODO
     | TypeOrIdentifier
-//  | OperatorSign  // TODO consider later
+//  | OperatorSign  // TODO: consider later
     | THIS
     | SUPER
 //  | SUPER UnitTypeName  // TODO
-//  | RETURN  // TODO review
+//  | RETURN  // TODO: review
     | OLD
-//  | OLD Expression  // TODO review
+//  | OLD Expression  // TODO: review
     | Tuple
 //  | LPAREN Expression RPAREN  // reduce/reduce with Tuple
     ;
 
 TypeOrIdentifier
-    : UnitTypeName  // TODO review, probably just Type
+    : UnitTypeName  // TODO: review, probably just Type
 //  | IDENTIFIER  // reduce/reduce conflict with `Type: IDENTIFIER;`
     ;
 
 Tuple
-    : LPAREN TupleElementSeq RPAREN
-    ;
-
-TupleElementSeq
-    :                           TupleElement
-    | TupleElementSeq COMMA     TupleElement
-    | TupleElementSeq SEMICOLON TupleElement
-    ;
-
-TupleElement
-    : Expression
-    | Expression TypeAndInit  // TODO remove this Ad-Hoc
-//  | VariableDeclaration  // TODO consider later
+    : TupleType
+//  | TupleValue  // reduce/reduce, all tuples are types
     ;
 
 // Statement ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -482,7 +470,7 @@ BlockMember
 ExceptionHandlerSeqOpt
     : /* empty */
     | WHEN Expression NestedBlock
-    ;  // TODO review
+    ;  // TODO: review
 
 NestedBlock
     : PreconditionOpt    NestedBlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt
@@ -526,7 +514,7 @@ Statement
     | ValueLossStatement  { $$ = null; }  // TODO
     | ReturnStatement  { $$ = null; }  // TODO
     | RaiseStatement  { $$ = null; }  // TODO
-    ;  // TODO review
+    ;  // TODO: review
 
 Assignment
     : Expression COLON_EQUALS Expression
@@ -619,7 +607,7 @@ VariableDeclaration
     {
         $$ = new VariableDeclaration();
     }
-    ;  // TODO content consideration
+    ;  // TODO: content consideration
 
 VariableSpecifier
     : CONST
@@ -632,7 +620,7 @@ TypeAndInit
     | COLON QUESTION UnitType
     | COLON          Type     IS Expression
     | COLON QUESTION UnitType IS Expression
-    ;  // TODO review
+    ;  // TODO: review
 
 // Routine /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -645,7 +633,7 @@ RoutineDeclaration
     {
         $$ = new RoutineDeclaration($2, null, $7);
     }
-    ;  // TODO change UseSeq to just Use
+    ;  // TODO: change UseSeq to just Use
 
 OperatorRoutineDeclaration
     :                  OperatorRoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
@@ -656,20 +644,20 @@ OperatorRoutineDeclaration
     {
         $$ = new RoutineDeclaration($2[0], $2[1], $7);
     }
-    ;  // TODO change UseSeq to just Use; review
+    ;  // TODO: change UseSeq to just Use; review
 
 RoutineSpecifier
     : PURE
     | SAFE
     | ABSTRACT
     | OVERRIDE
-    ;  // TODO review
+    ;  // TODO: review
 
 RoutineName
     : FUNCTION_ID  { $$ = $1; }
 //  | OP_AS_ROUTINE_NAME AliasNameOpt
 //  | COLON_EQUALS
-    | LPAREN RPAREN  { $$ = "()"; }  // TODO review
+    | LPAREN RPAREN  { $$ = "()"; }  // TODO: review
     ;
 
 OperatorRoutineName
@@ -703,7 +691,7 @@ RoutineBody
     {
         $$ = $1;
     }
-    | DOUBLE_ARROW Statement  // TODO review
+    | DOUBLE_ARROW Statement  // TODO: review
     {
         LinkedList<BlockMember> list = new LinkedList<BlockMember>();
         list.AddFirst($2);
@@ -736,7 +724,7 @@ UnitDeclaration
         scannerFlags.isInsideUnit = false;  // XXX: important for lookahead
         $$ = new UnitDeclaration($3, $4, $7);
     }
-    ;  // TODO specifiers and invariant consideration
+    ;  // TODO: specifiers and invariant consideration
 
 UnitSpecifiersOpt
     : /* empty */
@@ -749,13 +737,13 @@ UnitSpecifier
     | VAL
     | CONCURRENT
     | ABSTRACT
-//  | EXTEND  // TODO review
+//  | EXTEND  // TODO: review
     ;
 
 UnitDeclarationAdditions
     : UnitAliasNameOpt GenericFormalsOpt InheritClauseOpt UseClauseOpt
     {
-        $$ = $3;  // TODO other declaration additions
+        $$ = $3;  // TODO: other declaration additions
     }
     ;
 
@@ -786,7 +774,7 @@ BaseUnitSeq
 BaseUnitName
     :       Type
     {
-        if ($1 == null)  // TODO remove nulls
+        if ($1 == null)  // TODO: remove nulls
         {
             $$ = null;
         }
@@ -797,7 +785,7 @@ BaseUnitName
     }
     | TILDE Type
     {
-        if ($2 == null)  // TODO remove nulls
+        if ($2 == null)  // TODO: remove nulls
         {
             $$ = null;
         }
@@ -822,7 +810,7 @@ UnitMemberSeqOpt
     | UnitMemberSeqOpt UnitMemberSpecifier UnitMember
     {
         scannerFlags.isInsideUnit = true;  // XXX: important for lookahead
-        $1.AddLast($3);  // TODO specifiers
+        $1.AddLast($3);  // TODO: specifiers
         $$ = $1;
     }
     ;
@@ -837,10 +825,10 @@ UnitMember
     | UnitDeclaration  { $$ = $1; }
     | RoutineDeclaration  { $$ = $1; }
     | VariableDeclaration  { $$ = $1; }
-    | ConstObjectDeclaration  { $$ = null; }  // TODO constant objects
+    | ConstObjectDeclaration  { $$ = null; }  // TODO: constant objects
     | InitializerDeclaration  { $$ = null; }  // TODO
     | OperatorRoutineDeclaration  { $$ = $1; }
-    ;  // TODO shift/reduce of OperatorRoutineDeclaration with Expression
+    ;  // TODO: shift/reduce of OperatorRoutineDeclaration with Expression
 
 ConstObjectDeclaration
     : CONST IS
@@ -858,7 +846,7 @@ ConstObject
     ;
 
 InitializerDeclaration
-    : GENERATOR  // TODO (do not forget flag for lookahead)
+    : GENERATOR  // TODO: (do not forget flag for lookahead)
     ;
 
 %%
