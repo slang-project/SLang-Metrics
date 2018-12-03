@@ -57,7 +57,6 @@
 %type <s> RoutineName
 %type <sa> OperatorRoutineName
 %type <s> AliasNameOpt
-%type <s> OperatorSign
 %type <bl> RoutineBody
 %type <ud> UnitDeclaration
 %type <llun> UnitDeclarationAdditions  // TODO change actual type
@@ -86,25 +85,25 @@
 %token QUESTION
 
 // Operators
-%token PLUS
-%token MINUS
-%token ASTERISK
-%token SLASH
-%token DBL_ASTERISK
-%token VERTICAL
-%token DBL_VERTICAL
-%token AMPERSAND
-%token DBL_AMPERSAND
-%token CARET
-%token TILDE
-%token LESS
-%token LESS_EQUALS
-%token GREATER
-%token GREATER_EQUALS
-%token EQUALS
-%token SLASH_EQUALS
-%token LESS_GREATER
-%token COLON_EQUALS
+%token <s> PLUS
+%token <s> MINUS
+%token <s> ASTERISK
+%token <s> SLASH
+%token <s> DBL_ASTERISK
+%token <s> VERTICAL
+%token <s> DBL_VERTICAL
+%token <s> AMPERSAND
+%token <s> DBL_AMPERSAND
+%token <s> CARET
+%token <s> TILDE
+%token <s> LESS
+%token <s> LESS_EQUALS
+%token <s> GREATER
+%token <s> GREATER_EQUALS
+%token <s> EQUALS
+%token <s> SLASH_EQUALS
+%token <s> LESS_GREATER
+%token <s> COLON_EQUALS
 
 // Keywords
 %token AND_THEN
@@ -161,11 +160,12 @@
 // Tokens for lookahead
 %token NEW_LINE
 %token WHILE_POSTTEST
-%token <s> FUNCTION_ID
 %token LOOP_ID
 %token JUST_BREAK
 %token JUST_RETURN
 %token JUST_RAISE
+%token <s> FUNCTION_ID
+%token <s> OP_AS_ROUTINE_NAME
 
 // ===== ASSOCIATIVITY & PRECEDENCE =====
 
@@ -454,9 +454,11 @@ TupleElement
 // Statement ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Block
-    : PreconditionOpt DO BlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt END
+    : PreconditionOpt DO
+        { scannerFlags.isInsideUnit = false; }  // XXX: important for lookahead
+      BlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt END
     {
-        $$ = new Block($3);
+        $$ = new Block($4);
     }
     ;
 
@@ -665,13 +667,13 @@ RoutineSpecifier
 
 RoutineName
     : FUNCTION_ID  { $$ = $1; }
-//  | OperatorSign AliasNameOpt
+//  | OP_AS_ROUTINE_NAME AliasNameOpt
 //  | COLON_EQUALS
     | LPAREN RPAREN  { $$ = "()"; }  // TODO review
     ;
 
 OperatorRoutineName
-    : OperatorSign AliasNameOpt  { $$ = new string[] {$1, $2}; }
+    : OP_AS_ROUTINE_NAME AliasNameOpt  { $$ = new string[] {$1, $2}; }
     | COLON_EQUALS  { $$ = new string[] {":=", null}; }
     ;
 
@@ -679,15 +681,6 @@ AliasNameOpt
     : /* empty */  { $$ = null; }
     | ALIAS FUNCTION_ID  { $$ = $2; }
     ;
-
-OperatorSign
-    : PLUS  { $$ = "+"; }
-    | MINUS  { $$ = "-"; }
-    | AMPERSAND  { $$ = "&"; }
-    | VERTICAL  { $$ = "|"; }
-    | CARET  { $$ = "^"; }
-    | TILDE  { $$ = "~"; }
-    ;  // TODO
 
 RoutineParameters
     : LPAREN                RPAREN
@@ -729,13 +722,19 @@ RoutineBody
 // Unit ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 UnitDeclaration
-    : UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions    UnitMemberSeqOpt InvariantOpt END
+    : UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions
+        { scannerFlags.isInsideUnit = true; }  // XXX: important for lookahead
+      UnitMemberSeqOpt InvariantOpt END
     {
-        $$ = new UnitDeclaration($3, $4, $5);
-    }
-    | UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions IS UnitMemberSeqOpt InvariantOpt END
-    {
+        scannerFlags.isInsideUnit = false;  // XXX: important for lookahead
         $$ = new UnitDeclaration($3, $4, $6);
+    }
+    | UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions IS
+        { scannerFlags.isInsideUnit = true; }  // XXX: important for lookahead
+      UnitMemberSeqOpt InvariantOpt END
+    {
+        scannerFlags.isInsideUnit = false;  // XXX: important for lookahead
+        $$ = new UnitDeclaration($3, $4, $7);
     }
     ;  // TODO specifiers and invariant consideration
 
@@ -816,11 +815,13 @@ UnitMemberSeqOpt
     }
     | UnitMemberSeqOpt                     UnitMember
     {
+        scannerFlags.isInsideUnit = true;  // XXX: important for lookahead
         $1.AddLast($2);
         $$ = $1;
     }
     | UnitMemberSeqOpt UnitMemberSpecifier UnitMember
     {
+        scannerFlags.isInsideUnit = true;  // XXX: important for lookahead
         $1.AddLast($3);  // TODO specifiers
         $$ = $1;
     }
@@ -842,7 +843,9 @@ UnitMember
     ;  // TODO shift/reduce of OperatorRoutineDeclaration with Expression
 
 ConstObjectDeclaration
-    : CONST IS ConstObjectSeq END
+    : CONST IS
+        { scannerFlags.isInsideUnit = false; }  // XXX: important for lookahead
+      ConstObjectSeq END
     ;
 
 ConstObjectSeq
@@ -855,20 +858,26 @@ ConstObject
     ;
 
 InitializerDeclaration
-    : GENERATOR  // TODO
+    : GENERATOR  // TODO (do not forget flag for lookahead)
     ;
 
 %%
 
-private Parser(Scanner scnr) : base(scnr) { parsedProgram = null; }
-
 private Module parsedProgram;
+private ScannerFlags scannerFlags;
+
+private Parser(Scanner scanner, ref ScannerFlags scannerFlags) : base(scanner)
+{
+    this.parsedProgram = null;
+    this.scannerFlags = scannerFlags;
+}
 
 internal static Module parseProgram(String filePath)
 {
     FileStream file = new FileStream(filePath, FileMode.Open);
-    Scanner scanner = new Scanner(file);
-    Parser parser = new Parser(scanner);
+    ScannerFlags scannerFlags = new ScannerFlags();
+    Scanner scanner = new Scanner(file, ref scannerFlags);
+    Parser parser = new Parser(scanner, ref scannerFlags);
     bool res = parser.Parse();
     file.Close();
     return res ? parser.parsedProgram : null;
