@@ -142,7 +142,6 @@ namespace SLangLookaheadScanner
             if (looked == (int)Tokens.COLON)
             {
                 looked = LookNextNonNewLine();
-                // TODO skip newlines (if they will be considered)
                 return looked == (int)Tokens.WHILE || looked == (int)Tokens.LOOP
                         ? (int)Tokens.LOOP_ID : curToken;
             }
@@ -152,11 +151,8 @@ namespace SLangLookaheadScanner
                 do
                 {
                     looked = LookNext();
-                    if (false)  // TODO functional object declaration
-                    {
-                        return curToken;
-                    }
-                    else if (looked == (int)Tokens.LBRACKET)
+                    // TODO: functional object declaration consideration
+                    if (looked == (int)Tokens.LBRACKET)
                     {
                         ++bracket_counter;
                     }
@@ -173,11 +169,8 @@ namespace SLangLookaheadScanner
                 do
                 {
                     looked = LookNext();
-                    if (false)  // TODO functional object declaration
-                    {
-                        return curToken;
-                    }
-                    else if (looked == (int)Tokens.LPAREN)
+                    // TODO: functional object declaration consideration
+                    if (looked == (int)Tokens.LPAREN)
                     {
                         ++parentheses_counter;
                     }
