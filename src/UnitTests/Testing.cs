@@ -57,7 +57,7 @@ namespace SLangTests
         [TestMethod]
         public void javaCodeParsingTest()
         {
-            Module m = parseCode("java_code.slang", false);
+            Module m = parseCode("java_code.java", false);
         }
 
         [TestMethod]
