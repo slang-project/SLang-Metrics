@@ -4,7 +4,7 @@ using SLangMetrics;
 
 namespace LanguageElements
 {
-    interface ICCMesurable
+    interface ICCMeasurable
     {
         int getCC();
     }
@@ -14,7 +14,7 @@ namespace LanguageElements
         int getWMC();
     }
 
-    class Module
+    class Module : ICCMeasurable
     {
         public LinkedList<BlockMember> members { get; }
         private int? CC = null;
@@ -31,7 +31,7 @@ namespace LanguageElements
                 CC = 1;
                 foreach (var m in members)
                 {
-                    if (m is ICCMesurable statement)
+                    if (m is ICCMeasurable statement)
                     {
                         CC *= statement.getCC();
                     }
@@ -47,7 +47,7 @@ namespace LanguageElements
     }
 
 
-    class Block : BlockMember, ICCMesurable
+    class Block : BlockMember, ICCMeasurable
     {
         public LinkedList<BlockMember> members { get; }
         private int? CC = null;
@@ -64,7 +64,7 @@ namespace LanguageElements
                 CC = 1;
                 foreach (var m in members)
                 {
-                    if (!(m is RoutineDeclaration) && m is ICCMesurable statement)
+                    if (!(m is RoutineDeclaration) && m is ICCMeasurable statement)
                     {
                         CC *= statement.getCC();
                     }
@@ -112,7 +112,7 @@ namespace LanguageElements
         }
     }
 
-    class RoutineDeclaration : Declaration, ICCMesurable
+    class RoutineDeclaration : Declaration, ICCMeasurable
     {
         public string name { get; }
         public string aliasName { get; }
@@ -148,7 +148,7 @@ namespace LanguageElements
     }
 
 
-    class IfStatement : Statement, ICCMesurable
+    class IfStatement : Statement, ICCMeasurable
     {
         public Block mainBlock { get; }
         public Block elseBlock { get; }
@@ -180,7 +180,7 @@ namespace LanguageElements
         }
     }
 
-    class LoopStatement : Statement, ICCMesurable
+    class LoopStatement : Statement, ICCMeasurable
     {
         public Block loopBlock { get; }
         private int? CC = null;
