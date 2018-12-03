@@ -27,7 +27,7 @@
         {
             "label": "build",
             "dependsOn": "make_gppg",
-            "command": "dotnet publish -c Release -r win10-x64",
+            "command": "dotnet publish -c Debug -r win10-x64",
             "args": ["SLang-Metrics-vs-code.csproj"],
             "type": "shell",
             "group": "build",

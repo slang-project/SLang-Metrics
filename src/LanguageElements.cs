@@ -79,17 +79,53 @@ namespace LanguageElements
     //         }
     //     }
     // }
-
+    internal class Inheritance
+    {
+        public Inheritance(LinkedList<UnitDeclaration> unitList)
+        {
+            
+        }
+    }
 
     internal class InheritanceNode
     {
         public CompoundName name;
+        public LinkedList<InheritanceNode> parents;
         public LinkedList<InheritanceNode> children;
 
-        public InheritanceNode(CompoundName name, LinkedList<InheritanceNode> children)
+        public bool visited;
+        public int visitorFootprint;
+
+        public InheritanceNode(CompoundName name, LinkedList<InheritanceNode> parents)
         {
             this.name = name;
-            this.children = children;
+            this.parents = parents;
+            visited = false;
+        }
+
+        public void visit()
+        {
+            this.visited = true;
+        }
+
+        public void visit(int footprint)
+        {
+            this.visited = true;
+            this.visitorFootprint = footprint;
+        }
+
+        public bool visitorFootprintEqual(int footprint)
+        {
+            return this.visitorFootprint == footprint;
+        }
+
+        public void cleanVisited()
+        {
+            this.visited = false;
+            foreach(InheritanceNode node in children ?? Enumerable.Empty<InheritanceNode>())
+            {
+                node.cleanVisited();
+            }
         }
     }
 
