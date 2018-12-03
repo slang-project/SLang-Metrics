@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using LanguageElements;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,7 @@ namespace Metrics
         private LinkedList<UnitDeclaration> units;
         private LinkedList<UnitDeclaration> leafUnits;
 
-        internal MetricCollector(string fileName)
+        public MetricCollector(string fileName)
         {
             this.parsedModule = SLangParser.Parser.parseProgram(fileName);
             Console.WriteLine("------------");
@@ -28,9 +30,15 @@ namespace Metrics
                 Console.WriteLine(bm.ToString());
             }
         }
-        internal bool IsParsingSuccessful()
+
+        public bool IsParsingSuccessful()
         {
             return this.parsedModule != null;
+        }
+
+        public void debug()
+        {
+            Console.WriteLine(parsedModule.getCC());
         }
     }
 }

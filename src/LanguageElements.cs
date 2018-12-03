@@ -5,18 +5,41 @@ using SLangMetrics;
 
 namespace LanguageElements
 {
-    internal interface ICCMesurable
+    interface ICCMeasurable
     {
         int getCC();
     }
 
-    internal class Module
+    interface IWMCMesurable
     {
-        internal LinkedList<BlockMember> members { get; }
+        int getWMC();
+    }
+
+    class Module : ICCMeasurable
+    {
+        public LinkedList<BlockMember> members { get; }
+        private int? CC = null;
 
         internal Module(LinkedList<BlockMember> members)
         {
             this.members = members;
+        }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = 1;
+                foreach (var m in members)
+                {
+                    if (m is ICCMeasurable statement)
+                    {
+                        CC *= statement.getCC();
+                    }
+                }
+            }
+
+            return CC.Value;
         }
     }
 
@@ -152,109 +175,184 @@ namespace LanguageElements
         
     }
 
-    internal class Block : BlockMember
+
+    class Block : BlockMember, ICCMeasurable
     {
-        
-        internal LinkedList<BlockMember> members { get; }
+        public LinkedList<BlockMember> members { get; }
+        private int? CC = null;
 
         internal Block(LinkedList<BlockMember> members)
         {
             this.members = members;
         }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = 1;
+                foreach (var m in members)
+                {
+                    if (!(m is RoutineDeclaration) && m is ICCMeasurable statement)
+                    {
+                        CC *= statement.getCC();
+                    }
+                }
+            }
+
+            return CC.Value;
+        }
     }
 
-    internal abstract class Declaration : BlockMember
+    abstract class Declaration : BlockMember
     {
     }
 
-    internal class UnitDeclaration : Declaration
+    class UnitDeclaration : Declaration, IWMCMesurable
     {
-        internal CompoundName name { get; }
-        internal LinkedList<UnitName> parents { get; }
-        internal LinkedList<Declaration> members { get; }
+        public CompoundName name { get; }
+        public LinkedList<UnitName> parents { get; }
+        public LinkedList<Declaration> members { get; }
+        private int? WMC = null;
 
-        public UnitDeclaration(CompoundName name, LinkedList<UnitName> parents, LinkedList<Declaration> members)
+        internal UnitDeclaration(CompoundName name, LinkedList<UnitName> parents, LinkedList<Declaration> members)
         {
             this.name = name;
             this.parents = parents;
             this.members = members;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
+        }
+
+        public int getWMC()
+        {
+            if (WMC == null)
+            {
+                WMC = 0;
+                foreach (var m in members)
+                {
+                    if (m is RoutineDeclaration routine)
+                    {
+                        WMC += routine.getCC();
+                    }
+                }
+            }
+
+            return WMC.Value;
         }
     }
 
-    internal class RoutineDeclaration : Declaration
+    class RoutineDeclaration : Declaration, ICCMeasurable
     {
         internal CompoundName name { get; }
         internal string aliasName { get; }
         internal Block routineBlock { get; }
 
-        public RoutineDeclaration(string name, string aliasName, Block routineBlock)
+        internal RoutineDeclaration(string name, string aliasName, Block routineBlock)
         {
             this.name = new CompoundName();
             this.aliasName = aliasName;
             this.routineBlock = routineBlock;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
-    }
 
-    internal class VariableDeclaration : Declaration
-    {
-        public VariableDeclaration()
+        public int getCC()
         {
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            if (routineBlock != null)
+                return routineBlock.getCC();
+            else
+                return 0;
         }
     }
 
-    internal abstract class Statement : BlockMember
+    class VariableDeclaration : Declaration
+    {
+        internal VariableDeclaration()
+        {
+            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
+        }
+    }
+
+    abstract class Statement : BlockMember
     {
     }
 
-    internal class IfStatement : Statement
-    {
-        internal Block mainBlock { get; }
-        internal LinkedList<Block> elsifBlockList { get; }
-        internal Block elseBlock { get; }
 
-        public IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
+    class IfStatement : Statement, ICCMeasurable
+    {
+        public Block mainBlock { get; }
+        public Block elseBlock { get; }
+        public LinkedList<Block> elsifBlockList { get; }
+        private int? CC = null;
+
+        internal IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
         {
             this.mainBlock = mainBlock;
             this.elsifBlockList = elsifBlockList;
             this.elseBlock = elseBlock;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
+        }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = mainBlock.getCC();
+                if (elseBlock != null)
+                    CC += elseBlock.getCC();
+                foreach (Block block in elsifBlockList ?? Enumerable.Empty<Block>())
+                {
+                    CC += block.getCC();
+                }
+            }
+
+            return CC.Value;
         }
     }
 
-    internal class LoopStatement : Statement
+    class LoopStatement : Statement, ICCMeasurable
     {
-        internal Block loopBlock { get; }
+        public Block loopBlock { get; }
+        private int? CC = null;
 
-        public LoopStatement(Block loopBlock)
+        internal LoopStatement(Block loopBlock)
         {
             this.loopBlock = loopBlock;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
+        }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = 1 + loopBlock.getCC();
+            }
+
+            return CC.Value;
         }
     }
 
-    internal abstract class Type {}
-
-    internal class UnitTypeName : Type
+    abstract class Type
     {
-        internal string name { get; }
-        internal object generics;  // TODO generics
+    }
 
-        public UnitTypeName(string name, object generics)
+    class UnitTypeName : Type
+    {
+        public string name { get; }
+        public object generics;  // TODO: generics
+
+        internal UnitTypeName(string name, object generics)
         {
             this.name = name;
             this.generics = generics;
         }
     }
 
-    internal class UnitName
+    class UnitName
     {
-        internal string name { get; }
-        internal bool hasTilde { get; }
+        public string name { get; }
+        public bool hasTilde { get; }
 
-        public UnitName(Type type, bool hasTilde)
+        internal UnitName(Type type, bool hasTilde)
         {
             this.hasTilde = hasTilde;
             if (type is UnitTypeName t)
@@ -263,21 +361,21 @@ namespace LanguageElements
             }
             else
             {
-                throw new WrongParentUnitNameException();  // TODO review
+                throw new WrongParentUnitNameException();  // TODO: review
             }
         }
 
         private class WrongParentUnitNameException : System.Exception
         {
-            public WrongParentUnitNameException() : base()
+            internal WrongParentUnitNameException() : base()
             {
             }
         }
     }
 
-    internal class CompoundName
+    class CompoundName
     {
-        internal LinkedList<string> names;
+        public LinkedList<string> names;
 
         public CompoundName(){
             names = new LinkedList<string>();

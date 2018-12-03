@@ -5,9 +5,9 @@
     "tasks": [
         {
             "label": "make_gplex",
-            "command": "${cwd}\\tools\\gplex.exe",
+            "command": "gplex",
             "args": ["grammars\\SLangScanner.lex"],
-            "type": "shell",
+            "type": "process",
             "group": "build",
             "presentation": {
                 "reveal": "always"
@@ -16,9 +16,9 @@
         {
             "label": "make_gppg",
             "dependsOn": "make_gplex",
-            "command": "${cwd}\\tools\\gppg.exe",
+            "command": "gppg",
             "args": ["/gplex", "/conflicts", "grammars\\SLangParser.y"],
-            "type": "shell",
+            "type": "process",
             "group": "build",
             "presentation": {
                 "reveal": "always"
@@ -27,8 +27,8 @@
         {
             "label": "build",
             "dependsOn": "make_gppg",
-            "command": "dotnet",
-            "args": ["build", "SLang-Metrics-vs-code.csproj"],
+            "command": "dotnet publish -c Release -r win10-x64",
+            "args": ["SLang-Metrics-vs-code.csproj"],
             "type": "shell",
             "group": "build",
             "presentation": {

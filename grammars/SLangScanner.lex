@@ -66,25 +66,82 @@ STR     \"(\\.|[^\\"])*\"
 
 // ============= OPERATORS ==============
 
-"+"                { return (int)Tokens.PLUS; }
-"-"                { return (int)Tokens.MINUS; }
-"*"                { return (int)Tokens.ASTERISK; }
-"/"                { return (int)Tokens.SLASH; }
-"**"               { return (int)Tokens.DBL_ASTERISK; }
-"|"                { return (int)Tokens.VERTICAL; }
-"||"               { return (int)Tokens.DBL_VERTICAL; }
-"&"                { return (int)Tokens.AMPERSAND; }
-"&&"               { return (int)Tokens.DBL_AMPERSAND; }
-"^"                { return (int)Tokens.CARET; }
-"~"                { return (int)Tokens.TILDE; }
-"<"                { return (int)Tokens.LESS; }
-"<="               { return (int)Tokens.LESS_EQUALS; }
-">"                { return (int)Tokens.GREATER; }
-">="               { return (int)Tokens.GREATER_EQUALS; }
-"="                { return (int)Tokens.EQUALS; }
-"/="               { return (int)Tokens.SLASH_EQUALS; }
-"<>"               { return (int)Tokens.LESS_GREATER; }
-":="               { return (int)Tokens.COLON_EQUALS; }
+"+" {
+    yylval.s = yytext;
+    return (int)Tokens.PLUS;
+}
+"-" {
+    yylval.s = yytext;
+    return (int)Tokens.MINUS;
+}
+"*" {
+    yylval.s = yytext;
+    return (int)Tokens.ASTERISK;
+}
+"/" {
+    yylval.s = yytext;
+    return (int)Tokens.SLASH;
+}
+"**" {
+    yylval.s = yytext;
+    return (int)Tokens.DBL_ASTERISK;
+}
+"|" {
+    yylval.s = yytext;
+    return (int)Tokens.VERTICAL;
+}
+"||" {
+    yylval.s = yytext;
+    return (int)Tokens.DBL_VERTICAL;
+}
+"&" {
+    yylval.s = yytext;
+    return (int)Tokens.AMPERSAND;
+}
+"&&" {
+    yylval.s = yytext;
+    return (int)Tokens.DBL_AMPERSAND;
+}
+"^" {
+    yylval.s = yytext;
+    return (int)Tokens.CARET;
+}
+"~" {
+    yylval.s = yytext;
+    return (int)Tokens.TILDE;
+}
+"<" {
+    yylval.s = yytext;
+    return (int)Tokens.LESS;
+}
+"<=" {
+    yylval.s = yytext;
+    return (int)Tokens.LESS_EQUALS;
+}
+">" {
+    yylval.s = yytext;
+    return (int)Tokens.GREATER;
+}
+">=" {
+    yylval.s = yytext;
+    return (int)Tokens.GREATER_EQUALS;
+}
+"=" {
+    yylval.s = yytext;
+    return (int)Tokens.EQUALS;
+}
+"/=" {
+    yylval.s = yytext;
+    return (int)Tokens.SLASH_EQUALS;
+}
+"<>" {
+    yylval.s = yytext;
+    return (int)Tokens.LESS_GREATER;
+}
+":=" {
+    yylval.s = yytext;
+    return (int)Tokens.COLON_EQUALS;
+}
 
 // ============== KEYWORDS ==============
 

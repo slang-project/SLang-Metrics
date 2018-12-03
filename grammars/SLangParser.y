@@ -9,29 +9,28 @@
 %using System.IO;
 
 %namespace SLangParser
-%visibility internal
 
 %start Module
 
 %union
 {
-    public string s;
-    public string[] sa;
-    public CompoundName cn;
-    public LanguageElements.Type t;
-    public UnitTypeName utn;
-    public Block bl;
-    public BlockMember bm;
-    public Statement st;
-    public LinkedList<BlockMember> llbm;
-    public LinkedList<Block> llb;
-    public VariableDeclaration vd;
-    public RoutineDeclaration rd;
-    public UnitDeclaration ud;
-    public LinkedList<UnitName> llun;
-    public UnitName un;
-    public LinkedList<Declaration> lld;
-    public Declaration dc;
+    internal string s;
+    internal string[] sa;
+    internal CompoundName cn;
+    internal LanguageElements.Type t;
+    internal UnitTypeName utn;
+    internal Block bl;
+    internal BlockMember bm;
+    internal Statement st;
+    internal LinkedList<BlockMember> llbm;
+    internal LinkedList<Block> llb;
+    internal VariableDeclaration vd;
+    internal RoutineDeclaration rd;
+    internal UnitDeclaration ud;
+    internal LinkedList<UnitName> llun;
+    internal UnitName un;
+    internal LinkedList<Declaration> lld;
+    internal Declaration dc;
 }
 
 // ========== TYPE ASSIGNMENTS ==========
@@ -58,10 +57,9 @@
 %type <s> RoutineName
 %type <sa> OperatorRoutineName
 %type <s> AliasNameOpt
-%type <s> OperatorSign
 %type <bl> RoutineBody
 %type <ud> UnitDeclaration
-%type <llun> UnitDeclarationAdditions  // TODO change actual type
+%type <llun> UnitDeclarationAdditions  // TODO: change actual type
 %type <llun> InheritClauseOpt
 %type <llun> BaseUnitSeq
 %type <un> BaseUnitName
@@ -82,30 +80,30 @@
 %token RBRACKET
 //%token ASSIGNMENT
 %token GENERATOR
-%token SINGLE_ARROW  // TODO add to specification
+%token SINGLE_ARROW  // TODO: add to specification
 %token DOUBLE_ARROW
 %token QUESTION
 
 // Operators
-%token PLUS
-%token MINUS
-%token ASTERISK
-%token SLASH
-%token DBL_ASTERISK
-%token VERTICAL
-%token DBL_VERTICAL
-%token AMPERSAND
-%token DBL_AMPERSAND
-%token CARET
-%token TILDE
-%token LESS
-%token LESS_EQUALS
-%token GREATER
-%token GREATER_EQUALS
-%token EQUALS
-%token SLASH_EQUALS
-%token LESS_GREATER
-%token COLON_EQUALS
+%token <s> PLUS
+%token <s> MINUS
+%token <s> ASTERISK
+%token <s> SLASH
+%token <s> DBL_ASTERISK
+%token <s> VERTICAL
+%token <s> DBL_VERTICAL
+%token <s> AMPERSAND
+%token <s> DBL_AMPERSAND
+%token <s> CARET
+%token <s> TILDE
+%token <s> LESS
+%token <s> LESS_EQUALS
+%token <s> GREATER
+%token <s> GREATER_EQUALS
+%token <s> EQUALS
+%token <s> SLASH_EQUALS
+%token <s> LESS_GREATER
+%token <s> COLON_EQUALS
 
 // Keywords
 %token AND_THEN
@@ -135,8 +133,8 @@
 %token IS
 %token LOOP
 %token NEW
-%token NONE  // TODO add to specification
-//%token NOT  // TODO remove
+%token NONE  // TODO: add to specification
+//%token NOT  // TODO: remove
 %token OLD
 %token OVERRIDE
 %token PURE
@@ -162,11 +160,12 @@
 // Tokens for lookahead
 %token NEW_LINE
 %token WHILE_POSTTEST
-%token <s> FUNCTION_ID
 %token LOOP_ID
 %token JUST_BREAK
 %token JUST_RETURN
 %token JUST_RAISE
+%token <s> FUNCTION_ID
+%token <s> OP_AS_ROUTINE_NAME
 
 // ===== ASSOCIATIVITY & PRECEDENCE =====
 
@@ -290,7 +289,7 @@ PredicateSeq
     :                        Predicate
     | PredicateSeq COMMA     Predicate
 //  | PredicateSeq SEMICOLON Predicate
-    ;  // TODO check, shift/reduce of semicolon
+    ;  // TODO: check, shift/reduce of semicolon
 
 Predicate
     :                  Expression
@@ -301,9 +300,9 @@ Predicate
 
 Type
     : UnitType  { $$ = $1; }
-    | AnchorType  { $$ = $1; }/*
+    | AnchorType  { $$ = $1; }
     | MultiType
-    | TupleType
+    | TupleType/*
     | RangeType
     | RoutineType*/
     ;  // FIXME a lot of conflicts!
@@ -313,7 +312,7 @@ UnitType
     | REF        UnitTypeName  { $$ = $2; }
     | VAL        UnitTypeName  { $$ = $2; }
     | CONCURRENT UnitTypeName  { $$ = $2; }
-    ;  // TODO specifiers
+    ;  // TODO: specifiers
 
 UnitTypeName
     : IDENTIFIER
@@ -322,7 +321,7 @@ UnitTypeName
     }
     | IDENTIFIER GenericArgumentClause
     {
-        $$ = new UnitTypeName($1, null);  // TODO generics
+        $$ = new UnitTypeName($1, null);  // TODO: generics
     }
     ;
 
@@ -346,39 +345,38 @@ AnchorType
     {
         $$ = null;  // TODO
     }
-//  | AS IDENTIFIER RoutineParameters  // TODO review
+//  | AS IDENTIFIER RoutineParameters  // TODO: review
     ;
-/*
+
 MultiType
-    :                    UnitType
+    :  UnitType VERTICAL UnitType
     | MultiType VERTICAL UnitType
     ;
 
 TupleType
-    : LPAREN               RPAREN
-    | LPAREN TupleFieldSeq RPAREN
+    : LPAREN TupleElementSeq RPAREN
     ;
 
-TupleFieldSeq
-    :                         TypeField
-    | TupleFieldSeq COMMA     TypeField
-    | TupleFieldSeq SEMICOLON TypeField
+TupleElementSeq
+    :                           TupleElement
+    | TupleElementSeq COMMA     TupleElement
+    | TupleElementSeq SEMICOLON TupleElement
     ;
 
-TypeField
-    : IdentifierSeq                IS Expression
-    | IdentifierSeq COLON UnitType
-    | IdentifierSeq COLON UnitType IS Expression
+TupleElement
+    : Expression
+    | Expression TypeAndInit
+//  | VariableDeclaration  // shift/reduce (cannot decide what to do with IdentifierSeq)
     ;
-
+/*
 RangeType
     : Expression GENERATOR Expression
-    ;
+    ;  // TODO: review
 
 RoutineType
     : LPAREN                RPAREN Block
     | LPAREN RoutineFormals RPAREN Block
-    ;  // TODO return type
+    ;  // TODO: return type
 */
 // Expression //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -401,7 +399,7 @@ Expression
     | Expression EQUALS         Expression
     | Expression SLASH_EQUALS   Expression
     | Expression LESS_GREATER   Expression
-    ;  // TODO probably shift operations
+    ;  // TODO: probably shift operations
 
 UnaryExpression
     : SecondaryExpression
@@ -415,49 +413,40 @@ SecondaryExpression
     | SecondaryExpression LPAREN RPAREN
     | SecondaryExpression Tuple
     | SecondaryExpression DOT PrimaryExpression
-    ;  // TODO remove shift/reduce (shift is correct)
+    ;  // TODO: remove shift/reduce (shift is correct)
 
 PrimaryExpression
     : LITERAL  // TODO
     | TypeOrIdentifier
-//  | OperatorSign  // TODO consider later
+//  | OperatorSign  // TODO: consider later
     | THIS
     | SUPER
 //  | SUPER UnitTypeName  // TODO
-//  | RETURN  // TODO review
+//  | RETURN  // TODO: review
     | OLD
-//  | OLD Expression  // TODO review
+//  | OLD Expression  // TODO: review
     | Tuple
 //  | LPAREN Expression RPAREN  // reduce/reduce with Tuple
     ;
 
 TypeOrIdentifier
-    : UnitTypeName  // TODO review, probably just Type
+    : UnitTypeName  // TODO: review, probably just Type
 //  | IDENTIFIER  // reduce/reduce conflict with `Type: IDENTIFIER;`
     ;
 
 Tuple
-    : LPAREN TupleElementSeq RPAREN
-    ;
-
-TupleElementSeq
-    :                           TupleElement
-    | TupleElementSeq COMMA     TupleElement
-    | TupleElementSeq SEMICOLON TupleElement
-    ;
-
-TupleElement
-    : Expression
-    | Expression TypeAndInit  // TODO remove this Ad-Hoc
-//  | VariableDeclaration  // TODO consider later
+    : TupleType
+//  | TupleValue  // reduce/reduce, all tuples are types
     ;
 
 // Statement ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Block
-    : PreconditionOpt DO BlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt END
+    : PreconditionOpt DO
+        { scannerFlags.isInsideUnit = false; }  // XXX: important for lookahead
+      BlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt END
     {
-        $$ = new Block($3);
+        $$ = new Block($4);
     }
     ;
 
@@ -481,7 +470,7 @@ BlockMember
 ExceptionHandlerSeqOpt
     : /* empty */
     | WHEN Expression NestedBlock
-    ;  // TODO review
+    ;  // TODO: review
 
 NestedBlock
     : PreconditionOpt    NestedBlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt
@@ -525,7 +514,7 @@ Statement
     | ValueLossStatement  { $$ = null; }  // TODO
     | ReturnStatement  { $$ = null; }  // TODO
     | RaiseStatement  { $$ = null; }  // TODO
-    ;  // TODO review
+    ;  // TODO: review
 
 Assignment
     : Expression COLON_EQUALS Expression
@@ -573,7 +562,7 @@ LoopStatement
     {
         $$ = new LoopStatement($5);
     }
-    | LoopIdOpt WHILE Expression            Block END
+    | LoopIdOpt WHILE Expression      Block
     {
         $$ = new LoopStatement($4);
     }
@@ -618,7 +607,7 @@ VariableDeclaration
     {
         $$ = new VariableDeclaration();
     }
-    ;  // TODO content consideration
+    ;  // TODO: content consideration
 
 VariableSpecifier
     : CONST
@@ -631,7 +620,7 @@ TypeAndInit
     | COLON QUESTION UnitType
     | COLON          Type     IS Expression
     | COLON QUESTION UnitType IS Expression
-    ;  // TODO review
+    ;  // TODO: review
 
 // Routine /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -644,7 +633,7 @@ RoutineDeclaration
     {
         $$ = new RoutineDeclaration($2, null, $7);
     }
-    ;  // TODO change UseSeq to just Use
+    ;  // TODO: change UseSeq to just Use
 
 OperatorRoutineDeclaration
     :                  OperatorRoutineName GenericFormalsOpt RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
@@ -655,24 +644,24 @@ OperatorRoutineDeclaration
     {
         $$ = new RoutineDeclaration($2[0], $2[1], $7);
     }
-    ;  // TODO change UseSeq to just Use; review
+    ;  // TODO: change UseSeq to just Use; review
 
 RoutineSpecifier
     : PURE
     | SAFE
     | ABSTRACT
     | OVERRIDE
-    ;  // TODO review
+    ;  // TODO: review
 
 RoutineName
     : FUNCTION_ID  { $$ = $1; }
-//  | OperatorSign AliasNameOpt
+//  | OP_AS_ROUTINE_NAME AliasNameOpt
 //  | COLON_EQUALS
-    | LPAREN RPAREN  { $$ = "()"; }  // TODO review
+    | LPAREN RPAREN  { $$ = "()"; }  // TODO: review
     ;
 
 OperatorRoutineName
-    : OperatorSign AliasNameOpt  { $$ = new string[] {$1, $2}; }
+    : OP_AS_ROUTINE_NAME AliasNameOpt  { $$ = new string[] {$1, $2}; }
     | COLON_EQUALS  { $$ = new string[] {":=", null}; }
     ;
 
@@ -680,15 +669,6 @@ AliasNameOpt
     : /* empty */  { $$ = null; }
     | ALIAS FUNCTION_ID  { $$ = $2; }
     ;
-
-OperatorSign
-    : PLUS  { $$ = "+"; }
-    | MINUS  { $$ = "-"; }
-    | AMPERSAND  { $$ = "&"; }
-    | VERTICAL  { $$ = "|"; }
-    | CARET  { $$ = "^"; }
-    | TILDE  { $$ = "~"; }
-    ;  // TODO
 
 RoutineParameters
     : LPAREN                RPAREN
@@ -711,7 +691,7 @@ RoutineBody
     {
         $$ = $1;
     }
-    | DOUBLE_ARROW Statement  // TODO review
+    | DOUBLE_ARROW Statement  // TODO: review
     {
         LinkedList<BlockMember> list = new LinkedList<BlockMember>();
         list.AddFirst($2);
@@ -730,15 +710,21 @@ RoutineBody
 // Unit ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 UnitDeclaration
-    : UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions    UnitMemberSeqOpt InvariantOpt END
+    : UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions
+        { scannerFlags.isInsideUnit = true; }  // XXX: important for lookahead
+      UnitMemberSeqOpt InvariantOpt END
     {
-        $$ = new UnitDeclaration($3, $4, $5);
-    }
-    | UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions IS UnitMemberSeqOpt InvariantOpt END
-    {
+        scannerFlags.isInsideUnit = false;  // XXX: important for lookahead
         $$ = new UnitDeclaration($3, $4, $6);
     }
-    ;  // TODO specifiers and invariant consideration
+    | UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions IS
+        { scannerFlags.isInsideUnit = true; }  // XXX: important for lookahead
+      UnitMemberSeqOpt InvariantOpt END
+    {
+        scannerFlags.isInsideUnit = false;  // XXX: important for lookahead
+        $$ = new UnitDeclaration($3, $4, $7);
+    }
+    ;  // TODO: specifiers and invariant consideration
 
 UnitSpecifiersOpt
     : /* empty */
@@ -751,13 +737,13 @@ UnitSpecifier
     | VAL
     | CONCURRENT
     | ABSTRACT
-//  | EXTEND  // TODO review
+//  | EXTEND  // TODO: review
     ;
 
 UnitDeclarationAdditions
     : UnitAliasNameOpt GenericFormalsOpt InheritClauseOpt UseClauseOpt
     {
-        $$ = $3;  // TODO other declaration additions
+        $$ = $3;  // TODO: other declaration additions
     }
     ;
 
@@ -788,7 +774,7 @@ BaseUnitSeq
 BaseUnitName
     :       Type
     {
-        if ($1 == null)  // TODO remove nulls
+        if ($1 == null)  // TODO: remove nulls
         {
             $$ = null;
         }
@@ -799,7 +785,7 @@ BaseUnitName
     }
     | TILDE Type
     {
-        if ($2 == null)  // TODO remove nulls
+        if ($2 == null)  // TODO: remove nulls
         {
             $$ = null;
         }
@@ -817,12 +803,14 @@ UnitMemberSeqOpt
     }
     | UnitMemberSeqOpt                     UnitMember
     {
+        scannerFlags.isInsideUnit = true;  // XXX: important for lookahead
         $1.AddLast($2);
         $$ = $1;
     }
     | UnitMemberSeqOpt UnitMemberSpecifier UnitMember
     {
-        $1.AddLast($3);  // TODO specifiers
+        scannerFlags.isInsideUnit = true;  // XXX: important for lookahead
+        $1.AddLast($3);  // TODO: specifiers
         $$ = $1;
     }
     ;
@@ -837,13 +825,15 @@ UnitMember
     | UnitDeclaration  { $$ = $1; }
     | RoutineDeclaration  { $$ = $1; }
     | VariableDeclaration  { $$ = $1; }
-    | ConstObjectDeclaration  { $$ = null; }  // TODO constant objects
+    | ConstObjectDeclaration  { $$ = null; }  // TODO: constant objects
     | InitializerDeclaration  { $$ = null; }  // TODO
     | OperatorRoutineDeclaration  { $$ = $1; }
-    ;  // TODO shift/reduce of OperatorRoutineDeclaration with Expression
+    ;  // TODO: shift/reduce of OperatorRoutineDeclaration with Expression
 
 ConstObjectDeclaration
-    : CONST IS ConstObjectSeq END
+    : CONST IS
+        { scannerFlags.isInsideUnit = false; }  // XXX: important for lookahead
+      ConstObjectSeq END
     ;
 
 ConstObjectSeq
@@ -856,20 +846,26 @@ ConstObject
     ;
 
 InitializerDeclaration
-    : GENERATOR  // TODO
+    : GENERATOR  // TODO: (do not forget flag for lookahead)
     ;
 
 %%
 
-private Parser(Scanner scnr) : base(scnr) { parsedProgram = null; }
-
 private Module parsedProgram;
+private ScannerFlags scannerFlags;
+
+private Parser(Scanner scanner, ref ScannerFlags scannerFlags) : base(scanner)
+{
+    this.parsedProgram = null;
+    this.scannerFlags = scannerFlags;
+}
 
 internal static Module parseProgram(String filePath)
 {
     FileStream file = new FileStream(filePath, FileMode.Open);
-    Scanner scanner = new Scanner(file);
-    Parser parser = new Parser(scanner);
+    ScannerFlags scannerFlags = new ScannerFlags();
+    Scanner scanner = new Scanner(file, ref scannerFlags);
+    Parser parser = new Parser(scanner, ref scannerFlags);
     bool res = parser.Parse();
     file.Close();
     return res ? parser.parsedProgram : null;
