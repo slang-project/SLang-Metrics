@@ -215,7 +215,6 @@ CompoundName
     :                  IDENTIFIER
     {
         $$ = new CompoundName($1);
-        System.Console.WriteLine($1 == null ? "null" : $1);
     }
     | CompoundName DOT IDENTIFIER
     {

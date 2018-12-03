@@ -91,7 +91,6 @@ namespace LanguageElements
             this.name = name;
             this.parents = parents;
             this.members = members;
-            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
 
         public int getWMC()
@@ -123,7 +122,6 @@ namespace LanguageElements
             this.name = name;
             this.aliasName = aliasName;
             this.routineBlock = routineBlock;
-            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
 
         public int getCC()
@@ -139,7 +137,6 @@ namespace LanguageElements
     {
         internal VariableDeclaration()
         {
-            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
     }
 
@@ -160,7 +157,6 @@ namespace LanguageElements
             this.mainBlock = mainBlock;
             this.elseBlock = elseBlock;
             this.elsifBlockList = elsifBlockList;
-            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
 
         public int getCC()
@@ -188,7 +184,6 @@ namespace LanguageElements
         internal LoopStatement(Block loopBlock)
         {
             this.loopBlock = loopBlock;
-            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
 
         public int getCC()
@@ -232,7 +227,7 @@ namespace LanguageElements
             }
             else
             {
-                throw new WrongParentUnitNameException();  // TODO: review
+                throw new WrongParentUnitNameException();
             }
         }
 
