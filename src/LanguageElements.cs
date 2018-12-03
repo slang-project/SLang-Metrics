@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using SLangMetrics;
 
 namespace LanguageElements
@@ -8,13 +9,32 @@ namespace LanguageElements
         int getCC();
     }
 
+
     class Module
     {
         public LinkedList<BlockMember> members { get; }
+        private int? CC = null;
 
         internal Module(LinkedList<BlockMember> members)
         {
             this.members = members;
+        }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = 1;
+                foreach (var m in members)
+                {
+                    if (m is ICCMesurable statement)
+                    {
+                        CC *= statement.getCC();
+                    }
+                }
+            }
+
+            return CC.Value;
         }
     }
 
@@ -22,13 +42,32 @@ namespace LanguageElements
     {
     }
 
-    class Block : BlockMember
+
+    class Block : BlockMember, ICCMesurable
     {
         public LinkedList<BlockMember> members { get; }
+        private int? CC = null;
 
         internal Block(LinkedList<BlockMember> members)
         {
             this.members = members;
+        }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = 1;
+                foreach (var m in members)
+                {
+                    if (m is ICCMesurable statement)
+                    {
+                        CC *= statement.getCC();
+                    }
+                }
+            }
+
+            return CC.Value;
         }
     }
 
@@ -36,22 +75,41 @@ namespace LanguageElements
     {
     }
 
-    class UnitDeclaration : Declaration
+    class UnitDeclaration : Declaration, ICCMesurable
     {
         public CompoundName name { get; }
         public LinkedList<UnitName> parents { get; }
         public LinkedList<Declaration> members { get; }
+        private int? WMC = null;
 
         internal UnitDeclaration(CompoundName name, LinkedList<UnitName> parents, LinkedList<Declaration> members)
         {
             this.name = name;
             this.parents = parents;
             this.members = members;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name); // TODO remove
+        }
+
+        // TODO: In pseudocode it 
+        public int getCC()
+        {
+            if (WMC == null)
+            {
+                WMC = 0;
+                foreach (var m in members)
+                {
+                    if (m is RoutineDeclaration routine)
+                    {
+                        WMC += routine.routineBlock.getCC();
+                    }
+                }
+            }
+
+            return WMC.Value;
         }
     }
 
-    class RoutineDeclaration : Declaration
+    class RoutineDeclaration : Declaration, ICCMesurable
     {
         public string name { get; }
         public string aliasName { get; }
@@ -62,7 +120,15 @@ namespace LanguageElements
             this.name = name;
             this.aliasName = aliasName;
             this.routineBlock = routineBlock;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name); // TODO remove
+        }
+
+        public int getCC()
+        {
+            if (routineBlock != null)
+                return routineBlock.getCC();
+            else
+                return 0; //TODO: check
         }
     }
 
@@ -70,7 +136,7 @@ namespace LanguageElements
     {
         internal VariableDeclaration()
         {
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name); // TODO remove
         }
     }
 
@@ -78,29 +144,58 @@ namespace LanguageElements
     {
     }
 
-    class IfStatement : Statement
+
+    class IfStatement : Statement, ICCMesurable
     {
         public Block mainBlock { get; }
         public Block elseBlock { get; }
         public LinkedList<Block> elsifBlockList { get; }
+        private int? CC = null;
 
         internal IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
         {
             this.mainBlock = mainBlock;
             this.elseBlock = elseBlock;
             this.elsifBlockList = elsifBlockList;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name); // TODO remove
+        }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = mainBlock.getCC();
+                if (elseBlock != null)
+                    CC += elseBlock.getCC();
+                foreach (Block block in elsifBlockList ?? Enumerable.Empty<Block>())
+                {
+                    CC += block.getCC();
+                }
+            }
+
+            return CC.Value;
         }
     }
 
-    class LoopStatement : Statement
+    class LoopStatement : Statement, ICCMesurable
     {
         public Block loopBlock { get; }
+        private int? CC = null;
 
         internal LoopStatement(Block loopBlock)
         {
             this.loopBlock = loopBlock;
-            System.Console.WriteLine(this.GetType().Name);  // TODO remove
+            System.Console.WriteLine(this.GetType().Name); // TODO remove
+        }
+
+        public int getCC()
+        {
+            if (CC == null)
+            {
+                CC = 1 + loopBlock.getCC();
+            }
+
+            return CC.Value;
         }
     }
 
@@ -134,7 +229,7 @@ namespace LanguageElements
             }
             else
             {
-                throw new WrongParentUnitNameException();  // TODO review
+                throw new WrongParentUnitNameException(); // TODO review
             }
         }
 

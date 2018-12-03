@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using LanguageElements;
 
 namespace Metrics
@@ -9,6 +11,13 @@ namespace Metrics
         internal MetricCollector(string fileName)
         {
             this.parsedModule = SLangParser.Parser.parseProgram(fileName);
+            debug();
+        }
+
+        // TODO: hello, human
+        private void debug()
+        {
+            Console.WriteLine(parsedModule.getCC());
         }
 
         internal bool IsParsingSuccessful()
