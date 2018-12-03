@@ -9,9 +9,9 @@ namespace LanguageElements
         int getCC();
     }
 
-    interface IWMCMesurable
+    interface IWMUMesurable
     {
-        int getWMC();
+        int getWMU();
     }
 
     class Module : ICCMeasurable
@@ -79,12 +79,12 @@ namespace LanguageElements
     {
     }
 
-    class UnitDeclaration : Declaration, IWMCMesurable
+    class UnitDeclaration : Declaration, IWMUMesurable
     {
         public CompoundName name { get; }
         public LinkedList<UnitName> parents { get; }
         public LinkedList<Declaration> members { get; }
-        private int? WMC = null;
+        private int? WMU = null;
 
         internal UnitDeclaration(CompoundName name, LinkedList<UnitName> parents, LinkedList<Declaration> members)
         {
@@ -93,21 +93,21 @@ namespace LanguageElements
             this.members = members;
         }
 
-        public int getWMC()
+        public int getWMU()
         {
-            if (WMC == null)
+            if (WMU == null)
             {
-                WMC = 0;
+                WMU = 0;
                 foreach (var m in members)
                 {
                     if (m is RoutineDeclaration routine)
                     {
-                        WMC += routine.getCC();
+                        WMU += routine.getCC();
                     }
                 }
             }
 
-            return WMC.Value;
+            return WMU.Value;
         }
     }
 
