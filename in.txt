@@ -18,6 +18,7 @@ val unit Bit extend A
 
     | alias or(other: as this): as this do
         if this = 0b1 then
+            a is 3
             return 0b1
         elsif other = 0b1 then
             return 0b1
@@ -66,17 +67,10 @@ val unit Bit extend A
 end
 
 val unit A extend B
-    a is 6
+    unit J extend JUMBO
+    end
 end
 
 val unit B extend C
     a is 6
-end
-
-do
-
-unit C extend D
-    
-end
-
 end

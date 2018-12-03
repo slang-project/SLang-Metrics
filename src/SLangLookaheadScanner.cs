@@ -48,13 +48,6 @@ namespace SLangLookaheadScanner
 
             switch (curToken)
             {
-                case (int)Tokens.WHILE:
-                    do
-                    {
-                        looked = LookNext();
-                    } while (!IsEOF(looked) && !IsAfterWhileExpression(looked));
-                    return looked == (int)Tokens.END ? (int)Tokens.WHILE_POSTTEST : curToken;
-
                 case (int)Tokens.IDENTIFIER:
                     looked = LookNextNonNewLine();
                     if (looked == (int)Tokens.COLON)
@@ -111,6 +104,13 @@ namespace SLangLookaheadScanner
                         return curToken;
                     }
                     return IsFunctionBodyBeginning(looked) ? (int)Tokens.FUNCTION_ID : curToken;
+
+                case (int)Tokens.WHILE:
+                    do
+                    {
+                        looked = LookNext();
+                    } while (!IsEOF(looked) && !IsAfterWhileExpression(looked));
+                    return looked == (int)Tokens.END ? (int)Tokens.WHILE_POSTTEST : curToken;
 
                 case (int)Tokens.BREAK:
                     if (LookNext() != (int)Tokens.IDENTIFIER)

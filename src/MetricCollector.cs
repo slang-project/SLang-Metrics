@@ -1,6 +1,7 @@
 using LanguageElements;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Metrics
 {
@@ -14,7 +15,11 @@ namespace Metrics
         {
             this.parsedModule = SLangParser.Parser.parseProgram(fileName);
             Console.WriteLine("------------");
-            this.parsedModule.PrintPretty("", true);
+            Traverse traverse = new Traverse(parsedModule);
+            foreach(UnitDeclaration ud in traverse.unitList ?? Enumerable.Empty<UnitDeclaration>())
+            {
+                Console.WriteLine(ud.name.ToString());
+            }
         }
         private void renameAndCollect()
         {
@@ -23,6 +28,9 @@ namespace Metrics
                 Console.WriteLine(bm.ToString());
             }
         }
-
+        internal bool IsParsingSuccessful()
+        {
+            return this.parsedModule != null;
+        }
     }
 }
