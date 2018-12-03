@@ -9,29 +9,28 @@
 %using System.IO;
 
 %namespace SLangParser
-%visibility internal
 
 %start Module
 
 %union
 {
-    public string s;
-    public string[] sa;
-    public CompoundName cn;
-    public LanguageElements.Type t;
-    public UnitTypeName utn;
-    public Block bl;
-    public BlockMember bm;
-    public Statement st;
-    public LinkedList<BlockMember> llbm;
-    public LinkedList<Block> llb;
-    public VariableDeclaration vd;
-    public RoutineDeclaration rd;
-    public UnitDeclaration ud;
-    public LinkedList<UnitName> llun;
-    public UnitName un;
-    public LinkedList<Declaration> lld;
-    public Declaration dc;
+    internal string s;
+    internal string[] sa;
+    internal CompoundName cn;
+    internal LanguageElements.Type t;
+    internal UnitTypeName utn;
+    internal Block bl;
+    internal BlockMember bm;
+    internal Statement st;
+    internal LinkedList<BlockMember> llbm;
+    internal LinkedList<Block> llb;
+    internal VariableDeclaration vd;
+    internal RoutineDeclaration rd;
+    internal UnitDeclaration ud;
+    internal LinkedList<UnitName> llun;
+    internal UnitName un;
+    internal LinkedList<Declaration> lld;
+    internal Declaration dc;
 }
 
 // ========== TYPE ASSIGNMENTS ==========
@@ -573,7 +572,7 @@ LoopStatement
     {
         $$ = new LoopStatement($5);
     }
-    | LoopIdOpt WHILE Expression            Block END
+    | LoopIdOpt WHILE Expression            Block
     {
         $$ = new LoopStatement($4);
     }

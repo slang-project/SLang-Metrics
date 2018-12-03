@@ -3,14 +3,14 @@ using SLangMetrics;
 
 namespace LanguageElements
 {
-    internal interface ICCMesurable
+    interface ICCMesurable
     {
         int getCC();
     }
 
-    internal class Module
+    class Module
     {
-        internal LinkedList<BlockMember> members { get; }
+        public LinkedList<BlockMember> members { get; }
 
         internal Module(LinkedList<BlockMember> members)
         {
@@ -18,13 +18,13 @@ namespace LanguageElements
         }
     }
 
-    internal abstract class BlockMember
+    abstract class BlockMember
     {
     }
 
-    internal class Block : BlockMember
+    class Block : BlockMember
     {
-        internal LinkedList<BlockMember> members { get; }
+        public LinkedList<BlockMember> members { get; }
 
         internal Block(LinkedList<BlockMember> members)
         {
@@ -32,17 +32,17 @@ namespace LanguageElements
         }
     }
 
-    internal abstract class Declaration : BlockMember
+    abstract class Declaration : BlockMember
     {
     }
 
-    internal class UnitDeclaration : Declaration
+    class UnitDeclaration : Declaration
     {
-        internal CompoundName name { get; }
-        internal LinkedList<UnitName> parents { get; }
-        internal LinkedList<Declaration> members { get; }
+        public CompoundName name { get; }
+        public LinkedList<UnitName> parents { get; }
+        public LinkedList<Declaration> members { get; }
 
-        public UnitDeclaration(CompoundName name, LinkedList<UnitName> parents, LinkedList<Declaration> members)
+        internal UnitDeclaration(CompoundName name, LinkedList<UnitName> parents, LinkedList<Declaration> members)
         {
             this.name = name;
             this.parents = parents;
@@ -51,13 +51,13 @@ namespace LanguageElements
         }
     }
 
-    internal class RoutineDeclaration : Declaration
+    class RoutineDeclaration : Declaration
     {
-        internal string name { get; }
-        internal string aliasName { get; }
-        internal Block routineBlock { get; }
+        public string name { get; }
+        public string aliasName { get; }
+        public Block routineBlock { get; }
 
-        public RoutineDeclaration(string name, string aliasName, Block routineBlock)
+        internal RoutineDeclaration(string name, string aliasName, Block routineBlock)
         {
             this.name = name;
             this.aliasName = aliasName;
@@ -66,25 +66,25 @@ namespace LanguageElements
         }
     }
 
-    internal class VariableDeclaration : Declaration
+    class VariableDeclaration : Declaration
     {
-        public VariableDeclaration()
+        internal VariableDeclaration()
         {
             System.Console.WriteLine(this.GetType().Name);  // TODO remove
         }
     }
 
-    internal abstract class Statement : BlockMember
+    abstract class Statement : BlockMember
     {
     }
 
-    internal class IfStatement : Statement
+    class IfStatement : Statement
     {
-        internal Block mainBlock { get; }
-        internal Block elseBlock { get; }
-        internal LinkedList<Block> elsifBlockList { get; }
+        public Block mainBlock { get; }
+        public Block elseBlock { get; }
+        public LinkedList<Block> elsifBlockList { get; }
 
-        public IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
+        internal IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
         {
             this.mainBlock = mainBlock;
             this.elseBlock = elseBlock;
@@ -93,39 +93,39 @@ namespace LanguageElements
         }
     }
 
-    internal class LoopStatement : Statement
+    class LoopStatement : Statement
     {
-        internal Block loopBlock { get; }
+        public Block loopBlock { get; }
 
-        public LoopStatement(Block loopBlock)
+        internal LoopStatement(Block loopBlock)
         {
             this.loopBlock = loopBlock;
             System.Console.WriteLine(this.GetType().Name);  // TODO remove
         }
     }
 
-    internal abstract class Type
+    abstract class Type
     {
     }
 
-    internal class UnitTypeName : Type
+    class UnitTypeName : Type
     {
-        internal string name { get; }
-        internal object generics;  // TODO generics
+        public string name { get; }
+        public object generics;  // TODO generics
 
-        public UnitTypeName(string name, object generics)
+        internal UnitTypeName(string name, object generics)
         {
             this.name = name;
             this.generics = generics;
         }
     }
 
-    internal class UnitName
+    class UnitName
     {
-        internal string name { get; }
-        internal bool hasTilde { get; }
+        public string name { get; }
+        public bool hasTilde { get; }
 
-        public UnitName(Type type, bool hasTilde)
+        internal UnitName(Type type, bool hasTilde)
         {
             this.hasTilde = hasTilde;
             if (type is UnitTypeName t)
@@ -140,17 +140,17 @@ namespace LanguageElements
 
         private class WrongParentUnitNameException : System.Exception
         {
-            public WrongParentUnitNameException() : base()
+            internal WrongParentUnitNameException() : base()
             {
             }
         }
     }
 
-    internal class CompoundName
+    class CompoundName
     {
-        internal LinkedList<string> names;
+        public LinkedList<string> names;
 
-        public CompoundName(string name)
+        internal CompoundName(string name)
         {
             names = new LinkedList<string>();
             names.AddFirst(name);

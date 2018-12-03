@@ -2,6 +2,8 @@
 // Copyright (c) Wayne Kelly, QUT 2005-2014
 // (see accompanying GPPGcopyright.rtf)
 
+#define EXPORT_GPPG  // To make parser public (Denchick777)
+
 using System;
 using System.Text;
 using System.Globalization;
@@ -52,7 +54,7 @@ namespace QUT.Gppg {
         // "get_CurrentSemanticValue().myField = blah;" will fail since
         // the getter pushes the value of the field, not the reference.
         // So, in the presence of properties, gppg would need to encode
-        // such field accesses as ... 
+        // such field accesses as ...
         //  "tmp = get_CurrentSemanticValue(); // Fetch value
         //   tmp.myField = blah;               // update
         //   set_CurrentSemanticValue(tmp); "  // Write update back.
@@ -163,7 +165,7 @@ namespace QUT.Gppg {
 
         // The following methods are only called from within
         // a semantic action. The thrown exceptions can never
-        // propagate outside the ShiftReduceParser class in 
+        // propagate outside the ShiftReduceParser class in
         // which they are nested.
 
         /// <summary>
@@ -229,7 +231,7 @@ namespace QUT.Gppg {
 #endif
                     }
 #if TRACE_ACTIONS
-                    else 
+                    else
                         Console.Error.WriteLine( "Next token is still {0}", TerminalToString( NextToken ) );
 #endif
                     if (FsaState.ParserTable.ContainsKey( NextToken ))
@@ -356,7 +358,7 @@ namespace QUT.Gppg {
                 return false;
             //
             //  The interim fix for the "looping in error recovery"
-            //  artifact involved moving the setting of the recovering 
+            //  artifact involved moving the setting of the recovering
             //  bool until after invalid tokens have been discarded.
             //
             ShiftErrorToken();
@@ -459,11 +461,11 @@ namespace QUT.Gppg {
                 }
             }
             else if (recovering && tokensSinceLastError == 0) {
-                // 
+                //
                 //  Boolean recovering is not set until after the first
-                //  error token has been shifted.  Thus if we get back 
+                //  error token has been shifted.  Thus if we get back
                 //  here with recovering set and no tokens read we are
-                //  looping on the same error recovery action.  This 
+                //  looping on the same error recovery action.  This
                 //  happens if current_state.ParserTable is null because
                 //  the state has an LR(0) reduction, but not all
                 //  lookahead tokens are valid.  This only occurs for
@@ -653,7 +655,7 @@ namespace QUT.Gppg {
         public LexLocation( int sl, int sc, int el, int ec ) { startLine = sl; startColumn = sc; endLine = el; endColumn = ec; }
 
         /// <summary>
-        /// Create a text location which spans from the 
+        /// Create a text location which spans from the
         /// start of "this" to the end of the argument "last"
         /// </summary>
         /// <param name="last">The last location in the result span</param>
@@ -662,7 +664,7 @@ namespace QUT.Gppg {
     }
 
     /// <summary>
-    /// Abstract scanner class that GPPG expects its scanners to 
+    /// Abstract scanner class that GPPG expects its scanners to
     /// extend.
     /// </summary>
     /// <typeparam name="TValue">Semantic value type YYSTYPE</typeparam>
@@ -683,7 +685,7 @@ namespace QUT.Gppg {
         // Reason for FxCop message suppression -
         // This is a traditional name for YACC-like functionality
         // A field must be declared for this value of parametric type,
-        // since it may be instantiated by a value struct.  If it were 
+        // since it may be instantiated by a value struct.  If it were
         // implemented as a property, machine generated code in derived
         // types would not be able to select on the returned value.
 #pragma warning disable 649
@@ -750,9 +752,9 @@ namespace QUT.Gppg {
         internal int defaultAction; // = 0;		     // ParseAction
 
         /// <summary>
-        /// State transition data for this state. Pairs of elements of the 
+        /// State transition data for this state. Pairs of elements of the
         /// goto array associate symbol ordinals with next state indices.
-        /// The actions array is passed to another constructor. 
+        /// The actions array is passed to another constructor.
         /// </summary>
         /// <param name="actions">The action list</param>c
         /// <param name="goToList">Next state data</param>
@@ -764,7 +766,7 @@ namespace QUT.Gppg {
         }
 
         /// <summary>
-        /// Action data for this state. Pairs of elements of the 
+        /// Action data for this state. Pairs of elements of the
         /// action array associate action ordinals with each of
         /// those symbols that have actions in the current state.
         /// </summary>
