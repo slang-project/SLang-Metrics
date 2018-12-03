@@ -36,11 +36,12 @@ namespace SLangMetrics
             }
         }
 
-        public static void runTests()
+        public static bool runTests()
         {
             String resExt = "*.res";
             String testExt = "*.test";
             DirectoryInfo dir = new DirectoryInfo("tests\\");
+            bool failed = false;
             try
             {
                 foreach (DirectoryInfo d in dir.GetDirectories())
@@ -56,11 +57,12 @@ namespace SLangMetrics
                         Console.WriteLine("Returned: " + result);
                         if (res.ToLower().Equals(result))
                         {
-                            Console.WriteLine("SUCCED");
+                            Console.WriteLine("SUCCEED");
                         }
                         else
                         {
                             Console.WriteLine("FAILED");
+                            failed = true;
                         }
                     }
                 }
@@ -70,6 +72,7 @@ namespace SLangMetrics
                 Console.WriteLine("IOException: " + e.GetBaseException());
             }
             Console.WriteLine("---------------- Tests finished ----------------\n\n");
+            return !failed;
         }
     }
 }

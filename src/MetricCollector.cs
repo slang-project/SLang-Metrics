@@ -8,21 +8,19 @@ namespace Metrics
     {
         private Module parsedModule;
 
-        internal MetricCollector(string fileName)
+        public MetricCollector(string fileName)
         {
             this.parsedModule = SLangParser.Parser.parseProgram(fileName);
-            debug();
         }
 
-        // TODO: hello, human
-        private void debug()
-        {
-            Console.WriteLine(parsedModule.getCC());
-        }
-
-        internal bool IsParsingSuccessful()
+        public bool IsParsingSuccessful()
         {
             return this.parsedModule != null;
+        }
+
+        public void debug()
+        {
+            Console.WriteLine(parsedModule.getCC());
         }
     }
 }
