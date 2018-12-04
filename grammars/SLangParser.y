@@ -749,6 +749,7 @@ UnitDeclaration
       CompoundName UnitDeclarationAdditions    UnitMemberSeqOpt InvariantOpt END
     {
         scannerFlags.isInsideUnit = false;  // XXX: important for lookahead
+        scannerFlags.isInsideContract = false;  // XXX: important for lookahead
         $$ = new UnitDeclaration($4, $5, $6);
     }
     | UnitSpecifiersOpt UNIT
@@ -756,6 +757,7 @@ UnitDeclaration
       CompoundName UnitDeclarationAdditions IS UnitMemberSeqOpt InvariantOpt END
     {
         scannerFlags.isInsideUnit = false;  // XXX: important for lookahead
+        scannerFlags.isInsideContract = false;  // XXX: important for lookahead
         $$ = new UnitDeclaration($4, $5, $7);
     }
     ;  // TODO: specifiers and invariant consideration
