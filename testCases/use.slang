@@ -8,11 +8,5 @@ end
 unit A.Math
 end
 
-unit WorkDay
-    const is
-        Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday
-    end
-end
-
-unit Rrr use  A.B.C.D as A, D.C.B.A as D, const WorkDay
+unit Rrr use  A.B.C.D as A, D.C.B.A as D
 end
