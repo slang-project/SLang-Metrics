@@ -1,17 +1,11 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using LanguageElements;
 
 namespace Metrics
 {
-    public class ParsingFailedException : Exception
-    {
-        public ParsingFailedException() : base()
-        {
-        }
-    }
-
-    class MetricCollector
+    public class MetricCollector
     {
         private Module parsedModule;
 
@@ -24,9 +18,116 @@ namespace Metrics
             }
         }
 
-        public void Debug()
+        public void ActivateInterface(string[] args)
         {
-            Console.WriteLine(parsedModule.getCC());
+            // TODO: parse args and choose an appropriate interface
+            ActivateCLI();
         }
+
+        private void ActivateCLI()
+        {
+            string input;
+            PrintInvitation();
+            while (true)
+            {
+                Console.Write(">>> ");
+                input = Console.ReadLine();
+
+                switch (input.ToLower())
+                {
+                    case "exit":
+                        goto exit;
+
+                    case "help":
+                        PrintHelp();
+                        break;
+
+                    default:
+                        ParseMetricQuery(input);
+                        break;
+                }
+            }
+            exit:
+            Console.WriteLine("Terminating process...");
+        }
+
+        private void PrintInvitation()
+        {
+            Console.WriteLine(
+                    "Your input was successfully parsed!\n" +
+                    "Now you may ask for some metrics of the given code.\n"
+            );
+            PrintHelp();
+            Console.WriteLine("Write here your query:");
+        }
+
+        private void PrintHelp()
+        {
+            Console.WriteLine(
+                ">>> help - print list of queries (this message)" +
+                ">>> exit - quit and terminate this session" +
+                ">>> <MetricName> [<MetricArgs>] - print a value of a given metric"
+            );
+        }
+
+        private void ParseMetricQuery(string input)
+        {
+            if (input.Length < 1)
+            {
+                return;
+            }
+
+            string[] args = input.Split().Where(s => s.Length > 0).ToArray();
+            switch (args[0])
+            {
+                case "CC":
+                case "CyclomaticComplexity":
+                    // TODO: show
+                    break;
+
+                case "SS":
+                case "SoftwareSciences":
+                    // TODO: show
+                    break;
+
+                case "WRU":
+                case "WeightedRoutines":
+                case "WeightedRoutinesPerUnit":
+                    // TODO: show
+                    break;
+
+                case "NPWRU":
+                case "NonPrivateWRU":
+                case "NonPrivateWeightedRoutines":
+                case "NonPrivateWeightedRoutinesPerUnit":
+                    // TODO: show
+                    break;
+
+                case "DIT":
+                case "DepthOfInheritanceTree":
+                    // TODO: show
+                    break;
+
+                case "NOD":
+                case "NumberOfDescendants":
+                    // TODO: show
+                    break;
+
+                case "MHH":
+                case "MaximumHierarchyHeight":
+                    // TODO: show
+                    break;
+
+                case "AHH":
+                case "AverageHierarchyHeight":
+                    // TODO: show
+                    break;
+            }
+        }
+    }
+
+    public class ParsingFailedException : Exception
+    {
+        public ParsingFailedException() : base() { }
     }
 }

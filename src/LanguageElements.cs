@@ -42,9 +42,7 @@ namespace LanguageElements
         }
     }
 
-    abstract class BlockMember
-    {
-    }
+    abstract class BlockMember { }
 
 
     class Block : BlockMember, ICCMeasurable
@@ -75,9 +73,7 @@ namespace LanguageElements
         }
     }
 
-    abstract class Declaration : BlockMember
-    {
-    }
+    abstract class Declaration : BlockMember { }
 
     class UnitDeclaration : Declaration, IWRUMesurable
     {
@@ -140,9 +136,7 @@ namespace LanguageElements
         }
     }
 
-    abstract class Statement : BlockMember
-    {
-    }
+    abstract class Statement : BlockMember { }
 
 
     class IfStatement : Statement, ICCMeasurable
@@ -197,9 +191,7 @@ namespace LanguageElements
         }
     }
 
-    abstract class Type
-    {
-    }
+    abstract class Type { }
 
     class UnitTypeName : Type
     {
@@ -233,9 +225,7 @@ namespace LanguageElements
 
         private class WrongParentUnitNameException : System.Exception
         {
-            internal WrongParentUnitNameException() : base()
-            {
-            }
+            internal WrongParentUnitNameException() : base() { }
         }
     }
 
