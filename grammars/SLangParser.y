@@ -36,7 +36,6 @@
 
 // ========== TYPE ASSIGNMENTS ==========
 
-%type <s> Label
 %type <cn> CompoundName
 %type <t> CompoundType
 %type <t> Type
@@ -228,12 +227,12 @@ CompoundName
     ;
 
 LabelOpt
-    : /* empty */  { $$ = null; }
-    | Label  { $$ = $1; }
+    : /* empty */
+    | Label
     ;
 
 Label
-    : LABEL_ID COLON  { $$ = $1; }
+    : LABEL_ID COLON
     ;
 
 // Use directive ***
