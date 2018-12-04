@@ -36,6 +36,7 @@
 
 // ========== TYPE ASSIGNMENTS ==========
 
+%type <s> Label
 %type <cn> CompoundName
 %type <t> CompoundType
 %type <t> Type
@@ -110,13 +111,13 @@
 %token <s> COLON_EQUALS
 
 // Keywords
-%token AND_THEN
-%token OR_ELSE
+%token AND_THEN  // TODO: consider (no concrete specification given)
+%token OR_ELSE  // TODO: consider (no concrete specification given)
 %token ABSTRACT
 %token ALIAS
 %token AS
 %token BREAK
-%token CHECK
+%token CHECK  // TODO: remove from the specification
 %token CONCURRENT
 %token CONST
 %token DEEP
@@ -126,12 +127,12 @@
 %token END
 %token ENSURE
 %token EXTEND
-%token EXTERNAL
+%token EXTERNAL  // TODO: remove from the specification
 %token FINAL
 %token FOREIGN
 %token HIDDEN
 %token IF
-%token IN
+%token IN  // TODO: consider (no concrete specification given)
 %token INIT
 %token INVARIANT
 %token IS
@@ -164,7 +165,7 @@
 // Tokens for lookahead
 %token NEW_LINE
 %token WHILE_POSTTEST
-%token LOOP_ID
+%token LABEL_ID
 %token JUST_BREAK
 %token JUST_RETURN
 %token JUST_RAISE
@@ -226,6 +227,15 @@ CompoundName
     }
     ;
 
+LabelOpt
+    : /* empty */  { $$ = null; }
+    | Label  { $$ = $1; }
+    ;
+
+Label
+    : LABEL_ID COLON  { $$ = $1; }
+    ;
+
 // Use directive ***
 
 UseDirectiveSeqOpt
@@ -267,7 +277,7 @@ GenericFormal
     | IDENTIFIER SINGLE_ARROW CompoundType
     | IDENTIFIER SINGLE_ARROW CompoundType INIT
     | IDENTIFIER SINGLE_ARROW CompoundType INIT RoutineParameters
-    | IDENTIFIER COLON CompoundType
+    | Label CompoundType
     ;  // TODO: review (should contain UnitTypeName)
 
 // Contracts ***
@@ -296,8 +306,8 @@ PredicateSeq
     ;  // TODO: check, shift/reduce of semicolon
 
 Predicate
-    :                  Expression
-    | IDENTIFIER COLON Expression
+    :             Expression
+    | Label Expression
     ;
 
 // Type ***
@@ -363,7 +373,8 @@ MultiType
     ;
 
 TupleType
-    : LPAREN TupleElementSeq RPAREN
+    : LPAREN NONE            RPAREN  // Note: absent in the specification
+    | LPAREN TupleElementSeq RPAREN
     ;
 
 TupleElementSeq
@@ -479,7 +490,11 @@ BlockMember
 
 ExceptionHandlerSeqOpt
     : /* empty */
-    | WHEN Expression NestedBlock
+    | ExceptionHandlerSeqOpt ExceptionHandler
+    ;
+
+ExceptionHandler
+    : WHEN Expression NestedBlock
     ;  // TODO: review
 
 NestedBlock
@@ -564,27 +579,22 @@ ElseClauseOpt
     ;
 
 LoopStatement
-    : LoopIdOpt                  LOOP NestedBlock END
+    : LabelOpt                  LOOP NestedBlock END
     {
         $$ = new LoopStatement($3);
     }
-    | LoopIdOpt WHILE Expression LOOP NestedBlock END
+    | LabelOpt WHILE Expression LOOP NestedBlock END
     {
         $$ = new LoopStatement($5);
     }
-    | LoopIdOpt WHILE Expression      Block
+    | LabelOpt WHILE Expression      Block
     {
         $$ = new LoopStatement($4);
     }
-    | LoopIdOpt LOOP NestedBlock WHILE_POSTTEST Expression END
+    | LabelOpt LOOP NestedBlock WHILE_POSTTEST Expression END
     {
         $$ = new LoopStatement($3);
     }
-    ;
-
-LoopIdOpt
-    : /* empty */
-    | LOOP_ID COLON
     ;
 
 BreakStatement
@@ -859,16 +869,17 @@ UnitMemberRoutineDeclaration
 ConstObjectDeclaration
     : CONST IS
         { scannerFlags.isInsideUnit = false; }  // XXX: important for lookahead
-      ConstObjectSeq END
+      ConstObjectSeqOpt END
+    ;
+
+ConstObjectSeqOpt
+    : /* empty */
+    | ConstObjectSeq
     ;
 
 ConstObjectSeq
-    :                      ConstObject
-    | ConstObjectSeq COMMA ConstObject
-    ;
-
-ConstObject
-    : Expression
+    :                      Expression
+    | ConstObjectSeq COMMA Expression
     ;
 
 InitializerDeclaration
