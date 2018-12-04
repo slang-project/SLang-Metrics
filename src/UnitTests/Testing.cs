@@ -13,7 +13,7 @@ namespace SLangTests
         /*
          * Use argument /tests in console command.
          */
-        public static bool isTestingMode = true; // TODO make false while release!
+        public static bool isTestingMode = false; // TODO make false while release!
 
         public static bool runTests()
         {
@@ -28,7 +28,7 @@ namespace SLangTests
             not_implemented_yetTest();
             some_codeTest();
             contractsTest();
-            useTest();
+            useTest(); // For now fails, but testing system working correctly!
 
             Console.WriteLine();
             // If program achieved this line, tests completed successfully

@@ -3,11 +3,11 @@
 unit A
 end
 
-unit B extends A
+unit B extend A
 end
 
-unit C extends A
+unit C extend A
 end
 
-unit D extends B, C
+unit D extend B, C
 end
