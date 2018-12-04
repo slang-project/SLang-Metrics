@@ -740,21 +740,25 @@ RoutineBody
 // Unit ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 UnitDeclaration
-    : UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions
-        { scannerFlags.isInsideUnit = true; }  // XXX: important for lookahead
-      UnitMemberSeqOpt InvariantOpt END
+    : UnitSpecifiersOpt UNIT
+        UnitEntranceFlagSetter  // XXX: important for lookahead
+      CompoundName UnitDeclarationAdditions    UnitMemberSeqOpt InvariantOpt END
     {
         scannerFlags.isInsideUnit = false;  // XXX: important for lookahead
-        $$ = new UnitDeclaration($3, $4, $6);
+        $$ = new UnitDeclaration($4, $5, $6);
     }
-    | UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions IS
-        { scannerFlags.isInsideUnit = true; }  // XXX: important for lookahead
-      UnitMemberSeqOpt InvariantOpt END
+    | UnitSpecifiersOpt UNIT
+        UnitEntranceFlagSetter  // XXX: important for lookahead
+      CompoundName UnitDeclarationAdditions IS UnitMemberSeqOpt InvariantOpt END
     {
         scannerFlags.isInsideUnit = false;  // XXX: important for lookahead
-        $$ = new UnitDeclaration($3, $4, $7);
+        $$ = new UnitDeclaration($4, $5, $7);
     }
     ;  // TODO: specifiers and invariant consideration
+
+UnitEntranceFlagSetter
+    : /* empty */  { scannerFlags.isInsideUnit = true; }
+    ;
 
 UnitSpecifiersOpt
     : /* empty */
