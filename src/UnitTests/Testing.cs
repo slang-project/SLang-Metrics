@@ -1,25 +1,24 @@
 ﻿using SLangLookaheadScanner;
 using SLangParser;
+using LanguageElements;
+using Metrics;
 using System;
 using System.IO;
-using LanguageElements;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Metrics;
+using System.Diagnostics;
 
 namespace SLangTests
 {
-    [TestClass]
     public class Testing
     {
-        // Need to back in path due to tests run in such a way
-        private const string TESTS_FOLDER = "..\\..\\..\\testCases\\";
+        private const string TESTS_FOLDER = "testCases\\";
+        private const string FILE_EXTENSION = ".slang";
 
         /*
          * Use argument /tests in console command.
          */
         public static bool isTestingMode = false; // TODO make false while release!
 
-        public bool runTests()
+        public static bool runTests()
         {
             ccTest1();
             commonProgramTest();
@@ -31,48 +30,68 @@ namespace SLangTests
             return true;
         }
 
-        [TestMethod]
-        public void ccTest1()
+        public static void ccTest1()
         {
-            Module m = parseCode("cyclomatic_complexity.slang", true);
-            Assert.AreEqual(6, m.getCC());
+            String testName = "cyclomatic_complexity";
+            //MetricCollector metrics = parseCode(testName + FILE_EXTENSION, false); //Example how to preview failed test case
+            MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
+            Assert(6 == metrics.parsedModule.getCC(), testName, "Wrong CC value");
         }
 
-        [TestMethod]
-        public void commonProgramTest()
+        public static void commonProgramTest()
         {
-            Module m = parseCode("usual_slang_program.slang", true);
+            String testName = "usual_slang_program";
+            MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
         }
 
-        [TestMethod]
-        public void slangUnitTest()
+        public static void slangUnitTest()
         {
-            Module m = parseCode("slang_unit.slang", true);
+            String testName = "slang_unit";
+            MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
         }
 
-        [TestMethod]
-        public void javaCodeParsingTest()
+        public static void javaCodeParsingTest()
         {
-            Module m = parseCode("java_code.java", false);
+            String testName = "java_code.java";
+            MetricCollector metrics = parseCode(testName, false);
         }
 
-        [TestMethod]
-        public void emptyFileTest()
+        public static void emptyFileTest()
         {
-            Module m = parseCode("empty_program.slang", true);
+            String testName = "empty_program";
+            MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
         }
 
-        private static Module parseCode(string fileName, bool mustSuccess)
+        private static MetricCollector parseCode(string fileName, bool mustSuccess)
         {
+            string errorMsg = "Test: {0}\nFAILED".Replace("{0}", fileName);
             DirectoryInfo dir = new DirectoryInfo(TESTS_FOLDER);
-            Assert.IsTrue(checkFileExitst(dir, fileName));
+
+            Assert(checkFileExitst(dir, fileName), fileName, errorMsg);
             Console.WriteLine("\nTest: {0}", fileName);
 
             String codeFile = dir.GetFiles(fileName)[0].FullName;
 
-            MetricCollector metricCollector = new MetricCollector(codeFile);
-            Assert.AreEqual(mustSuccess, metricCollector.IsParsingSuccessful());
-            return metricCollector.parsedModule;
+            MetricCollector metricCollector = null;
+            try
+            {
+                metricCollector = new MetricCollector(codeFile);
+                Assert(mustSuccess, fileName, errorMsg);
+            }
+            catch (ParsingFailedException e)
+            {
+                Assert(!mustSuccess, fileName, errorMsg);
+            }
+            return metricCollector;
+        }
+
+        private static void Assert(bool condition, string testName, string errorMsg)
+        {
+            Debug.Assert(condition, errorMsg);
+            if (!condition)
+                Console.WriteLine("FAILED");
+            else
+                Console.WriteLine("success assert");
         }
 
         /*

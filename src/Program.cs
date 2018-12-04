@@ -21,8 +21,18 @@ namespace SLangMetrics
 
             if (Testing.isTestingMode || args.Any(s => s.ToLower() == "/test"))
             {
-                Testing testing = new Testing();
-                Environment.Exit(testing.runTests() ? 0 : 1);
+                int resCode = Testing.runTests() ? 0 : 1;
+                
+                if(resCode == 0)
+                {
+                    Console.WriteLine("All tests SUCCED");
+                }
+                else
+                {
+                    Console.WriteLine("Tests FAILED");
+                }
+                Console.ReadLine();
+                Environment.Exit(resCode);
                 return;
             }
 
