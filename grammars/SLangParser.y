@@ -495,7 +495,7 @@ ExceptionHandlerSeqOpt
 
 ExceptionHandler
     : WHEN Expression NestedBlock
-    ;  // TODO: review
+    ;  // TODO: shift/reduce when nested exception handling
 
 NestedBlock
     : PreconditionOpt    NestedBlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt
