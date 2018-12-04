@@ -215,7 +215,6 @@ CompoundName
     :                  IDENTIFIER
     {
         $$ = new CompoundName($1);
-        System.Console.WriteLine($1 == null ? "null" : $1);
     }
     | CompoundName DOT IDENTIFIER
     {
@@ -317,11 +316,11 @@ UnitType
     ;  // TODO: specifiers
 
 UnitTypeName
-    : IDENTIFIER
+    : CompoundName
     {
         $$ = new UnitTypeName($1, null);
     }
-    | IDENTIFIER GenericArgumentClause
+    | CompoundName GenericArgumentClause
     {
         $$ = new UnitTypeName($1, null);  // TODO: generics
     }
