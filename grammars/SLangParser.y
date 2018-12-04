@@ -422,6 +422,7 @@ PrimaryExpression
     : LITERAL  // TODO
     | TypeOrIdentifier
 //  | OperatorSign  // TODO: consider later
+    | INIT  // TODO: review
     | THIS
     | SUPER
 //  | SUPER UnitTypeName  // TODO
