@@ -51,21 +51,6 @@ namespace Metrics
         {
             // TODO: parse args and choose an appropriate interface
             ActivateCLI();
-
-/* TODO: use this in CLI
-            Console.WriteLine("Max Inheritance: " + inheritance.getMaxHierarchyHeight());
-            Console.WriteLine("Avg Inheritance: " + inheritance.getAverageHierarchyHeight());
-
-            foreach (string unitName in inheritance.getUnitNames() ?? Enumerable.Empty<string>())
-            {
-                Console.WriteLine(String.Format("Unit: <{0}>, descendants: {1}, inheritance height: {2}", unitName, inheritance.getDescendantsCount(unitName), inheritance.getHierachyHeight(unitName)));
-                foreach (string path in inheritance.getHierarchyPaths(unitName) ?? Enumerable.Empty<string>())
-                {
-                    Console.WriteLine("  " + path);
-                }
-            }
-
-            inheritance.printTreeRepresentation();*/
         }
 
         private void ActivateCLI()
@@ -79,8 +64,12 @@ namespace Metrics
 
                 switch (input.ToLower())
                 {
-                    case "tree":
-                        // TODO: print inheritance tree
+                    case "inheritancetree":
+                        inheritance.printTreeRepresentation();
+                        break;
+
+                    case "allunits":
+                        Console.WriteLine(String.Join("\n", inheritance.getUnitNames().ToArray()));
                         break;
 
                     case "help":
@@ -132,48 +121,150 @@ namespace Metrics
             {
                 case "cc":
                 case "cyclomaticcomplexity":
-                    // TODO: show
+                    if (args.Length > 0)
+                    {
+                        RoutineDeclaration found = null;
+                        foreach (RoutineDeclaration routine in traverse.routineList ?? Enumerable.Empty<RoutineDeclaration>())
+                        {
+                            if (routine.name.ToString().Equals(args[0]))
+                            {
+                                found = routine;
+                                break;
+                            }
+                        }
+                        if (found != null)
+                        {
+                            Console.WriteLine("Cyclomatic Complexity of routine {0}: {1}",
+                                    args[0], found.getCC());
+                        }
+                        else
+                        {
+                            Console.WriteLine("Routine not found: {0}", args[0]);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Cyclomatic Complexity of Module scope: {0}",
+                                parsedModule.getCC());
+                    }
                     break;
 
                 case "ss":
                 case "softwaresciences":
-                    // TODO: show
+                    Console.WriteLine(
+                        ""  // TODO: Pretty Print
+                    );
+                    break;
+
+                case "mi":
+                case "maintainabilityindex":
+                    Console.WriteLine(
+                        ""  // TODO: Pretty Print
+                    );
                     break;
 
                 case "wru":
                 case "weightedroutines":
                 case "weightedroutinesperunit":
-                    // TODO: show
-                    break;
-
-                case "npwru":
-                case "nonprivatewru":
-                case "nonprivateweightedroutines":
-                case "nonprivateweightedroutinesperunit":
-                    // TODO: show
+                    if (args.Length > 0)
+                    {
+                        UnitDeclaration found = null;
+                        foreach (UnitDeclaration unit in traverse.unitList ?? Enumerable.Empty<UnitDeclaration>())
+                        {
+                            if (unit.name.ToString().Equals(args[0]))
+                            {
+                                found = unit;
+                                break;
+                            }
+                        }
+                        if (found != null)
+                        {
+                            Console.WriteLine("Weighted Routines per Unit {0}: {1}",
+                                    args[0], found.getWRU());
+                        }
+                        else
+                        {
+                            Console.WriteLine("Unit not found: {0}", args[0]);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please, specify unit name");
+                    }
                     break;
 
                 case "dit":
                 case "depthofinheritancetree":
-                    Console.WriteLine(
-                            "Maximal inheritance depth: " + inheritance.getMaxHierarchyHeight() +
-                            "\nAverage inheritance depth: " + inheritance.getAverageHierarchyHeight()
-                    );
+                    if (args.Length > 0)
+                    {
+                        try
+                        {
+                            Console.WriteLine("Hierarchy height of unit {0}: {1}",
+                                    args[0], inheritance.getHierachyHeight(args[0]));
+                        }
+                        catch (NonExistantUnitException)
+                        {
+                            Console.WriteLine("Unit not found: {0}", args[0]);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(
+                                "Maximal inheritance depth: " + inheritance.getMaxHierarchyHeight() +
+                                "\nAverage inheritance depth: " + inheritance.getAverageHierarchyHeight()
+                        );
+                    }
                     break;
 
                 case "nod":
                 case "numberofdescendants":
-                    // TODO: show
+                    if (args.Length > 0)
+                    {
+                        try
+                        {
+                            Console.WriteLine("Number of descendants of {0}: {1}",
+                                    args[0], inheritance.getDescendantsCount(args[0]));
+                        }
+                        catch (NonExistantUnitException)
+                        {
+                            Console.WriteLine("Unit not found: {0}", args[0]);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please, specify unit name");
+                    }
+                    break;
+
+                case "inheritancepaths":
+                    if (args.Length > 0)
+                    {
+                        try
+                        {
+                            foreach (string path in inheritance.getHierarchyPaths(args[0]) ?? Enumerable.Empty<string>())
+                            {
+                                Console.WriteLine(path);
+                            }
+                        }
+                        catch (NonExistantUnitException)
+                        {
+                            Console.WriteLine("Unit not found: {0}", args[0]);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please, specify unit name");
+                    }
                     break;
 
                 case "mhh":
                 case "maximumhierarchyheight":
-                    // TODO: show
+                    Console.WriteLine("Maximum Hierarchy Height: {0}", traverse.maxHH);
                     break;
 
                 case "ahh":
                 case "averagehierarchyheight":
-                    // TODO: show
+                    Console.WriteLine("Average Hierarchy Height: {0}", traverse.averageHH);
                     break;
 
                 default:
