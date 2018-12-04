@@ -17,14 +17,14 @@ namespace SLangLookaheadScanner
 
     internal sealed partial class Scanner : ScanBase
     {
-        private SLangScanner.Scanner origScanner;
+        private SLangScanner.Scanner originalScanner;
         private Queue<int> tokenQueue;
         private Queue<SLangParser.ValueType> valueQueue;
         private ScannerFlags scannerFlags;
 
         internal Scanner(Stream file, ref ScannerFlags scannerFlags)
         {
-            this.origScanner = new SLangScanner.Scanner(file);
+            this.originalScanner = new SLangScanner.Scanner(file);
             this.tokenQueue = new Queue<int>();
             this.valueQueue = new Queue<SLangParser.ValueType>();
             this.scannerFlags = scannerFlags;
@@ -32,9 +32,9 @@ namespace SLangLookaheadScanner
 
         private int LookNext()
         {
-            int token = origScanner.yylex();
+            int token = originalScanner.yylex();
             this.tokenQueue.Enqueue(token);
-            this.valueQueue.Enqueue(origScanner.yylval);
+            this.valueQueue.Enqueue(originalScanner.yylval);
             this.yylval = this.valueQueue.Peek();
             return token;
         }
@@ -77,8 +77,8 @@ namespace SLangLookaheadScanner
             }
             else
             {
-                curToken = origScanner.yylex();
-                this.yylval = origScanner.yylval;
+                curToken = originalScanner.yylex();
+                this.yylval = originalScanner.yylval;
             }
 
             if (scannerFlags.isInsideUnit && IsOperatorSign(curToken))
