@@ -6,18 +6,11 @@ using System.Linq;
 
 namespace Metrics
 {
-    public class ParsingFailedException : Exception
-    {
-        public ParsingFailedException() : base()
-        {
-        } // TODO: consider deletion due it's left after merge
-    }
-
     class MaintainabilityIndex
     {
         private double value;
 
-        // Get Maintainability index based on formula used by Microsoft Visual Studio (since 2008)
+        /// Get Maintainability index based on formula used by Microsoft Visual Studio (since 2008)
         public MaintainabilityIndex(double HV, double CC, double LOC)
         {
             this.value = Math.Max(0, (171 - 5.2 * Math.Log(HV, Math.E) - 0.23 * (CC) - 16.2 * Math.Log(LOC, Math.E)) * 100 / 171);
@@ -49,23 +42,23 @@ namespace Metrics
             // TODO: parse args and choose an appropriate interface
             ActivateCLI();
 
-/* TODO: use this in CLI
-            Traverse traverse = new Traverse(parsedModule);
-            InheritanceWrapper inheritance = new InheritanceWrapper(traverse.unitList);
+            /* TODO: use this in CLI
+                        Traverse traverse = new Traverse(parsedModule);
+                        InheritanceWrapper inheritance = new InheritanceWrapper(traverse.unitList);
 
-            Console.WriteLine("Max Inheritance: " + inheritance.getMaxHierarchyHeight());
-            Console.WriteLine("Avg Inheritance: " + inheritance.getAverageHierarchyHeight());
+                        Console.WriteLine("Max Inheritance: " + inheritance.getMaxHierarchyHeight());
+                        Console.WriteLine("Avg Inheritance: " + inheritance.getAverageHierarchyHeight());
 
-            foreach (string unitName in inheritance.getUnitNames() ?? Enumerable.Empty<string>())
-            {
-                Console.WriteLine(String.Format("Unit: <{0}>, descendants: {1}, inheritance height: {2}", unitName, inheritance.getDescendantsCount(unitName), inheritance.getHierachyHeight(unitName)));
-                foreach (string path in inheritance.getHierarchyPaths(unitName) ?? Enumerable.Empty<string>())
-                {
-                    Console.WriteLine("  " + path);
-                }
-            }
+                        foreach (string unitName in inheritance.getUnitNames() ?? Enumerable.Empty<string>())
+                        {
+                            Console.WriteLine(String.Format("Unit: <{0}>, descendants: {1}, inheritance height: {2}", unitName, inheritance.getDescendantsCount(unitName), inheritance.getHierachyHeight(unitName)));
+                            foreach (string path in inheritance.getHierarchyPaths(unitName) ?? Enumerable.Empty<string>())
+                            {
+                                Console.WriteLine("  " + path);
+                            }
+                        }
 
-            inheritance.printTreeRepresentation();*/
+                        inheritance.printTreeRepresentation();*/
         }
 
         private void ActivateCLI()
@@ -95,7 +88,7 @@ namespace Metrics
                         break;
                 }
             }
-            exit:
+        exit:
             Console.WriteLine("Terminating process...");
         }
 
