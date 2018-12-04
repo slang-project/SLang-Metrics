@@ -17,18 +17,9 @@ namespace Metrics
         {
             this.parsedModule = SLangParser.Parser.parseProgram(fileName);
             Console.WriteLine("------------");
+
             Traverse traverse = new Traverse(parsedModule);
-            foreach(UnitDeclaration ud in traverse.unitList ?? Enumerable.Empty<UnitDeclaration>())
-            {
-                Console.WriteLine(ud.name.ToString());
-            }
-        }
-        private void renameAndCollect()
-        {
-            foreach(BlockMember bm in parsedModule.members)
-            {
-                Console.WriteLine(bm.ToString());
-            }
+            InheritanceWrapper inheritance = new InheritanceWrapper(traverse.unitList);
         }
 
         public bool IsParsingSuccessful()

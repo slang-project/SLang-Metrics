@@ -77,6 +77,10 @@ end
 
 val unit B extend C
     val unit B extend C
-        a is 6
+        val unit B extend C
+            val unit B extend C
+                a is 6
+            end
+        end
     end
 end

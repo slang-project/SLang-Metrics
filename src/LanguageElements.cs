@@ -79,11 +79,20 @@ namespace LanguageElements
     //         }
     //     }
     // }
-    internal class Inheritance
+
+    internal class InheritanceWrapper
     {
-        public Inheritance(LinkedList<UnitDeclaration> unitList)
+        public InheritanceWrapper(LinkedList<UnitDeclaration> unitList)
         {
-            
+            foreach(UnitDeclaration ud in unitList ?? Enumerable.Empty<UnitDeclaration>())
+            {
+                Console.Write(ud.name.ToString() + " : ");
+                foreach(UnitName name in ud.parents ?? Enumerable.Empty<UnitName>())
+                {
+                    Console.Write(" " + name.name);
+                }
+                Console.WriteLine();
+            }
         }
     }
 
