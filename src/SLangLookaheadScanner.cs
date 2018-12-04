@@ -8,10 +8,12 @@ namespace SLangLookaheadScanner
     internal sealed class ScannerFlags
     {
         public bool isInsideUnit { get; set; }
+        public bool isInsideContract { get; set; }
 
         public ScannerFlags()
         {
             this.isInsideUnit = false;
+            this.isInsideContract = false;
         }
     }
 
@@ -163,7 +165,13 @@ namespace SLangLookaheadScanner
             }
             if (looked == (int)Tokens.COLON)
             {
-                return (int)Tokens.LABEL_ID;
+                if (scannerFlags.isInsideContract)
+                {
+                    return (int)Tokens.CONTRACT_LABEL;
+                }
+                looked = LookNextNonNewLine();
+                return looked == (int)Tokens.WHILE || looked == (int)Tokens.LOOP
+                        ? (int)Tokens.LOOP_LABEL : curToken;
             }
             if (looked == (int)Tokens.LBRACKET)
             {
