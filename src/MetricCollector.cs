@@ -6,11 +6,30 @@ using System.Linq;
 
 namespace Metrics
 {
+    class MaintainabilityIndex
+    {
+        private double value;
+
+        /// Get Maintainability index based on formula used by Microsoft Visual Studio (since 2008)
+        public MaintainabilityIndex(double HV, double CC, double LOC)
+        {
+            this.value = Math.Max(0,
+                    (171 - 5.2 * Math.Log(HV, Math.E) - 0.23 * (CC) - 16.2 * Math.Log(LOC, Math.E)) * 100 / 171);
+            // MAX(0,(171 - 5.2 * ln(Halstead Volume) - 0.23 * (Cyclomatic Complexity) - 16.2 * ln(Lines of Code))*100 / 171)
+        }
+
+        public double getValue()
+        {
+            return this.value;
+        }
+    }
+
     public class MetricCollector
     {
         // TODO: for now it accessible for testing purposes.
         // If future this class should provide features to extract info from Module @parsedModule
         internal Module parsedModule { get; }
+        private MaintainabilityIndex maintIndex;
 
         public MetricCollector(string fileName)
         {
@@ -20,6 +39,8 @@ namespace Metrics
             {
                 throw new ParsingFailedException();
             }
+            this.maintIndex = new MaintainabilityIndex(
+                parsedModule.ssMetrics.volume, parsedModule.getCC(), parsedModule.ssMetrics.LOC);
         }
 
         public void ActivateInterface(string[] args)
@@ -73,7 +94,7 @@ namespace Metrics
                         break;
                 }
             }
-            exit:
+        exit:
             Console.WriteLine("Terminating process...");
         }
 

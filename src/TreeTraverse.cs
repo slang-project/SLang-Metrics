@@ -4,6 +4,11 @@ using System.Linq;
 
 namespace LanguageElements
 {
+    class InheritanceLoopDetectedException : Exception
+    {
+        public InheritanceLoopDetectedException() : base() { }
+    }
+
     internal class InheritanceWrapper
     {
         private Dictionary<string, InheritanceNode> nodeMap;
@@ -175,15 +180,17 @@ namespace LanguageElements
             this.visited = true;
         }
 
-        public void visit(int footprint)
+        public void visitRecursive(int footprint)
         {
-            this.visited = true;
+            if (visitorFootprint.Contains(footprint))
+            {
+                throw new InheritanceLoopDetectedException();
+            }
             this.visitorFootprint.Add(footprint);
-        }
-
-        public bool containsFootprint(int footprint)
-        {
-            return this.visitorFootprint.Contains(footprint);
+            foreach (InheritanceNode node in this.children ?? Enumerable.Empty<InheritanceNode>())
+            {
+                node.visitRecursive(footprint);
+            }
         }
 
         public void cleanVisited()
@@ -218,10 +225,12 @@ namespace LanguageElements
             }
         }
 
+
+
         /// <summary>
-        /// Go through inheritance tree and calculate set
+        /// Go through inheritance tree and calculate set 
         /// of descendants for each node.
-        /// After that we can get number of descendants
+        /// After that we can get number of descendants 
         /// for each node.
         /// </summary>
         public void findDescendants()
@@ -316,26 +325,54 @@ namespace LanguageElements
     internal class Traverse
     {
         public LinkedList<UnitDeclaration> unitList;
+        public LinkedList<int> bottomHeights;
+        public int maxHH { get; }
+        public double averageHH { get; }
+
 
         public Traverse(Module module)
         {
             unitList = new LinkedList<UnitDeclaration>();
+            bottomHeights = new LinkedList<int>();
             CompoundName outerScope = new CompoundName();
 
             foreach (BlockMember child in module.members ?? Enumerable.Empty<BlockMember>())
             {
-                traverse(child, ref unitList, outerScope);
+                traverse(child, ref unitList, outerScope, ref bottomHeights, 1);
+            }
+
+            maxHH = 0;
+            averageHH = 0;
+
+            foreach (int hh in bottomHeights ?? Enumerable.Empty<int>())
+            {
+                if (hh > maxHH)
+                {
+                    maxHH = hh;
+                }
+                averageHH += hh;
+            }
+
+            if (bottomHeights.Any())
+            {
+                averageHH /= bottomHeights.Count;
             }
         }
 
-        private void traverse(BlockMember obj, ref LinkedList<UnitDeclaration> unitList, CompoundName outerScope)
+        private void traverse(BlockMember obj, ref LinkedList<UnitDeclaration> unitList, CompoundName outerScope, ref LinkedList<int> bottomHeights, int outerHeight)
         {
             Block block = obj as Block;
             if (block != null)
             {
+                ++outerHeight;
+                if (!block.members.Any())
+                {
+                    bottomHeights.AddLast(outerHeight);
+                }
+
                 foreach (BlockMember child in block.members ?? Enumerable.Empty<BlockMember>())
                 {
-                    traverse(child, ref unitList, outerScope);
+                    traverse(child, ref unitList, outerScope, ref bottomHeights, outerHeight);
                 }
                 return;
             }
@@ -343,11 +380,17 @@ namespace LanguageElements
             UnitDeclaration unitDecl = obj as UnitDeclaration;
             if (unitDecl != null)
             {
+                ++outerHeight;
+                if (!unitDecl.members.Any())
+                {
+                    bottomHeights.AddLast(outerHeight);
+                }
+
                 unitDecl.name.AppendFront(outerScope);
                 unitList.AddLast(unitDecl);
                 foreach (BlockMember child in unitDecl.members ?? Enumerable.Empty<BlockMember>())
                 {
-                    traverse(child, ref unitList, unitDecl.name);
+                    traverse(child, ref unitList, unitDecl.name, ref bottomHeights, outerHeight);
                 }
                 return;
             }
@@ -356,32 +399,34 @@ namespace LanguageElements
             if (routineDecl != null)
             {
                 routineDecl.name.AppendFront(outerScope);
-                traverse(routineDecl.routineBlock, ref unitList, routineDecl.name);
+                traverse(routineDecl.routineBlock, ref unitList, routineDecl.name, ref bottomHeights, outerHeight);
                 return;
             }
 
             VariableDeclaration variableDecl = obj as VariableDeclaration;
             if (variableDecl != null)
             {
+                ++outerHeight;
+                bottomHeights.AddLast(outerHeight);
                 return;
             }
 
             IfStatement ifStmnt = obj as IfStatement;
             if (ifStmnt != null)
             {
-                traverse(ifStmnt.mainBlock, ref unitList, outerScope);
+                traverse(ifStmnt.mainBlock, ref unitList, outerScope, ref bottomHeights, outerHeight);
                 foreach (Block elsifBlock in ifStmnt.elsifBlockList ?? Enumerable.Empty<BlockMember>())
                 {
-                    traverse(elsifBlock, ref unitList, outerScope);
+                    traverse(elsifBlock, ref unitList, outerScope, ref bottomHeights, outerHeight);
                 }
-                traverse(ifStmnt.elseBlock, ref unitList, outerScope);
+                traverse(ifStmnt.elseBlock, ref unitList, outerScope, ref bottomHeights, outerHeight);
                 return;
             }
 
             LoopStatement loopStmnt = obj as LoopStatement;
             if (loopStmnt != null)
             {
-                traverse(loopStmnt.loopBlock, ref unitList, outerScope);
+                traverse(loopStmnt.loopBlock, ref unitList, outerScope, ref bottomHeights, outerHeight);
                 return;
             }
 

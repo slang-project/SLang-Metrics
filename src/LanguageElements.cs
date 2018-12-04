@@ -1,3 +1,4 @@
+using SLangScanner;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace LanguageElements
     class Module : ICCMeasurable
     {
         public LinkedList<BlockMember> members { get; }
+        internal Scanner.HalsteadMetrics ssMetrics { get; set; }
         private int? CC = null;
 
         internal Module(LinkedList<BlockMember> members)
