@@ -1,4 +1,3 @@
-
 var unit A.B
 end
 
@@ -9,29 +8,29 @@ abstract unit C.D
 end
 
 concurrent unit D.Process
-	
+
 end
 
-unit TestUnits 
+unit TestUnits
 	use A.B as B, B.A as A, D.Process
 	foo(a: A, b: B): C.D
-	require 
+	require
 		true
 	do
 		None
 	ensure
 		true
 	end
-	
-	init() // TODO: change to any other routine ))0)
-	require 
+
+	bar()
+	require
 		true, 0 < 1
 	do
 		a is 0
-	ensure 
+	ensure
 		true, false || true
 	end
-	
+
 	invariant
 		true,
 		label: 42 = 42
