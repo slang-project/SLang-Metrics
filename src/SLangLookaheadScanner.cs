@@ -237,7 +237,8 @@ namespace SLangLookaheadScanner
                 int next = LookNextNonNewLine();
                 return next == (int)Tokens.ABSTRACT || next == (int)Tokens.FOREIGN;
             }
-            return token == (int)Tokens.DO || token == (int)Tokens.COLON || token == (int)Tokens.DOUBLE_ARROW;
+            return token == (int)Tokens.DO || token == (int)Tokens.COLON
+                    || token == (int)Tokens.DOUBLE_ARROW || token == (int)Tokens.REQUIRE;
         }
     }
 }
