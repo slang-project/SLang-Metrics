@@ -58,7 +58,7 @@ namespace Metrics
                     "Now you may ask for some metrics of the given code.\n"
             );
             PrintHelp();
-            Console.WriteLine("Write here your query:");
+            Console.WriteLine("\nWrite here your query:");
         }
 
         private void PrintHelp()
@@ -66,7 +66,7 @@ namespace Metrics
             Console.WriteLine(
                 "\thelp - print list of queries (this message)\n" +
                 "\texit - quit and terminate this session\n" +
-                "\t<MetricName> [<MetricArgs>] - print a value of a given metric\n"
+                "\t<MetricName> [<MetricArgs>] - print a value of a given metric"
             );
         }
 
@@ -77,8 +77,10 @@ namespace Metrics
                 return;
             }
 
-            string[] args = input.Split().Where(s => s.Length > 0).ToArray();
-            switch (args[0])
+            string[] split = input.Split().Where(s => s.Length > 0).ToArray();
+            string metricName = split[0];
+            string[] args = split.Skip(1).ToArray();
+            switch (metricName)
             {
                 case "CC":
                 case "CyclomaticComplexity":
@@ -121,6 +123,10 @@ namespace Metrics
                 case "AHH":
                 case "AverageHierarchyHeight":
                     // TODO: show
+                    break;
+
+                default:
+                    Console.WriteLine("Unknown metric: {0}", metricName);
                     break;
             }
         }
