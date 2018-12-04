@@ -15,7 +15,6 @@ namespace LanguageElements
         private LinkedList<InheritanceNode> rootNodes;
         private LinkedList<InheritanceNode> leafNodes;
 
-        private string treeImage;
         private int maxHierarchyHeight;
         private double averageHierarchyHeight;
         private InheritanceNode topNode;
@@ -228,9 +227,9 @@ namespace LanguageElements
 
 
         /// <summary>
-        /// Go through inheritance tree and calculate set 
+        /// Go through inheritance tree and calculate set
         /// of descendants for each node.
-        /// After that we can get number of descendants 
+        /// After that we can get number of descendants
         /// for each node.
         /// </summary>
         public void findDescendants()

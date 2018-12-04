@@ -15,6 +15,7 @@
     <Compile Include="src\SLangLookaheadScanner.cs" />
     <Compile Include="src\LanguageElements.cs" />
     <Compile Include="src\MetricCollector.cs" />
+    <Compile Include="src\TreeTraverse.cs" />
     <Compile Include="src\UnitTests\Testing.cs" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>

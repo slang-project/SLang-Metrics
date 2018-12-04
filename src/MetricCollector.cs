@@ -30,6 +30,8 @@ namespace Metrics
         // If future this class should provide features to extract info from Module @parsedModule
         internal Module parsedModule { get; }
         private MaintainabilityIndex maintIndex;
+        private Traverse traverse;
+        private InheritanceWrapper inheritance;
 
         public MetricCollector(string fileName)
         {
@@ -40,7 +42,9 @@ namespace Metrics
                 throw new ParsingFailedException();
             }
             this.maintIndex = new MaintainabilityIndex(
-                parsedModule.ssMetrics.volume, parsedModule.getCC(), parsedModule.ssMetrics.LOC);
+                    parsedModule.ssMetrics.volume, parsedModule.getCC(), parsedModule.ssMetrics.LOC);
+            this.traverse = new Traverse(parsedModule);
+            this.inheritance = new InheritanceWrapper(traverse.unitList);
         }
 
         public void ActivateInterface(string[] args)
@@ -49,9 +53,6 @@ namespace Metrics
             ActivateCLI();
 
 /* TODO: use this in CLI
-            Traverse traverse = new Traverse(parsedModule);
-            InheritanceWrapper inheritance = new InheritanceWrapper(traverse.unitList);
-
             Console.WriteLine("Max Inheritance: " + inheritance.getMaxHierarchyHeight());
             Console.WriteLine("Avg Inheritance: " + inheritance.getAverageHierarchyHeight());
 
@@ -154,7 +155,10 @@ namespace Metrics
 
                 case "dit":
                 case "depthofinheritancetree":
-                    // TODO: show
+                    Console.WriteLine(
+                            "Maximal inheritance depth: " + inheritance.getMaxHierarchyHeight() +
+                            "\nAverage inheritance depth: " + inheritance.getAverageHierarchyHeight()
+                    );
                     break;
 
                 case "nod":
