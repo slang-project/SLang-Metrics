@@ -33,6 +33,7 @@ STR     \"(\\.|[^\\"])*\"
 {WS}+ {
     if (yytext.Contains("\u000D") || yytext.Contains("\u000A"))
     {
+        ++ssMetrics.LOC;
         return (int)Tokens.NEW_LINE;
     }
     /* else ignore whitespaces */
@@ -244,7 +245,7 @@ STR     \"(\\.|[^\\"])*\"
 // =========== END OF PARSING ===========
 
 <<EOF>>            {
-    ssMetrics.LOC = yylloc.EndLine;  // FIXME: zero value for EOF
+//    ssMetrics.LOC = yylloc.EndLine;  // FIXME: zero value for EOF
     ssMetrics.recalculate();
     return (int)Tokens.EOF;
 }
@@ -262,7 +263,7 @@ public class HalsteadMetrics
     private int totalOperators;
     private int totalOperands;
 
-    public int    LOC;
+    public int    LOC = 0;
     public int    commLines = 0;
     public int    vocabulary;
     public int    length;

@@ -13,7 +13,8 @@ namespace Metrics
         /// Get Maintainability index based on formula used by Microsoft Visual Studio (since 2008)
         public MaintainabilityIndex(double HV, double CC, double LOC)
         {
-            this.value = Math.Max(0, (171 - 5.2 * Math.Log(HV, Math.E) - 0.23 * (CC) - 16.2 * Math.Log(LOC, Math.E)) * 100 / 171);
+            this.value = Math.Max(0,
+                    (171 - 5.2 * Math.Log(HV, Math.E) - 0.23 * (CC) - 16.2 * Math.Log(LOC, Math.E)) * 100 / 171);
             // MAX(0,(171 - 5.2 * ln(Halstead Volume) - 0.23 * (Cyclomatic Complexity) - 16.2 * ln(Lines of Code))*100 / 171)
         }
 
@@ -26,6 +27,7 @@ namespace Metrics
     public class MetricCollector
     {
         private Module parsedModule;
+        private MaintainabilityIndex maintIndex;
 
         public MetricCollector(string fileName)
         {
@@ -35,6 +37,8 @@ namespace Metrics
             {
                 throw new ParsingFailedException();
             }
+            this.maintIndex = new MaintainabilityIndex(
+                parsedModule.ssMetrics.volume, parsedModule.getCC(), parsedModule.ssMetrics.LOC);
         }
 
         public void ActivateInterface(string[] args)
@@ -42,23 +46,23 @@ namespace Metrics
             // TODO: parse args and choose an appropriate interface
             ActivateCLI();
 
-            /* TODO: use this in CLI
-                        Traverse traverse = new Traverse(parsedModule);
-                        InheritanceWrapper inheritance = new InheritanceWrapper(traverse.unitList);
+/* TODO: use this in CLI
+            Traverse traverse = new Traverse(parsedModule);
+            InheritanceWrapper inheritance = new InheritanceWrapper(traverse.unitList);
 
-                        Console.WriteLine("Max Inheritance: " + inheritance.getMaxHierarchyHeight());
-                        Console.WriteLine("Avg Inheritance: " + inheritance.getAverageHierarchyHeight());
+            Console.WriteLine("Max Inheritance: " + inheritance.getMaxHierarchyHeight());
+            Console.WriteLine("Avg Inheritance: " + inheritance.getAverageHierarchyHeight());
 
-                        foreach (string unitName in inheritance.getUnitNames() ?? Enumerable.Empty<string>())
-                        {
-                            Console.WriteLine(String.Format("Unit: <{0}>, descendants: {1}, inheritance height: {2}", unitName, inheritance.getDescendantsCount(unitName), inheritance.getHierachyHeight(unitName)));
-                            foreach (string path in inheritance.getHierarchyPaths(unitName) ?? Enumerable.Empty<string>())
-                            {
-                                Console.WriteLine("  " + path);
-                            }
-                        }
+            foreach (string unitName in inheritance.getUnitNames() ?? Enumerable.Empty<string>())
+            {
+                Console.WriteLine(String.Format("Unit: <{0}>, descendants: {1}, inheritance height: {2}", unitName, inheritance.getDescendantsCount(unitName), inheritance.getHierachyHeight(unitName)));
+                foreach (string path in inheritance.getHierarchyPaths(unitName) ?? Enumerable.Empty<string>())
+                {
+                    Console.WriteLine("  " + path);
+                }
+            }
 
-                        inheritance.printTreeRepresentation();*/
+            inheritance.printTreeRepresentation();*/
         }
 
         private void ActivateCLI()
