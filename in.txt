@@ -1,11 +1,12 @@
-﻿unit A
+﻿unit A extend C
 end
 
 unit B extend A
 end
 
-unit C extend A
-end
-
-unit D extend B, C
+unit C
+    init() do
+        do
+        end
+    end
 end
