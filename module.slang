@@ -65,7 +65,7 @@ val unit Bit
     end // -
 end
 
-if true then 
+if true then
     if false then
         a is 10
     else
@@ -76,7 +76,7 @@ elsif a > b then
 elsif a < b then
     if true then
         none
-    else 
+    else
         none
     end
 else

@@ -8,56 +8,80 @@ namespace SLangLookaheadScanner
     internal sealed class ScannerFlags
     {
         public bool isInsideUnit { get; set; }
+        public bool isInsideContract { get; set; }
 
         public ScannerFlags()
         {
             this.isInsideUnit = false;
+            this.isInsideContract = false;
         }
     }
 
     internal sealed partial class Scanner : ScanBase
     {
-        private SLangScanner.Scanner origScanner;
-        private Queue<int> queue;
+        private SLangScanner.Scanner originalScanner;
+        private Queue<int> tokenQueue;
+        private Queue<SLangParser.ValueType> valueQueue;
         private ScannerFlags scannerFlags;
 
         internal Scanner(Stream file, ref ScannerFlags scannerFlags)
         {
-            this.origScanner = new SLangScanner.Scanner(file);
-            this.queue = new Queue<int>();
+            this.originalScanner = new SLangScanner.Scanner(file);
+            this.tokenQueue = new Queue<int>();
+            this.valueQueue = new Queue<SLangParser.ValueType>();
             this.scannerFlags = scannerFlags;
         }
 
         private int LookNext()
         {
-            int looked = origScanner.yylex();
-            queue.Enqueue(looked);
-            return looked;
+            int token = originalScanner.yylex();
+            this.tokenQueue.Enqueue(token);
+            this.valueQueue.Enqueue(originalScanner.yylval);
+            this.yylval = this.valueQueue.Peek();
+            return token;
         }
 
         private int LookNextNonNewLine()
         {
-            int looked = LookNext();
-            return looked == (int)Tokens.NEW_LINE ? LookNext() : looked;
+            int looked;
+            do
+            {
+                looked = LookNext();
+            } while (looked == (int)Tokens.NEW_LINE);
+            return looked;
+        }
+
+        private int DequeueState()
+        {
+            this.yylval = this.valueQueue.Dequeue();
+            return this.tokenQueue.Dequeue();
         }
 
         // TODO: think about need of lookahead inside the buffer
         public override int yylex()
         {
-            if (queue.Count > 1)
+            if (tokenQueue.Count > 1)
             {
-                while (queue.Count > 0 && queue.Peek() == (int)Tokens.NEW_LINE)
+                while (tokenQueue.Count > 0 && tokenQueue.Peek() == (int)Tokens.NEW_LINE)
                 {
-                    queue.Dequeue();
+                    DequeueState();
                 }
-                if (queue.Count > 1)
+                if (tokenQueue.Count > 1)
                 {
-                    return queue.Dequeue();
+                    return DequeueState();
                 }
             }
 
-            int curToken = queue.Count > 0 ? queue.Dequeue() : origScanner.yylex();
-            int looked;
+            int curToken, looked;
+            if (tokenQueue.Count > 0)
+            {
+                curToken = DequeueState();
+            }
+            else
+            {
+                curToken = originalScanner.yylex();
+                this.yylval = originalScanner.yylval;
+            }
 
             if (scannerFlags.isInsideUnit && IsOperatorSign(curToken))
             {
@@ -141,9 +165,13 @@ namespace SLangLookaheadScanner
             }
             if (looked == (int)Tokens.COLON)
             {
+                if (scannerFlags.isInsideContract)
+                {
+                    return (int)Tokens.CONTRACT_LABEL;
+                }
                 looked = LookNextNonNewLine();
                 return looked == (int)Tokens.WHILE || looked == (int)Tokens.LOOP
-                        ? (int)Tokens.LOOP_ID : curToken;
+                        ? (int)Tokens.LOOP_LABEL : curToken;
             }
             if (looked == (int)Tokens.LBRACKET)
             {
@@ -202,8 +230,7 @@ namespace SLangLookaheadScanner
         {
             if (token == (int)Tokens.IS)
             {
-                int next = origScanner.yylex();
-                queue.Enqueue(next);
+                int next = LookNextNonNewLine();
                 return next == (int)Tokens.ABSTRACT || next == (int)Tokens.FOREIGN;
             }
             return token == (int)Tokens.DO || token == (int)Tokens.COLON || token == (int)Tokens.DOUBLE_ARROW;

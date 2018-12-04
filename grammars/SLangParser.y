@@ -9,6 +9,7 @@
 %using System.IO;
 
 %namespace SLangParser
+%visibility internal
 
 %start Module
 
@@ -36,6 +37,7 @@
 // ========== TYPE ASSIGNMENTS ==========
 
 %type <cn> CompoundName
+%type <t> CompoundType
 %type <t> Type
 %type <t> UnitType
 %type <utn> UnitTypeName
@@ -52,8 +54,10 @@
 %type <bl> ElseIfClause
 %type <bl> ElseClauseOpt
 %type <st> LoopStatement
+%type <vd> VariableDeclaration
 %type <rd> RoutineDeclaration
 %type <rd> OperatorRoutineDeclaration
+%type <rd> InitRoutineDeclaration
 %type <s> RoutineName
 %type <sa> OperatorRoutineName
 %type <s> AliasNameOpt
@@ -65,7 +69,7 @@
 %type <un> BaseUnitName
 %type <lld> UnitMemberSeqOpt
 %type <dc> UnitMember
-%type <vd> VariableDeclaration
+%type <rd> UnitMemberRoutineDeclaration
 
 // =============== TOKENS ===============
 
@@ -106,13 +110,13 @@
 %token <s> COLON_EQUALS
 
 // Keywords
-%token AND_THEN
-%token OR_ELSE
+%token AND_THEN  // TODO: consider (no concrete specification given)
+%token OR_ELSE  // TODO: consider (no concrete specification given)
 %token ABSTRACT
 %token ALIAS
 %token AS
 %token BREAK
-%token CHECK
+%token CHECK  // TODO: remove from the specification
 %token CONCURRENT
 %token CONST
 %token DEEP
@@ -122,12 +126,12 @@
 %token END
 %token ENSURE
 %token EXTEND
-%token EXTERNAL
+%token EXTERNAL  // TODO: remove from the specification
 %token FINAL
 %token FOREIGN
 %token HIDDEN
 %token IF
-%token IN
+%token IN  // TODO: consider (no concrete specification given)
 %token INIT
 %token INVARIANT
 %token IS
@@ -159,8 +163,9 @@
 
 // Tokens for lookahead
 %token NEW_LINE
+%token CONTRACT_LABEL
+%token LOOP_LABEL
 %token WHILE_POSTTEST
-%token LOOP_ID
 %token JUST_BREAK
 %token JUST_RETURN
 %token JUST_RAISE
@@ -241,9 +246,9 @@ UsedUnitSeq
     ;
 
 UsedUnit
-    : UnitTypeName
-    | UnitTypeName AS IDENTIFIER
-    ;
+    : CompoundType
+    | CompoundType AS IDENTIFIER
+    ;  // TODO: review (should contain UnitTypeName)
 
 // Generic formals ***
 
@@ -260,29 +265,33 @@ GenericFormalSeq
 
 GenericFormal
     : IDENTIFIER
-    | IDENTIFIER SINGLE_ARROW UnitTypeName
-    | IDENTIFIER SINGLE_ARROW UnitTypeName INIT
-    | IDENTIFIER SINGLE_ARROW UnitTypeName INIT RoutineParameters
-    | IDENTIFIER COLON Type
-    ;
+    | IDENTIFIER SINGLE_ARROW CompoundType
+    | IDENTIFIER SINGLE_ARROW CompoundType INIT
+    | IDENTIFIER SINGLE_ARROW CompoundType INIT RoutineParameters
+    | IDENTIFIER COLON CompoundType
+    ;  // TODO: review (should contain UnitTypeName)
 
 // Contracts ***
 
 PreconditionOpt
     : /* empty */
-    | REQUIRE      PredicateSeq
-    | REQUIRE ELSE PredicateSeq
+    | REQUIRE      ContractEntranceFlagSetter PredicateSeq
+    | REQUIRE ELSE ContractEntranceFlagSetter PredicateSeq
     ;
 
 PostconditionOpt
     : /* empty */
-    | ENSURE      PredicateSeq
-    | ENSURE THEN PredicateSeq
+    | ENSURE      ContractEntranceFlagSetter PredicateSeq
+    | ENSURE THEN ContractEntranceFlagSetter PredicateSeq
     ;
 
 InvariantOpt
     : /* empty */
-    | INVARIANT PredicateSeq
+    | INVARIANT ContractEntranceFlagSetter PredicateSeq
+    ;
+
+ContractEntranceFlagSetter  // XXX: important for lookahead
+    : /* empty */  { scannerFlags.isInsideContract = true; }
     ;
 
 PredicateSeq
@@ -292,11 +301,16 @@ PredicateSeq
     ;  // TODO: check, shift/reduce of semicolon
 
 Predicate
-    :                  Expression
-    | IDENTIFIER COLON Expression
+    :                      Expression
+    | CONTRACT_LABEL COLON Expression
     ;
 
 // Type ***
+
+CompoundType
+    :                  Type
+    | CompoundType DOT Type
+    ;
 
 Type
     : UnitType  { $$ = $1; }
@@ -354,7 +368,8 @@ MultiType
     ;
 
 TupleType
-    : LPAREN TupleElementSeq RPAREN
+    : LPAREN NONE            RPAREN  // Note: absent in the specification
+    | LPAREN TupleElementSeq RPAREN
     ;
 
 TupleElementSeq
@@ -419,6 +434,7 @@ PrimaryExpression
     : LITERAL  // TODO
     | TypeOrIdentifier
 //  | OperatorSign  // TODO: consider later
+    | INIT  // TODO: review
     | THIS
     | SUPER
 //  | SUPER UnitTypeName  // TODO
@@ -446,6 +462,7 @@ Block
         { scannerFlags.isInsideUnit = false; }  // XXX: important for lookahead
       BlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt END
     {
+        scannerFlags.isInsideContract = false;  // XXX: important for lookahead
         $$ = new Block($4);
     }
     ;
@@ -469,16 +486,22 @@ BlockMember
 
 ExceptionHandlerSeqOpt
     : /* empty */
-    | WHEN Expression NestedBlock
-    ;  // TODO: review
+    | ExceptionHandlerSeqOpt ExceptionHandler
+    ;
+
+ExceptionHandler
+    : WHEN Expression NestedBlock
+    ;  // TODO: shift/reduce when nested exception handling
 
 NestedBlock
     : PreconditionOpt    NestedBlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt
     {
+        scannerFlags.isInsideContract = false;  // XXX: important for lookahead
         $$ = new Block($2);
     }
     | PreconditionOpt DO NestedBlockMemberSeqOpt PostconditionOpt ExceptionHandlerSeqOpt
     {
+        scannerFlags.isInsideContract = false;  // XXX: important for lookahead
         $$ = new Block($3);
     }
     ;
@@ -554,27 +577,27 @@ ElseClauseOpt
     ;
 
 LoopStatement
-    : LoopIdOpt                  LOOP NestedBlock END
+    : LoopLabelOpt                  LOOP NestedBlock END
     {
         $$ = new LoopStatement($3);
     }
-    | LoopIdOpt WHILE Expression LOOP NestedBlock END
+    | LoopLabelOpt WHILE Expression LOOP NestedBlock END
     {
         $$ = new LoopStatement($5);
     }
-    | LoopIdOpt WHILE Expression      Block
+    | LoopLabelOpt WHILE Expression      Block
     {
         $$ = new LoopStatement($4);
     }
-    | LoopIdOpt LOOP NestedBlock WHILE_POSTTEST Expression END
+    | LoopLabelOpt LOOP NestedBlock WHILE_POSTTEST Expression END
     {
         $$ = new LoopStatement($3);
     }
     ;
 
-LoopIdOpt
+LoopLabelOpt
     : /* empty */
-    | LOOP_ID COLON
+    | LOOP_LABEL COLON
     ;
 
 BreakStatement
@@ -615,11 +638,11 @@ VariableSpecifier
     ;
 
 TypeAndInit
-    :                         IS Expression
-    | COLON          Type
+    :                             IS Expression
+    | COLON          CompoundType
     | COLON QUESTION UnitType
-    | COLON          Type     IS Expression
-    | COLON QUESTION UnitType IS Expression
+    | COLON          CompoundType IS Expression
+    | COLON QUESTION UnitType     IS Expression
     ;  // TODO: review
 
 // Routine /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -645,6 +668,17 @@ OperatorRoutineDeclaration
         $$ = new RoutineDeclaration($2[0], $2[1], $7);
     }
     ;  // TODO: change UseSeq to just Use; review
+
+InitRoutineDeclaration
+    :                  INIT RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    {
+        $$ = new RoutineDeclaration("init", null, $5);  // TODO: remove constant string
+    }
+    | RoutineSpecifier INIT RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    {
+        $$ = new RoutineDeclaration("init", null, $6);  // TODO: remove constant string
+    }
+    ;  // TODO: change UseSeq to just Use; review (GenericFormalsOpt?)
 
 RoutineSpecifier
     : PURE
@@ -683,7 +717,7 @@ RoutineFormals
 
 ReturnTypeOpt
     : /* empty */
-    | COLON Type
+    | COLON CompoundType
     ;
 
 RoutineBody
@@ -710,21 +744,27 @@ RoutineBody
 // Unit ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 UnitDeclaration
-    : UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions
-        { scannerFlags.isInsideUnit = true; }  // XXX: important for lookahead
-      UnitMemberSeqOpt InvariantOpt END
+    : UnitSpecifiersOpt UNIT
+        UnitEntranceFlagSetter  // XXX: important for lookahead
+      CompoundName UnitDeclarationAdditions    UnitMemberSeqOpt InvariantOpt END
     {
         scannerFlags.isInsideUnit = false;  // XXX: important for lookahead
-        $$ = new UnitDeclaration($3, $4, $6);
+        scannerFlags.isInsideContract = false;  // XXX: important for lookahead
+        $$ = new UnitDeclaration($4, $5, $6);
     }
-    | UnitSpecifiersOpt UNIT CompoundName UnitDeclarationAdditions IS
-        { scannerFlags.isInsideUnit = true; }  // XXX: important for lookahead
-      UnitMemberSeqOpt InvariantOpt END
+    | UnitSpecifiersOpt UNIT
+        UnitEntranceFlagSetter  // XXX: important for lookahead
+      CompoundName UnitDeclarationAdditions IS UnitMemberSeqOpt InvariantOpt END
     {
         scannerFlags.isInsideUnit = false;  // XXX: important for lookahead
-        $$ = new UnitDeclaration($3, $4, $7);
+        scannerFlags.isInsideContract = false;  // XXX: important for lookahead
+        $$ = new UnitDeclaration($4, $5, $7);
     }
     ;  // TODO: specifiers and invariant consideration
+
+UnitEntranceFlagSetter
+    : /* empty */  { scannerFlags.isInsideUnit = true; }
+    ;
 
 UnitSpecifiersOpt
     : /* empty */
@@ -772,7 +812,7 @@ BaseUnitSeq
     ;
 
 BaseUnitName
-    :       Type
+    :       CompoundType
     {
         if ($1 == null)  // TODO: remove nulls
         {
@@ -783,7 +823,7 @@ BaseUnitName
             $$ = new UnitName($1, true);
         }
     }
-    | TILDE Type
+    | TILDE CompoundType
     {
         if ($2 == null)  // TODO: remove nulls
         {
@@ -823,26 +863,32 @@ UnitMemberSpecifier
 UnitMember
     : SEMICOLON  { $$ = null; }  // All other statements are restricted
     | UnitDeclaration  { $$ = $1; }
-    | RoutineDeclaration  { $$ = $1; }
+    | UnitMemberRoutineDeclaration  { $$ = $1; }
     | VariableDeclaration  { $$ = $1; }
     | ConstObjectDeclaration  { $$ = null; }  // TODO: constant objects
     | InitializerDeclaration  { $$ = null; }  // TODO
-    | OperatorRoutineDeclaration  { $$ = $1; }
     ;  // TODO: shift/reduce of OperatorRoutineDeclaration with Expression
+
+UnitMemberRoutineDeclaration
+    : RoutineDeclaration  { $$ = $1; }
+    | InitRoutineDeclaration  { $$ = $1; }
+    | OperatorRoutineDeclaration  { $$ = $1; }
+    ;
 
 ConstObjectDeclaration
     : CONST IS
         { scannerFlags.isInsideUnit = false; }  // XXX: important for lookahead
-      ConstObjectSeq END
+      ConstObjectSeqOpt END
+    ;
+
+ConstObjectSeqOpt
+    : /* empty */
+    | ConstObjectSeq
     ;
 
 ConstObjectSeq
-    :                      ConstObject
-    | ConstObjectSeq COMMA ConstObject
-    ;
-
-ConstObject
-    : Expression
+    :                      Expression
+    | ConstObjectSeq COMMA Expression
     ;
 
 InitializerDeclaration

@@ -20,7 +20,7 @@ namespace SLangTests
         public static bool isTestingMode = false; // TODO make false while release!
 
         public bool runTests()
-        { 
+        {
             ccTest1();
             commonProgramTest();
             slangUnitTest();

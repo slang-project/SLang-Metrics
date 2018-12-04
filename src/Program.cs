@@ -1,6 +1,7 @@
 ﻿using Metrics;
-using System;
 using SLangTests;
+using System;
+using System.Linq;
 
 namespace SLangMetrics
 {
@@ -10,28 +11,38 @@ namespace SLangMetrics
         {
             if (args.Length < 1)
             {
-                Console.WriteLine("Usage: <ProgramName> <InputFileName> OR <ProgramName> /test");
+                Console.WriteLine(
+                        "Usage: <ProgramName> <InputFileName> <InterfaceArgs>\n" +
+                        "    OR <ProgramName> /test"
+                );
                 Environment.Exit(1);
+                return;
             }
 
-            if (Testing.isTestingMode || Array.Exists<String>(args, s => s.ToLower().Contains("/test")))
+            if (Testing.isTestingMode || args.Any(s => s.ToLower() == "/test"))
             {
                 Testing testing = new Testing();
                 Environment.Exit(testing.runTests() ? 0 : 1);
+                return;
             }
 
-            MetricCollector coll = new MetricCollector(args[0]);
-            Console.Write("Is parsing successful: ");
-            Console.WriteLine(coll.IsParsingSuccessful() ? "yes" : "no");
-
-            if (!coll.IsParsingSuccessful())
+            MetricCollector collector;
+            try
             {
-                Console.WriteLine("No metrics will be provided");
-                Console.WriteLine("Terminating process...");
+                collector = new MetricCollector(args[0]);
+            }
+            catch (ParsingFailedException)
+            {
+                Console.WriteLine(
+                        "Parsing failed!" +
+                        "No metrics will be provided" +
+                        "Terminating process..."
+                );
                 Environment.Exit(1);
+                return;
             }
 
-            coll.debug();  // TODO: change metric revealence interface
+            collector.ActivateInterface(args.Where(s => s.StartsWith("/")).ToArray());
         }
     }
 }

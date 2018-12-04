@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using SLangMetrics;
 
 namespace LanguageElements
 {
@@ -9,9 +9,9 @@ namespace LanguageElements
         int getCC();
     }
 
-    interface IWMCMesurable
+    interface IWRUMesurable
     {
-        int getWMC();
+        int getWRU();
     }
 
     class Module : ICCMeasurable
@@ -42,10 +42,7 @@ namespace LanguageElements
         }
     }
 
-    abstract class BlockMember
-    {
-    }
-
+    abstract class BlockMember { }
 
     class Block : BlockMember, ICCMeasurable
     {
@@ -75,55 +72,51 @@ namespace LanguageElements
         }
     }
 
-    abstract class Declaration : BlockMember
-    {
-    }
+    abstract class Declaration : BlockMember { }
 
-    class UnitDeclaration : Declaration, IWMCMesurable
+    class UnitDeclaration : Declaration, IWRUMesurable
     {
         public CompoundName name { get; }
         public LinkedList<UnitName> parents { get; }
         public LinkedList<Declaration> members { get; }
-        private int? WMC = null;
+        private int? WRU = null;
 
         internal UnitDeclaration(CompoundName name, LinkedList<UnitName> parents, LinkedList<Declaration> members)
         {
             this.name = name;
             this.parents = parents;
             this.members = members;
-            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
 
-        public int getWMC()
+        public int getWRU()
         {
-            if (WMC == null)
+            if (WRU == null)
             {
-                WMC = 0;
+                WRU = 0;
                 foreach (var m in members)
                 {
                     if (m is RoutineDeclaration routine)
                     {
-                        WMC += routine.getCC();
+                        WRU += routine.getCC();
                     }
                 }
             }
 
-            return WMC.Value;
+            return WRU.Value;
         }
     }
 
     class RoutineDeclaration : Declaration, ICCMeasurable
     {
-        public string name { get; }
-        public string aliasName { get; }
-        public Block routineBlock { get; }
+        internal CompoundName name { get; }
+        internal string aliasName { get; }
+        internal Block routineBlock { get; }
 
         internal RoutineDeclaration(string name, string aliasName, Block routineBlock)
         {
-            this.name = name;
+            this.name = new CompoundName(name);
             this.aliasName = aliasName;
             this.routineBlock = routineBlock;
-            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
 
         public int getCC()
@@ -137,30 +130,23 @@ namespace LanguageElements
 
     class VariableDeclaration : Declaration
     {
-        internal VariableDeclaration()
-        {
-            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
-        }
+        internal VariableDeclaration() { }
     }
 
-    abstract class Statement : BlockMember
-    {
-    }
-
+    abstract class Statement : BlockMember { }
 
     class IfStatement : Statement, ICCMeasurable
     {
         public Block mainBlock { get; }
-        public Block elseBlock { get; }
         public LinkedList<Block> elsifBlockList { get; }
+        public Block elseBlock { get; }
         private int? CC = null;
 
         internal IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
         {
             this.mainBlock = mainBlock;
-            this.elseBlock = elseBlock;
             this.elsifBlockList = elsifBlockList;
-            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
+            this.elseBlock = elseBlock;
         }
 
         public int getCC()
@@ -188,7 +174,6 @@ namespace LanguageElements
         internal LoopStatement(Block loopBlock)
         {
             this.loopBlock = loopBlock;
-            System.Console.WriteLine(this.GetType().Name);  // TODO: remove
         }
 
         public int getCC()
@@ -202,9 +187,7 @@ namespace LanguageElements
         }
     }
 
-    abstract class Type
-    {
-    }
+    abstract class Type { }
 
     class UnitTypeName : Type
     {
@@ -220,7 +203,7 @@ namespace LanguageElements
 
     class UnitName
     {
-        public string name { get; }
+        public CompoundName name { get; }
         public bool hasTilde { get; }
 
         internal UnitName(Type type, bool hasTilde)
@@ -228,19 +211,17 @@ namespace LanguageElements
             this.hasTilde = hasTilde;
             if (type is UnitTypeName t)
             {
-                this.name = t.name;
+                this.name = new CompoundName(t.name);  // TODO: generics
             }
             else
             {
-                throw new WrongParentUnitNameException();  // TODO: review
+                throw new WrongParentUnitNameException();
             }
         }
 
         private class WrongParentUnitNameException : System.Exception
         {
-            internal WrongParentUnitNameException() : base()
-            {
-            }
+            internal WrongParentUnitNameException() : base() { }
         }
     }
 
@@ -248,20 +229,89 @@ namespace LanguageElements
     {
         public LinkedList<string> names;
 
-        internal CompoundName(string name)
+        public CompoundName()
+        {
+            names = new LinkedList<string>();
+        }
+
+        public CompoundName(string name)
         {
             names = new LinkedList<string>();
             names.AddFirst(name);
         }
 
-        internal void AddFirst(string name)
+        public void AddFirst(string name)
         {
             names.AddFirst(name);
         }
 
-        internal void AddLast(string name)
+        public void AddLast(string name)
         {
             names.AddLast(name);
+        }
+
+        public void AppendFront(CompoundName cName)
+        {
+            LinkedList<string> buffer = new LinkedList<string>();
+            foreach (string n in cName.names ?? Enumerable.Empty<String>())
+            {
+                buffer.AddLast(n);
+            }
+            foreach (string n in this.names ?? Enumerable.Empty<String>())
+            {
+                buffer.AddLast(n);
+            }
+            this.names = buffer;
+        }
+
+        public void AppendBack(CompoundName cName)
+        {
+            foreach (string n in cName.names ?? Enumerable.Empty<String>())
+            {
+                this.names.AddLast(n);
+            }
+        }
+
+        public bool equal(CompoundName name)
+        {
+            return this.ToString().Equals(name.ToString());
+        }
+
+        public override string ToString()
+        {
+            string result = "";
+            bool dotNeeded = false;
+            foreach (string name in names ?? Enumerable.Empty<string>())
+            {
+                if (!dotNeeded)
+                {
+                    result += name;
+                    dotNeeded = true;
+                }
+                else
+                {
+                    result += "." + name;
+                }
+            }
+
+            // TODO: delete in production
+            if (result.Equals(""))
+            {
+                return "<emptyUnitName>";
+            }
+            return result;
+        }
+    }
+
+    internal class NamedMember : BlockMember  // TODO: consider deletion if no pretty printing will be created
+    {
+        public string name { get; }
+        public LinkedList<BlockMember> members { get; }
+
+        internal NamedMember(string name, LinkedList<BlockMember> members)
+        {
+            this.name = name;
+            this.members = members;
         }
     }
 }

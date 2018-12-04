@@ -6,18 +6,20 @@
     <TargetFramework>net40</TargetFramework>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
-
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\Program.cs" />
-    <Compile Include="src\Testing.cs" />
     <Compile Include="src\ShiftReduceParser\ShiftReduceParserCode.cs" />
     <Compile Include="src\SLangLookaheadScanner.cs" />
     <Compile Include="src\LanguageElements.cs" />
     <Compile Include="src\MetricCollector.cs" />
+    <Compile Include="src\UnitTests\Testing.cs" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
