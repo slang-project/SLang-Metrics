@@ -34,38 +34,38 @@ namespace SLangTests
             // If program achieved this line, tests completed successfully
             return true;
         }
-        
+
         private static void useTest()
         {
             string testName = "use";
             MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
         }
-        
+
         private static void contractsTest()
         {
             string testName = "contracts";
             MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
         }
-        
+
         private static void some_codeTest()
         {
             string testName = "some_code";
             MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
         }
-        
+
         private static void not_implemented_yetTest()
         {
             string testName = "not_implemented_yet";
             MetricCollector metrics = parseCode(testName + FILE_EXTENSION, false);
         }
-        
+
         private static void genericsTest()
         {
             string testName = "generics";
             MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
         }
 
-        
+
         private static void diamond_porblemTest()
         {
             string testName = "diamond_problem";
@@ -126,7 +126,7 @@ namespace SLangTests
                 metricCollector = new MetricCollector(codeFile);
                 Assert(mustSuccess, fileName, errorMsg);
             }
-            catch (ParsingFailedException e)
+            catch (ParsingFailedException)
             {
                 Assert(!mustSuccess, fileName, errorMsg);
             }
