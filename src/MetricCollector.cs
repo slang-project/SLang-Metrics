@@ -6,6 +6,7 @@ namespace Metrics
 {
     class MetricCollector
     {
+        //TODO: for now it accessible. If future this class should provide features to extract info from Module @parsedModule
         internal Module parsedModule { get; }
 
         public MetricCollector(string fileName)

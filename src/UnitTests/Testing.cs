@@ -16,23 +16,19 @@ namespace SLangTests
 
         /*
          * Use argument /tests in console command.
-         *
-         * Тестом является сабдиректория в директории tests\ корня проекта. в сабдириктории должны содержаться файлы расширений .res и .test
-         * .res - результат парсинга кода в .test файле. Результат может быть true или false.
-         * .test - входные данные для parser. Может быть как положительным, так и отрицательным тестом.
-         *
-         * Все входные тесты (написанные корректно) должны содержать SUCCED в выходной строке, иначе содержат FAILED.
-         * Название файлов, сабдиректорий может быть произвольным
          */
-        public static bool isTestingMode = true; // TODO make false while release!
+        public static bool isTestingMode = false; // TODO make false while release!
 
         public bool runTests()
-        {
-
-            bool totalRes = true;
+        { 
             ccTest1();
+            commonProgramTest();
+            slangUnitTest();
+            javaCodeParsingTest();
+            emptyFileTest();
 
-            return totalRes;
+            // If program achieved this line, tests completed successfully
+            return true;
         }
 
         [TestMethod]
