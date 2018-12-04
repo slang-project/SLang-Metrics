@@ -64,9 +64,9 @@ namespace Metrics
         private void PrintHelp()
         {
             Console.WriteLine(
-                ">>> help - print list of queries (this message)" +
-                ">>> exit - quit and terminate this session" +
-                ">>> <MetricName> [<MetricArgs>] - print a value of a given metric"
+                "\thelp - print list of queries (this message)\n" +
+                "\texit - quit and terminate this session\n" +
+                "\t<MetricName> [<MetricArgs>] - print a value of a given metric\n"
             );
         }
 
