@@ -1,7 +1,4 @@
-﻿using SLangLookaheadScanner;
-using SLangParser;
-using LanguageElements;
-using Metrics;
+﻿using Metrics;
 using System;
 using System.IO;
 using System.Diagnostics;
@@ -16,7 +13,7 @@ namespace SLangTests
         /*
          * Use argument /tests in console command.
          */
-        public static bool isTestingMode = false; // TODO make false while release!
+        public static bool isTestingMode = true; // TODO make false while release!
 
         public static bool runTests()
         {
@@ -25,41 +22,91 @@ namespace SLangTests
             slangUnitTest();
             javaCodeParsingTest();
             emptyFileTest();
+            constTest();
+            diamond_porblemTest();
+            genericsTest();
+            not_implemented_yetTest();
+            some_codeTest();
+            contractsTest();
+            useTest();
 
             Console.WriteLine();
             // If program achieved this line, tests completed successfully
             return true;
         }
-
-        public static void ccTest1()
+        
+        private static void useTest()
         {
-            String testName = "cyclomatic_complexity";
+            string testName = "use";
+            MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
+        }
+        
+        private static void contractsTest()
+        {
+            string testName = "contracts";
+            MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
+        }
+        
+        private static void some_codeTest()
+        {
+            string testName = "some_code";
+            MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
+        }
+        
+        private static void not_implemented_yetTest()
+        {
+            string testName = "not_implemented_yet";
+            MetricCollector metrics = parseCode(testName + FILE_EXTENSION, false);
+        }
+        
+        private static void genericsTest()
+        {
+            string testName = "generics";
+            MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
+        }
+
+        
+        private static void diamond_porblemTest()
+        {
+            string testName = "diamond_problem";
+            MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
+        }
+
+        private static void constTest()
+        {
+            string testName = "const";
+            MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
+        }
+
+        private static void ccTest1()
+        {
+            string testName = "cyclomatic_complexity";
             //MetricCollector metrics = parseCode(testName + FILE_EXTENSION, false); //Example how to preview failed test case
             MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
             Assert(6 == metrics.parsedModule.getCC(), testName, "Wrong CC value");
         }
 
-        public static void commonProgramTest()
+        private static void commonProgramTest()
         {
-            String testName = "usual_slang_program";
+            string testName = "usual_slang_program";
             MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
         }
 
-        public static void slangUnitTest()
+        private static void slangUnitTest()
         {
-            String testName = "slang_unit";
+            string testName = "slang_unit";
             MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
         }
 
-        public static void javaCodeParsingTest()
+        private static void javaCodeParsingTest()
         {
-            String testName = "java_code.java";
+            string testName = "java_code.java";
             MetricCollector metrics = parseCode(testName, false);
         }
 
-        public static void emptyFileTest()
+        private static void emptyFileTest()
         {
-            String testName = "empty_program";
+            string testName = "empty_program";
             MetricCollector metrics = parseCode(testName + FILE_EXTENSION, true);
         }
 
@@ -71,7 +118,7 @@ namespace SLangTests
             Assert(checkFileExitst(dir, fileName), fileName, errorMsg);
             Console.WriteLine("\nTest: {0}", fileName);
 
-            String codeFile = dir.GetFiles(fileName)[0].FullName;
+            string codeFile = dir.GetFiles(fileName)[0].FullName;
 
             MetricCollector metricCollector = null;
             try
@@ -83,6 +130,7 @@ namespace SLangTests
             {
                 Assert(!mustSuccess, fileName, errorMsg);
             }
+
             return metricCollector;
         }
 
@@ -98,7 +146,7 @@ namespace SLangTests
         /*
          * Check if file with @fileName exists in @dir directory
          */
-        private static bool checkFileExitst(DirectoryInfo dir, String filename)
+        private static bool checkFileExitst(DirectoryInfo dir, string filename)
         {
             FileInfo[] files = dir.GetFiles(filename);
             if (files.Length == 1)
