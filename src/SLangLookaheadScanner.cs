@@ -23,6 +23,10 @@ namespace SLangLookaheadScanner
         private Queue<int> tokenQueue;
         private Queue<SLangParser.ValueType> valueQueue;
         private ScannerFlags scannerFlags;
+        internal SLangScanner.Scanner.HalsteadMetrics ssMetrics
+        {
+            get { return originalScanner.ssMetrics; }
+        }
 
         internal Scanner(Stream file, ref ScannerFlags scannerFlags)
         {
