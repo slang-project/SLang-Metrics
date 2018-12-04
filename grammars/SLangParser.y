@@ -914,5 +914,9 @@ internal static Module parseProgram(String filePath)
     Parser parser = new Parser(scanner, ref scannerFlags);
     bool res = parser.Parse();
     file.Close();
+    if (parser.parsedProgram != null)
+    {
+        parser.parsedProgram.ssMetrics = scanner.ssMetrics;
+    }
     return res ? parser.parsedProgram : null;
 }
