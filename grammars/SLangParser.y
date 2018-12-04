@@ -414,7 +414,7 @@ Expression
     | Expression EQUALS         Expression
     | Expression SLASH_EQUALS   Expression
     | Expression LESS_GREATER   Expression
-    ;  // TODO: probably shift operations
+    ;  // TODO: probably bit shift operations
 
 UnaryExpression
     : SecondaryExpression
@@ -428,7 +428,7 @@ SecondaryExpression
     | SecondaryExpression LPAREN RPAREN
     | SecondaryExpression Tuple
     | SecondaryExpression DOT PrimaryExpression
-    ;  // TODO: remove shift/reduce (shift is correct)
+    ;  // TODO: remove shift/reduce of DOT (shift is correct)
 
 PrimaryExpression
     : LITERAL  // TODO
@@ -731,11 +731,11 @@ RoutineBody
         list.AddFirst($2);
         $$ = new Block(list);
     }
-    | IS ABSTRACT
+    | IS ABSTRACT  // TODO: consider contracts
     {
         $$ = null;
     }
-    | IS FOREIGN
+    | IS FOREIGN  // TODO: consider contracts
     {
         $$ = null;
     }
