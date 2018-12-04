@@ -35,12 +35,16 @@ namespace Metrics
 
                 switch (input.ToLower())
                 {
-                    case "exit":
-                        goto exit;
+                    case "tree":
+                        // TODO: print inheritance tree
+                        break;
 
                     case "help":
                         PrintHelp();
                         break;
+
+                    case "exit":
+                        goto exit;
 
                     default:
                         ParseMetricQuery(input);
@@ -78,50 +82,50 @@ namespace Metrics
             }
 
             string[] split = input.Split().Where(s => s.Length > 0).ToArray();
-            string metricName = split[0];
+            string metricName = split[0].ToLower();
             string[] args = split.Skip(1).ToArray();
             switch (metricName)
             {
-                case "CC":
-                case "CyclomaticComplexity":
+                case "cc":
+                case "cyclomaticcomplexity":
                     // TODO: show
                     break;
 
-                case "SS":
-                case "SoftwareSciences":
+                case "ss":
+                case "softwaresciences":
                     // TODO: show
                     break;
 
-                case "WRU":
-                case "WeightedRoutines":
-                case "WeightedRoutinesPerUnit":
+                case "wru":
+                case "weightedroutines":
+                case "weightedroutinesperunit":
                     // TODO: show
                     break;
 
-                case "NPWRU":
-                case "NonPrivateWRU":
-                case "NonPrivateWeightedRoutines":
-                case "NonPrivateWeightedRoutinesPerUnit":
+                case "npwru":
+                case "nonprivatewru":
+                case "nonprivateweightedroutines":
+                case "nonprivateweightedroutinesperunit":
                     // TODO: show
                     break;
 
-                case "DIT":
-                case "DepthOfInheritanceTree":
+                case "dit":
+                case "depthofinheritancetree":
                     // TODO: show
                     break;
 
-                case "NOD":
-                case "NumberOfDescendants":
+                case "nod":
+                case "numberofdescendants":
                     // TODO: show
                     break;
 
-                case "MHH":
-                case "MaximumHierarchyHeight":
+                case "mhh":
+                case "maximumhierarchyheight":
                     // TODO: show
                     break;
 
-                case "AHH":
-                case "AverageHierarchyHeight":
+                case "ahh":
+                case "averagehierarchyheight":
                     // TODO: show
                     break;
 
