@@ -10,9 +10,9 @@ namespace LanguageElements
         int getCC();
     }
 
-    interface IWMUMesurable
+    interface IWRUMesurable
     {
-        int getWMU();
+        int getWRU();
     }
 
     class Module : ICCMeasurable
@@ -507,12 +507,12 @@ namespace LanguageElements
     {
     }
 
-    class UnitDeclaration : Declaration, IWMUMesurable
+    class UnitDeclaration : Declaration, IWRUMesurable
     {
         public CompoundName name { get; }
         public LinkedList<UnitName> parents { get; }
         public LinkedList<Declaration> members { get; }
-        private int? WMU = null;
+        private int? WRU = null;
 
         internal UnitDeclaration(CompoundName name, LinkedList<UnitName> parents, LinkedList<Declaration> members)
         {
@@ -521,21 +521,21 @@ namespace LanguageElements
             this.members = members;
         }
 
-        public int getWMU()
+        public int getWRU()
         {
-            if (WMU == null)
+            if (WRU == null)
             {
-                WMU = 0;
+                WRU = 0;
                 foreach (var m in members)
                 {
                     if (m is RoutineDeclaration routine)
                     {
-                        WMU += routine.getCC();
+                        WRU += routine.getCC();
                     }
                 }
             }
 
-            return WMU.Value;
+            return WRU.Value;
         }
     }
 
@@ -576,8 +576,8 @@ namespace LanguageElements
     class IfStatement : Statement, ICCMeasurable
     {
         public Block mainBlock { get; }
-        public Block elseBlock { get; }
         public LinkedList<Block> elsifBlockList { get; }
+        public Block elseBlock { get; }
         private int? CC = null;
 
         internal IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
@@ -631,10 +631,10 @@ namespace LanguageElements
 
     class UnitTypeName : Type
     {
-        public CompoundName name { get; }
+        public string name { get; }
         public object generics;  // TODO: generics
 
-        internal UnitTypeName(CompoundName name, object generics)
+        internal UnitTypeName(string name, object generics)
         {
             this.name = name;
             this.generics = generics;
@@ -651,7 +651,7 @@ namespace LanguageElements
             this.hasTilde = hasTilde;
             if (type is UnitTypeName t)
             {
-                this.name = t.name;
+                this.name = new CompoundName(t.name);  // TODO: generics
             }
             else
             {
