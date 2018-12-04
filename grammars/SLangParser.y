@@ -37,6 +37,7 @@
 // ========== TYPE ASSIGNMENTS ==========
 
 %type <cn> CompoundName
+%type <t> CompoundType
 %type <t> Type
 %type <t> UnitType
 %type <utn> UnitTypeName
@@ -244,9 +245,9 @@ UsedUnitSeq
     ;
 
 UsedUnit
-    : UnitTypeName
-    | UnitTypeName AS IDENTIFIER
-    ;
+    : CompoundType
+    | CompoundType AS IDENTIFIER
+    ;  // TODO: review (should contain UnitTypeName)
 
 // Generic formals ***
 
@@ -263,11 +264,11 @@ GenericFormalSeq
 
 GenericFormal
     : IDENTIFIER
-    | IDENTIFIER SINGLE_ARROW UnitTypeName
-    | IDENTIFIER SINGLE_ARROW UnitTypeName INIT
-    | IDENTIFIER SINGLE_ARROW UnitTypeName INIT RoutineParameters
-    | IDENTIFIER COLON Type
-    ;
+    | IDENTIFIER SINGLE_ARROW CompoundType
+    | IDENTIFIER SINGLE_ARROW CompoundType INIT
+    | IDENTIFIER SINGLE_ARROW CompoundType INIT RoutineParameters
+    | IDENTIFIER COLON CompoundType
+    ;  // TODO: review (should contain UnitTypeName)
 
 // Contracts ***
 
@@ -301,6 +302,11 @@ Predicate
 
 // Type ***
 
+CompoundType
+    :                  Type
+    | CompoundType DOT Type
+    ;
+
 Type
     : UnitType  { $$ = $1; }
     | AnchorType  { $$ = $1; }
@@ -318,11 +324,11 @@ UnitType
     ;  // TODO: specifiers
 
 UnitTypeName
-    : CompoundName
+    : IDENTIFIER
     {
         $$ = new UnitTypeName($1, null);
     }
-    | CompoundName GenericArgumentClause
+    | IDENTIFIER GenericArgumentClause
     {
         $$ = new UnitTypeName($1, null);  // TODO: generics
     }
@@ -619,11 +625,11 @@ VariableSpecifier
     ;
 
 TypeAndInit
-    :                         IS Expression
-    | COLON          Type
+    :                             IS Expression
+    | COLON          CompoundType
     | COLON QUESTION UnitType
-    | COLON          Type     IS Expression
-    | COLON QUESTION UnitType IS Expression
+    | COLON          CompoundType IS Expression
+    | COLON QUESTION UnitType     IS Expression
     ;  // TODO: review
 
 // Routine /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -698,7 +704,7 @@ RoutineFormals
 
 ReturnTypeOpt
     : /* empty */
-    | COLON Type
+    | COLON CompoundType
     ;
 
 RoutineBody
@@ -787,7 +793,7 @@ BaseUnitSeq
     ;
 
 BaseUnitName
-    :       Type
+    :       CompoundType
     {
         if ($1 == null)  // TODO: remove nulls
         {
@@ -798,7 +804,7 @@ BaseUnitName
             $$ = new UnitName($1, true);
         }
     }
-    | TILDE Type
+    | TILDE CompoundType
     {
         if ($2 == null)  // TODO: remove nulls
         {
