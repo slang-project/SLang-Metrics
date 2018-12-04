@@ -28,7 +28,7 @@ namespace SLangTests
             not_implemented_yetTest();
             some_codeTest();
             contractsTest();
-            useTest(); // For now fails, but testing system working correctly!
+            useTest();
 
             Console.WriteLine();
             // If program achieved this line, tests completed successfully
