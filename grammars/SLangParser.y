@@ -37,9 +37,9 @@
 // ========== TYPE ASSIGNMENTS ==========
 
 %type <cn> CompoundName
-%type <t> CompoundType
-%type <t> Type
-%type <t> UnitType
+%type <utn> CompoundType  // TODO: change when other types will be considered
+%type <utn> Type  // TODO: change when other types will be considered
+%type <utn> UnitType  // TODO: change when other types will be considered
 %type <utn> UnitTypeName
 %type <t> AnchorType
 %type <bl> Block
@@ -309,12 +309,19 @@ Predicate
 
 CompoundType
     :                  Type
+    {
+        $$ = $1;
+    }
     | CompoundType DOT Type
+    {
+        $1.AppendName($3.name);
+        $$ = $1;
+    }
     ;
 
 Type
     : UnitType  { $$ = $1; }
-    | AnchorType  { $$ = $1; }
+    | AnchorType  { $$ = null; }
     | MultiType
     | TupleType/*
     | RangeType
@@ -352,13 +359,7 @@ GenericArgumentSeq
 
 AnchorType
     : AS THIS
-    {
-        $$ = null;  // TODO
-    }
     | AS IDENTIFIER
-    {
-        $$ = null;  // TODO
-    }
 //  | AS IDENTIFIER RoutineParameters  // TODO: review
     ;
 

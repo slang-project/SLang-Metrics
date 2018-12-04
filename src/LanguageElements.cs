@@ -193,13 +193,18 @@ namespace LanguageElements
 
     class UnitTypeName : Type
     {
-        public string name { get; }
+        public CompoundName name { get; }
         public object generics;  // TODO: generics
 
         internal UnitTypeName(string name, object generics)
         {
-            this.name = name;
+            this.name = new CompoundName(name);
             this.generics = generics;
+        }
+
+        internal void AppendName(CompoundName name)
+        {
+            this.name.AppendBack(name);
         }
     }
 
@@ -213,7 +218,7 @@ namespace LanguageElements
             this.hasTilde = hasTilde;
             if (type is UnitTypeName t)
             {
-                this.name = new CompoundName(t.name);  // TODO: generics
+                this.name = t.name;  // TODO: generics
             }
             else
             {
