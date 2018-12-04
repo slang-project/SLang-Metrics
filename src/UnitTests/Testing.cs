@@ -26,6 +26,7 @@ namespace SLangTests
             javaCodeParsingTest();
             emptyFileTest();
 
+            Console.WriteLine();
             // If program achieved this line, tests completed successfully
             return true;
         }
