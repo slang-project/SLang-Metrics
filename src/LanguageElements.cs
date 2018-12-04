@@ -148,8 +148,8 @@ namespace LanguageElements
     class IfStatement : Statement, ICCMeasurable
     {
         public Block mainBlock { get; }
-        public Block elseBlock { get; }
         public LinkedList<Block> elsifBlockList { get; }
+        public Block elseBlock { get; }
         private int? CC = null;
 
         internal IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
