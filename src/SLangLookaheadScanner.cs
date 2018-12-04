@@ -163,9 +163,7 @@ namespace SLangLookaheadScanner
             }
             if (looked == (int)Tokens.COLON)
             {
-                looked = LookNextNonNewLine();
-                return looked == (int)Tokens.WHILE || looked == (int)Tokens.LOOP
-                        ? (int)Tokens.LOOP_ID : curToken;
+                return (int)Tokens.LABEL_ID;
             }
             if (looked == (int)Tokens.LBRACKET)
             {
