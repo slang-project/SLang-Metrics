@@ -43,49 +43,12 @@ namespace LanguageElements
         }
     }
 
-    // internal abstract class PrettyPrint
-    // {
-    //     public abstract PPData accept(PPVisitor visitor);
-
-    //     public void PrintPretty(string indent, bool last)
-    //     {
-    //         PPData currentData = this.accept(this);
-
-    //         Console.Write(indent);
-    //         if (last)
-    //         {
-    //             Console.Write("\\-");
-    //             indent += "  ";
-    //         }
-    //         else
-    //         {
-    //             Console.Write("|-");
-    //             indent += "| ";
-    //         }
-    //         Console.WriteLine(getName());
-
-    //         List<BlockMember> members = getMembers().ToList();
-
-    //         for (int i = 0; i < members.Count; i++)
-    //         {
-    //             if(members[i] != null) 
-    //             {
-    //                 members[i].PrintPretty(indent, i == members.Count - 1);
-    //             }
-    //             else
-    //             {
-    //                 new NamedMember("<unknown element>", new LinkedList<BlockMember>()).PrintPretty(indent, i == members.Count - 1);
-    //             }
-    //         }
-    //     }
-    // }
-
     internal class InheritanceWrapper
     {
         private Dictionary<string, InheritanceNode> nodeMap;
         private LinkedList<InheritanceNode> rootNodes;
         private LinkedList<InheritanceNode> leafNodes;
-        
+
         private string treeImage;
         private int maxHierarchyHeight;
         private double averageHierarchyHeight;
@@ -93,7 +56,7 @@ namespace LanguageElements
 
         public class NonExistantUnitException : Exception
         {
-            public NonExistantUnitException() : base() {}
+            public NonExistantUnitException() : base() { }
         }
 
         public InheritanceWrapper(LinkedList<UnitDeclaration> unitList)
@@ -101,20 +64,19 @@ namespace LanguageElements
             nodeMap = new Dictionary<string, InheritanceNode>();
             rootNodes = new LinkedList<InheritanceNode>();
             leafNodes = new LinkedList<InheritanceNode>();
-            
 
-            foreach(UnitDeclaration ud in unitList ?? Enumerable.Empty<UnitDeclaration>())
+            foreach (UnitDeclaration ud in unitList ?? Enumerable.Empty<UnitDeclaration>())
             {
                 string unitName = ud.name.ToString();
-                if(!nodeMap.ContainsKey(unitName))
+                if (!nodeMap.ContainsKey(unitName))
                 {
                     nodeMap[unitName] = new InheritanceNode(unitName);
                 }
-                foreach(UnitName parent in ud.parents ?? Enumerable.Empty<UnitName>())
+                foreach (UnitName parent in ud.parents ?? Enumerable.Empty<UnitName>())
                 {
                     string parentName = parent.name.ToString();
 
-                    if(!nodeMap.ContainsKey(parentName))
+                    if (!nodeMap.ContainsKey(parentName))
                     {
                         nodeMap[parentName] = new InheritanceNode(parentName);
                     }
@@ -123,20 +85,20 @@ namespace LanguageElements
                 }
             }
 
-            foreach(InheritanceNode node in nodeMap.Values ?? Enumerable.Empty<InheritanceNode>())
+            foreach (InheritanceNode node in nodeMap.Values ?? Enumerable.Empty<InheritanceNode>())
             {
-                if(!node.parents.Any())
+                if (!node.parents.Any())
                 {
                     rootNodes.AddLast(node);
                 }
-                if(!node.children.Any())
+                if (!node.children.Any())
                 {
                     leafNodes.AddLast(node);
                 }
             }
 
             topNode = new InheritanceNode("Any");
-            foreach(InheritanceNode node in rootNodes ?? Enumerable.Empty<InheritanceNode>())
+            foreach (InheritanceNode node in rootNodes ?? Enumerable.Empty<InheritanceNode>())
             {
                 topNode.addChild(node);
             }
@@ -147,16 +109,16 @@ namespace LanguageElements
             this.maxHierarchyHeight = 0;
             this.averageHierarchyHeight = 0;
 
-            foreach(InheritanceNode node in leafNodes ?? Enumerable.Empty<InheritanceNode>())
+            foreach (InheritanceNode node in leafNodes ?? Enumerable.Empty<InheritanceNode>())
             {
                 int nodeHeight = node.getMaxHierarchyHeight();
-                if(nodeHeight > maxHierarchyHeight)
+                if (nodeHeight > maxHierarchyHeight)
                 {
                     maxHierarchyHeight = nodeHeight;
                 }
                 averageHierarchyHeight += nodeHeight;
             }
-            if(leafNodes.Any())
+            if (leafNodes.Any())
             {
                 averageHierarchyHeight /= leafNodes.Count;
             }
@@ -164,7 +126,7 @@ namespace LanguageElements
 
         public int getDescendantsCount(string className)
         {
-            if(nodeMap.ContainsKey(className))
+            if (nodeMap.ContainsKey(className))
             {
                 return nodeMap[className].descendants.Count;
             }
@@ -176,7 +138,7 @@ namespace LanguageElements
 
         public int getHierachyHeight(string className)
         {
-            if(nodeMap.ContainsKey(className))
+            if (nodeMap.ContainsKey(className))
             {
                 return nodeMap[className].getMaxHierarchyHeight();
             }
@@ -188,7 +150,7 @@ namespace LanguageElements
 
         public LinkedList<string> getHierarchyPaths(string className)
         {
-            if(nodeMap.ContainsKey(className))
+            if (nodeMap.ContainsKey(className))
             {
                 return nodeMap[className].getInheritancePaths();
             }
@@ -224,7 +186,7 @@ namespace LanguageElements
         public string name;
         public LinkedList<InheritanceNode> children;
         public LinkedList<InheritanceNode> parents;
-        public HashSet<InheritanceNode> descendants{ get; }
+        public HashSet<InheritanceNode> descendants { get; }
         public LinkedList<LinkedList<InheritanceNode>> pathsFromRoot;
 
         public bool visited;
@@ -267,7 +229,7 @@ namespace LanguageElements
         {
             this.visited = false;
             this.visitorFootprint.Clear();
-            foreach(InheritanceNode node in children ?? Enumerable.Empty<InheritanceNode>())
+            foreach (InheritanceNode node in children ?? Enumerable.Empty<InheritanceNode>())
             {
                 node.cleanVisited();
             }
@@ -295,12 +257,10 @@ namespace LanguageElements
             }
         }
 
-        
-
         /// <summary>
-        /// Go through inheritance tree and calculate set 
+        /// Go through inheritance tree and calculate set
         /// of descendants for each node.
-        /// After that we can get number of descendants 
+        /// After that we can get number of descendants
         /// for each node.
         /// </summary>
         public void findDescendants()
@@ -318,7 +278,7 @@ namespace LanguageElements
             LinkedList<InheritanceNode> newPath = new LinkedList<InheritanceNode>();
             newPath.AddLast(this);
             pathsFromRoot.AddLast(newPath);
-            foreach(InheritanceNode child in this.children ?? Enumerable.Empty<InheritanceNode>())
+            foreach (InheritanceNode child in this.children ?? Enumerable.Empty<InheritanceNode>())
             {
                 child.propogatePathsFromRoot(pathsFromRoot);
             }
@@ -326,35 +286,35 @@ namespace LanguageElements
 
         private void propogatePathsFromRoot(LinkedList<LinkedList<InheritanceNode>> pathsFromRootOuter)
         {
-            foreach(LinkedList<InheritanceNode> path in pathsFromRootOuter ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
+            foreach (LinkedList<InheritanceNode> path in pathsFromRootOuter ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
             {
                 this.pathsFromRoot.AddLast(path);
             }
 
             LinkedList<LinkedList<InheritanceNode>> pathsExtended = new LinkedList<LinkedList<InheritanceNode>>();
 
-            foreach(LinkedList<InheritanceNode> path in this.pathsFromRoot ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
+            foreach (LinkedList<InheritanceNode> path in this.pathsFromRoot ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
             {
                 LinkedList<InheritanceNode> pathExtended = new LinkedList<InheritanceNode>();
-                foreach(InheritanceNode node in path ?? Enumerable.Empty<InheritanceNode>())
+                foreach (InheritanceNode node in path ?? Enumerable.Empty<InheritanceNode>())
                 {
                     pathExtended.AddLast(node);
                 }
                 pathExtended.AddLast(this);
                 pathsExtended.AddLast(pathExtended);
             }
-            
-            foreach(InheritanceNode child in this.children ?? Enumerable.Empty<InheritanceNode>())
-            {    
+
+            foreach (InheritanceNode child in this.children ?? Enumerable.Empty<InheritanceNode>())
+            {
                 child.propogatePathsFromRoot(pathsExtended);
             }
         }
         public int getMaxHierarchyHeight()
         {
             int max = 0;
-            foreach(LinkedList<InheritanceNode> path in pathsFromRoot ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
+            foreach (LinkedList<InheritanceNode> path in pathsFromRoot ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
             {
-                if(path.Count > max)
+                if (path.Count > max)
                 {
                     max = path.Count;
                 }
@@ -365,13 +325,13 @@ namespace LanguageElements
         public LinkedList<string> getInheritancePaths()
         {
             LinkedList<string> paths = new LinkedList<string>();
-            foreach(LinkedList<InheritanceNode> path in this.pathsFromRoot ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
+            foreach (LinkedList<InheritanceNode> path in this.pathsFromRoot ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
             {
                 string pathString = "(";
                 bool first = true;
-                foreach(InheritanceNode node in path ?? Enumerable.Empty<InheritanceNode>())
+                foreach (InheritanceNode node in path ?? Enumerable.Empty<InheritanceNode>())
                 {
-                    if(!first)
+                    if (!first)
                     {
                         pathString += " -> ";
                     }
@@ -381,7 +341,7 @@ namespace LanguageElements
                     }
                     pathString += node.name;
                 }
-                if(!first)
+                if (!first)
                 {
                     pathString += " -> ";
                 }
@@ -392,17 +352,16 @@ namespace LanguageElements
         }
     }
 
-    internal class Traverse 
+    internal class Traverse
     {
         public LinkedList<UnitDeclaration> unitList;
-        
 
         public Traverse(Module module)
         {
             unitList = new LinkedList<UnitDeclaration>();
             CompoundName outerScope = new CompoundName();
-            
-            foreach(BlockMember child in module.members ?? Enumerable.Empty<BlockMember>())
+
+            foreach (BlockMember child in module.members ?? Enumerable.Empty<BlockMember>())
             {
                 traverse(child, ref unitList, outerScope);
             }
@@ -410,15 +369,14 @@ namespace LanguageElements
 
         private void traverse(BlockMember obj, ref LinkedList<UnitDeclaration> unitList, CompoundName outerScope)
         {
-            Block block  = obj as Block;
+            Block block = obj as Block;
             if (block != null)
             {
-
-                foreach(BlockMember child in block.members ?? Enumerable.Empty<BlockMember>())
+                foreach (BlockMember child in block.members ?? Enumerable.Empty<BlockMember>())
                 {
                     traverse(child, ref unitList, outerScope);
                 }
-                return;    
+                return;
             }
 
             UnitDeclaration unitDecl = obj as UnitDeclaration;
@@ -426,10 +384,10 @@ namespace LanguageElements
             {
                 unitDecl.name.AppendFront(outerScope);
                 unitList.AddLast(unitDecl);
-                foreach(BlockMember child in unitDecl.members ?? Enumerable.Empty<BlockMember>())
+                foreach (BlockMember child in unitDecl.members ?? Enumerable.Empty<BlockMember>())
                 {
                     traverse(child, ref unitList, unitDecl.name);
-                }             
+                }
                 return;
             }
 
@@ -438,20 +396,20 @@ namespace LanguageElements
             {
                 routineDecl.name.AppendFront(outerScope);
                 traverse(routineDecl.routineBlock, ref unitList, routineDecl.name);
-                return;    
+                return;
             }
 
             VariableDeclaration variableDecl = obj as VariableDeclaration;
             if (variableDecl != null)
             {
-                return;    
+                return;
             }
 
             IfStatement ifStmnt = obj as IfStatement;
             if (ifStmnt != null)
             {
                 traverse(ifStmnt.mainBlock, ref unitList, outerScope);
-                foreach(Block elsifBlock in ifStmnt.elsifBlockList ?? Enumerable.Empty<BlockMember>())
+                foreach (Block elsifBlock in ifStmnt.elsifBlockList ?? Enumerable.Empty<BlockMember>())
                 {
                     traverse(elsifBlock, ref unitList, outerScope);
                 }
@@ -471,7 +429,6 @@ namespace LanguageElements
 
     internal abstract class BlockMember
     {
-        
     }
 
 
@@ -547,7 +504,7 @@ namespace LanguageElements
 
         internal RoutineDeclaration(string name, string aliasName, Block routineBlock)
         {
-            this.name = new CompoundName();
+            this.name = new CompoundName(name);
             this.aliasName = aliasName;
             this.routineBlock = routineBlock;
         }
@@ -671,7 +628,8 @@ namespace LanguageElements
     {
         public LinkedList<string> names;
 
-        public CompoundName(){
+        public CompoundName()
+        {
             names = new LinkedList<string>();
         }
 
@@ -694,11 +652,11 @@ namespace LanguageElements
         public void AppendFront(CompoundName cName)
         {
             LinkedList<string> buffer = new LinkedList<string>();
-            foreach(string n in cName.names ?? Enumerable.Empty<String>())
+            foreach (string n in cName.names ?? Enumerable.Empty<String>())
             {
                 buffer.AddLast(n);
             }
-            foreach(string n in this.names ?? Enumerable.Empty<String>())
+            foreach (string n in this.names ?? Enumerable.Empty<String>())
             {
                 buffer.AddLast(n);
             }
@@ -707,7 +665,7 @@ namespace LanguageElements
 
         public void AppendBack(CompoundName cName)
         {
-            foreach(string n in cName.names ?? Enumerable.Empty<String>())
+            foreach (string n in cName.names ?? Enumerable.Empty<String>())
             {
                 this.names.AddLast(n);
             }
@@ -724,7 +682,8 @@ namespace LanguageElements
             bool dotNeeded = false;
             foreach (string name in names ?? Enumerable.Empty<string>())
             {
-                if(!dotNeeded){
+                if (!dotNeeded)
+                {
                     result += name;
                     dotNeeded = true;
                 }
@@ -735,17 +694,18 @@ namespace LanguageElements
             }
 
             // TODO: delete in production
-            if (result.Equals("")){ 
-                return "<emptyUnitName>"; 
+            if (result.Equals(""))
+            {
+                return "<emptyUnitName>";
             }
             return result;
         }
     }
 
-    internal class NamedMember : BlockMember  // TODO: consider deletion if no pretty printing will be created 
+    internal class NamedMember : BlockMember  // TODO: consider deletion if no pretty printing will be created
     {
-        public string name {get;}
-        public LinkedList<BlockMember> members {get;}
+        public string name { get; }
+        public LinkedList<BlockMember> members { get; }
 
         internal NamedMember(string name, LinkedList<BlockMember> members)
         {
