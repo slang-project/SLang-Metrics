@@ -155,8 +155,8 @@ namespace LanguageElements
         internal IfStatement(Block mainBlock, LinkedList<Block> elsifBlockList, Block elseBlock)
         {
             this.mainBlock = mainBlock;
-            this.elseBlock = elseBlock;
             this.elsifBlockList = elsifBlockList;
+            this.elseBlock = elseBlock;
         }
 
         public int getCC()
