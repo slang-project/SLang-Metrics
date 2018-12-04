@@ -9,8 +9,6 @@ namespace Metrics
     public class MetricCollector
     {
         private Module parsedModule;
-        private LinkedList<UnitDeclaration> units;
-        private LinkedList<UnitDeclaration> leafUnits;
 
         public MetricCollector(string fileName)
         {
