@@ -53,8 +53,10 @@
 %type <bl> ElseIfClause
 %type <bl> ElseClauseOpt
 %type <st> LoopStatement
+%type <vd> VariableDeclaration
 %type <rd> RoutineDeclaration
 %type <rd> OperatorRoutineDeclaration
+%type <rd> InitRoutineDeclaration
 %type <s> RoutineName
 %type <sa> OperatorRoutineName
 %type <s> AliasNameOpt
@@ -66,7 +68,7 @@
 %type <un> BaseUnitName
 %type <lld> UnitMemberSeqOpt
 %type <dc> UnitMember
-%type <vd> VariableDeclaration
+%type <rd> UnitMemberRoutineDeclaration
 
 // =============== TOKENS ===============
 
@@ -647,6 +649,17 @@ OperatorRoutineDeclaration
     }
     ;  // TODO: change UseSeq to just Use; review
 
+InitRoutineDeclaration
+    :                  INIT RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    {
+        $$ = new RoutineDeclaration("init", null, $5);  // TODO: remove constant string
+    }
+    | RoutineSpecifier INIT RoutineParameters ReturnTypeOpt UseDirectiveSeqOpt RoutineBody
+    {
+        $$ = new RoutineDeclaration("init", null, $6);  // TODO: remove constant string
+    }
+    ;  // TODO: change UseSeq to just Use; review (GenericFormalsOpt?)
+
 RoutineSpecifier
     : PURE
     | SAFE
@@ -824,12 +837,17 @@ UnitMemberSpecifier
 UnitMember
     : SEMICOLON  { $$ = null; }  // All other statements are restricted
     | UnitDeclaration  { $$ = $1; }
-    | RoutineDeclaration  { $$ = $1; }
+    | UnitMemberRoutineDeclaration  { $$ = $1; }
     | VariableDeclaration  { $$ = $1; }
     | ConstObjectDeclaration  { $$ = null; }  // TODO: constant objects
     | InitializerDeclaration  { $$ = null; }  // TODO
-    | OperatorRoutineDeclaration  { $$ = $1; }
     ;  // TODO: shift/reduce of OperatorRoutineDeclaration with Expression
+
+UnitMemberRoutineDeclaration
+    : RoutineDeclaration  { $$ = $1; }
+    | InitRoutineDeclaration  { $$ = $1; }
+    | OperatorRoutineDeclaration  { $$ = $1; }
+    ;
 
 ConstObjectDeclaration
     : CONST IS
