@@ -253,14 +253,20 @@ namespace LanguageElements
 
         private void propogatePathsFromRoot(LinkedList<LinkedList<InheritanceNode>> pathsFromRootOuter)
         {
-            foreach (LinkedList<InheritanceNode> path in pathsFromRootOuter ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
-            {
-                this.pathsFromRoot.AddLast(path);
-            }
+            // LinkedList<LinkedList<InheritanceNode>> copyPath = new LinkedList<LinkedList>
+            // foreach (LinkedList<InheritanceNode> path in pathsFromRootOuter ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
+            // {
+            //     this.pathsFromRoot.AddLast(path);
+            // }
+
+            // foreach (LinkedList<InheritanceNode> path in pathsFromRootOuter ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
+            // {
+            //     this.pathsFromRoot.AddLast(path);
+            // }
 
             LinkedList<LinkedList<InheritanceNode>> pathsExtended = new LinkedList<LinkedList<InheritanceNode>>();
 
-            foreach (LinkedList<InheritanceNode> path in this.pathsFromRoot ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
+            foreach (LinkedList<InheritanceNode> path in pathsFromRootOuter ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
             {
                 LinkedList<InheritanceNode> pathExtended = new LinkedList<InheritanceNode>();
                 foreach (InheritanceNode node in path ?? Enumerable.Empty<InheritanceNode>())
@@ -270,6 +276,30 @@ namespace LanguageElements
                 pathExtended.AddLast(this);
                 pathsExtended.AddLast(pathExtended);
             }
+
+            LinkedList<LinkedList<InheritanceNode>> pathsCopy = new LinkedList<LinkedList<InheritanceNode>>();
+
+            foreach (LinkedList<InheritanceNode> path in this.pathsFromRoot ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
+            {
+                LinkedList<InheritanceNode> pathCopy = new LinkedList<InheritanceNode>();
+                foreach (InheritanceNode node in path ?? Enumerable.Empty<InheritanceNode>())
+                {
+                    pathCopy.AddLast(node);
+                }
+                pathsCopy.AddLast(pathCopy);
+            }
+
+            foreach (LinkedList<InheritanceNode> path in pathsFromRootOuter ?? Enumerable.Empty<LinkedList<InheritanceNode>>())
+            {
+                LinkedList<InheritanceNode> pathCopy = new LinkedList<InheritanceNode>();
+                foreach (InheritanceNode node in path ?? Enumerable.Empty<InheritanceNode>())
+                {
+                    pathCopy.AddLast(node);
+                }
+                pathsCopy.AddLast(pathCopy);
+            }
+
+            this.pathsFromRoot = pathsCopy;
 
             foreach (InheritanceNode child in this.children ?? Enumerable.Empty<InheritanceNode>())
             {
