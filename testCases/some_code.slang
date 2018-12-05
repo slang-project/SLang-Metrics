@@ -39,35 +39,67 @@ unit B.Math extend A.Math
     end
 end
 
-unit A.B.C.D
-    use A.Math as Math1, B.Math as Math2
-end
-
 abstract unit Object
+    perimeter(): Real is abstract
+    area(): Real is abstract
     volume(): Real is abstract
 end
 
-unit Circle extend Object use B.Math as Math
+unit Ellipse extend Object use B.Math as Math
     center is Point
-    radius is Point
-    init(center, radius: Point) do
-        this.center := center
-        this.radius := radius
+    radiusX is Real
+    radiusY is Real
+
+    init(center: Point,
+         radiusX: Real, radiusY: Real) do
+        this.center = center
+        this.radiusX = radiusX
+        this.radiusY = radiusY
+    end
+
+    override perimeter(): Real do
+        return 2 * Math.pi * 
+               Math.sqrt(
+                   ( Math.power(radiusX, 2) 
+                   + Math.power(radiusY, 2)) / 2
+               )
+    end
+
+    override area(): Real do
+        return Math.pi * radiusX * radiusY
     end
 
     override volume(): Real do
-        return 2 * Math.pi * radius
+        return this.area()
     end
 
     invariant
         radius >=0
 end
 
-unit Rectangle extend Object use A.Math as Math is
+unit Circle extend Ellipse use B.Math as Math
+    init(center: Point, radius: Real) do
+        this.center := center
+        this.radiusX := radius
+        this.radiusY := radius
+    end
+
+    override perimeter(): Real do
+        return 2 * Math.pi * radiusX
+    end
+
+    invariant
+        radiusX = radiusY
+end
+
+unit Rectangle extend Object use B.Math as Math is
     leftBottomCorner  is Point
     rightBottomCorner is Point
     leftTopCorner     : Point is Point.init()
     rightTopCorner    : Point is Point
+
+    // a is () do return leftTopCorner.distance(rightTopCorner) end
+    // b is () do return leftBottomCorner.distance(leftTopCorner) end
 
     init(lB, rB, lT, rT : Point) do
         leftBottomCorner .init(lB)
@@ -76,17 +108,34 @@ unit Rectangle extend Object use A.Math as Math is
         rightTopCorner   .init(rT)
     end
 
-    override volume(): Real do
-        return leftTopCorner.distance(rightTopCorner) *
-                leftBottomCorner.distance(leftTopCorner)
+    override perimeter(): Real do
+        return (a + b) * 2
     end
+
+    override volume(): Real do
+        return a * b
+    end
+
+    override volume(): Real do
+        return this.area()
+    end
+
     invariant
-        label: rB > lB && rT > lT &&
-               lT > lB && rT > rB    // Corners are in right position
+        label: rightBottomCorner > leftBottomCorner &&
+               rightTopCorner > leftTopCorner &&
+               leftTopCorner > leftBottomCorner &&
+               rightTopCorner > rightBottomCorner    // Corners are in right position
+end
+
+unit Square extend Rectangle
+    invariant 
+        sidesAreEqual:
+              leftTopCorner.distance(rightTopCorner)
+            = leftBottomCorner.distance(leftTopCorner)
 end
 
 
-unit Point
+unit Point extend Object use B.Math as Math
     // Position
     x, y: Real
 
@@ -110,6 +159,18 @@ unit Point
     distance(p : Point) do
         return ( Math.power(x - p.x, 2) 
                + Math.power(y - p.y, 2))
+    end
+
+    override perimeter() do
+        return Math.zero
+    end
+
+    override area() do
+        return perimeter()
+    end
+
+    override volume() do
+        return area()
     end
 
     moveHor(d: Real) => x := x+d

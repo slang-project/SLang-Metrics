@@ -15,13 +15,4 @@ unit NotParsingYet
             res == res * x
         end
     end
-	
-	foo() // Not parsing routines without arguments && with require
-	require
-		true //, 0 < 1
-	do
-		a is 0
-	ensure 
-		true //, false || true
-	end
 end
