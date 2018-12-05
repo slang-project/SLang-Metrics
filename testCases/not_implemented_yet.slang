@@ -15,4 +15,10 @@ unit NotParsingYet
             res == res * x
         end
     end
+
+    moveHor(d: Real) do 
+        x := x+d
+    ensure
+        x = old x + d // TODO: remove then the handling of `old IDENTIFIER` will be added.
+    end
 end
