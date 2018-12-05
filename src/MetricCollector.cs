@@ -102,6 +102,17 @@ namespace Metrics
         {
             Console.WriteLine(
                 "\thelp - print list of queries (this message)\n" +
+                "\tInheritanceTree - print representation of inheritace tree\n" +
+                "\tAllUnits - list all units in given module\n" +
+                "\tcc OR CyclomaticComplexity [Routine Name] - Calculate Cyclomatic Complexity for whole module or indicated unit\n" +
+                "\tss OR SoftwareSciences - calculate Halstead Metrics and additional file info for module\n" +
+                "\tmi OR MaintainabilityIndex - calculate Maintainability Index for given module\n" +
+                "\twru OR WeightedRoutines <Unit Name>- calculate Weighted Routines for given unit\n" +
+                "\tdit OR DepthOfInheritanceTree [Unit Name] - show Depth of Inheritance Tree for whole module or given unit\n" +
+                "\tnod OR NumberOfDescendants <Unit Name> - show Number of Descendants for given unit\n" +
+                "\tInheritancePaths <Unit Name> - show all inheritance paths to given unit\n" +
+                "\tmhh OR MaximumHierarchyHeight - show Maximum Hierarchy Height for module\n" +
+                "\tahh OR AverageHierarchyHeight - show Average Hierarchy Height for module\n" +
                 "\texit - quit and terminate this session\n" +
                 "\t<MetricName> [<MetricArgs>] - print a value of a given metric"
             );
@@ -152,14 +163,25 @@ namespace Metrics
                 case "ss":
                 case "softwaresciences":
                     Console.WriteLine(
-                        ""  // TODO: Pretty Print
+                        String.Format("Lines of Code: {0}\nCommented Lines: {1}\n"
+                        + "Halstead Metrics:\nProgram Vocabulary: {2}\nProgram Length: {3}\n"
+                        + "Volume: {4}\nDifficulty: {5}\nEffort: {6}\nTime to write (seconds): {7}\nNumber of Bugs: {8}", 
+                        parsedModule.ssMetrics.LOC,
+                        parsedModule.ssMetrics.commLines,
+                        parsedModule.ssMetrics.vocabulary,
+                        parsedModule.ssMetrics.length,
+                        parsedModule.ssMetrics.volume,
+                        parsedModule.ssMetrics.difficulty,
+                        parsedModule.ssMetrics.effort,
+                        parsedModule.ssMetrics.timeSeconds,
+                        parsedModule.ssMetrics.numberOfBugs)
                     );
                     break;
 
                 case "mi":
                 case "maintainabilityindex":
                     Console.WriteLine(
-                        ""  // TODO: Pretty Print
+                        String.Format("Maintainability Index: {0}", this.maintIndex.getValue())
                     );
                     break;
 
