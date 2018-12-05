@@ -164,8 +164,8 @@ namespace Metrics
                 case "softwaresciences":
                     Console.WriteLine(
                         String.Format("Lines of Code: {0}\nCommented Lines: {1}\n"
-                        + "Halstead Metrics:\nProgram Vocabulary: {2}\nProgram Length: {3}\n"
-                        + "Volume: {4}\nDifficulty: {5}\nEffort: {6}\nTime to write (seconds): {7}\nNumber of Bugs: {8}", 
+                        + "Halstead Metrics:\n\tProgram Vocabulary: {2}\n\tProgram Length: {3}\n\t"
+                        + "Volume: {4}\n\tDifficulty: {5}\n\tEffort: {6}\n\tTime to write (seconds): {7}\n\tNumber of Bugs: {8}", 
                         parsedModule.ssMetrics.LOC,
                         parsedModule.ssMetrics.commLines,
                         parsedModule.ssMetrics.vocabulary,
