@@ -379,7 +379,7 @@ MultiType
     ;
 
 TupleType
-    : LPAREN NONE            RPAREN  // NOTE: absent in the specification
+    : LPAREN                 RPAREN
     | LPAREN TupleElementSeq RPAREN
     ;
 
@@ -452,7 +452,7 @@ PrimaryExpression
     | SUPER
 //  | SUPER UnitTypeName  // TODO
 //  | RETURN  // TODO: review
-    | OLD IDENTIFIER  // TODO: review, Expression was used
+    | OLD IDENTIFIER  // TODO: review, Expression was used in the specification
     | Tuple
 //  | LPAREN Expression RPAREN  // reduce/reduce with Tuple
     ;
